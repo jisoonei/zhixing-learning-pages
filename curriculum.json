@@ -32,6 +32,14 @@
       {
         "title": "安装、调试与提问的闭环",
         "text": "Windows 用 py -m venv .venv 创建独立环境后，可直接运行 .venv\\Scripts\\python.exe，无须先处理 PowerShell 激活策略。macOS/Linux 常用 python3 -m venv .venv 和 .venv/bin/python。pip 始终通过同一解释器的 -m pip 调用。断点用于暂停观察变量，不是修改业务逻辑；用 step over 逐行核对预期，最后把修复缩成测试。"
+      },
+      {
+        "title": "第一次运行：分别验证解释器、终端和编辑器",
+        "text": "Windows 在终端先试 py --version，macOS 和 Linux 先试 python3 --version。如果命令不存在，Windows 或 macOS 可按 python.org 的对应安装说明操作，Linux 优先使用发行版提供的 Python 3。重新打开终端再检查版本。输入 py 或 python3 后，如果出现 >>>，就可以输入 2 + 3 检查是否显示 5。用 exit() 回到终端。把 print(\"知行运行成功\") 保存为 hello.py，进入文件所在目录，再运行 py hello.py 或 python3 hello.py。如果报找不到文件，先用 dir（Windows）或 ls（macOS/Linux）核对文件名和当前目录，尤其是 hello.py.txt。"
+      },
+      {
+        "title": "在 VS Code 中选对解释器并核对实际运行路径",
+        "text": "打开包含 hello.py 的文件夹，安装 Microsoft 的 Python 扩展。在命令面板选择 Python: Select Interpreter，选中刚才验证过的解释器。使用 Run Python File in Terminal 运行。如果终端成功但编辑器失败，可在两个入口都打印 sys.executable 与 Path.cwd()，分别核对解释器和工作目录。前者不一致时调整解释器，后者不一致时检查打开的文件夹和运行方式。"
       }
     ],
     "code": "# 保存为 hello.py；在终端运行 python hello.py\nimport sys\nfrom pathlib import Path\n\nprint(\"解释器已启动\")\nprint(Path(\"data\") / \"posts.csv\")\nprint(sys.version_info.major == 3)\ntry:\n    print(missing_name)  # 主动演示一个定位明确的错误\nexcept NameError:\n    print(\"NameError：先赋值，再使用\")",
@@ -48,6 +56,13 @@
         "steps": "分别运行下面两行，比较路径；选择相同环境，再复跑。",
         "code": "import sys\nprint(sys.executable)",
         "output": "输出当前解释器的绝对路径，因电脑而异。"
+      },
+      {
+        "question": "写一份可以用来核对解释器和工作目录的运行自检脚本。",
+        "thinking": "绝对路径因电脑而异。自检可以先确认 Python 主版本和路径是否为绝对路径，再在排障时打印实际路径。",
+        "steps": "导入 sys 和 pathlib，检查主版本，再分别检查解释器路径和工作目录。最后新增两行 print 比较实际路径。",
+        "code": "import sys\nfrom pathlib import Path\n\nprint(\"Python 3:\", sys.version_info.major == 3)\nprint(\"解释器是绝对路径:\", Path(sys.executable).is_absolute())\nprint(\"工作目录是绝对路径:\", Path.cwd().is_absolute())",
+        "output": "Python 3: True\n解释器是绝对路径: True\n工作目录是绝对路径: True"
       }
     ],
     "mastery": [
@@ -90,6 +105,14 @@
       {
         "title": "命名、常量与可读性",
         "text": "变量用有业务含义的 snake_case，例如 total_likes。MAX_ROWS 是约定常量，Python 本身不会阻止重新赋值。1_000_000 的下划线只为阅读。多重赋值先计算右侧表达式，可用 a, b = b, a 交换绑定。不要用 list、str 作为变量名遮住内置函数；注释解释业务原因，避免把代码翻译一遍。"
+      },
+      {
+        "title": "混用整数和浮点数时预判类型",
+        "text": "从两种业务值开始：3 表示三条记录，3.0 可表示一个计算结果。两者用 == 比较相等，但类型不同。内置 int 与 float 相加时结果为 float，两个 int 用 / 相除也得到 float，例如 6 / 3 得到 2.0。从 CSV 得到的 \"6\" 是字符串，必须按列的数据契约转换。若允许 0 条记录却不允许小数，int(\"0\") 合法，int(\"2.5\") 则抛 ValueError。用 int(2.5) 会向零截断，不能用它偷偷放过非法计数。"
+      },
+      {
+        "title": "注释说明决策，用 Python 之禅检查可读性",
+        "text": "在字符串外写 #，这一行余下的内容会被解释器视为注释。与其写“总数加一”，不如说明“只统计通过校验的博文”，让下一位维护者知道计数口径。在解释器执行 import this 可以阅读 Python 之禅。把可读性用在报表公式上：给输入值、样本数和结果分别命名，先写明确的公式，再决定是否合并表达式。"
       }
     ],
     "code": "from decimal import Decimal\nfrom math import isclose\n\nlikes = 12\nbackup = likes\nlikes += 3\nprint(likes, backup)\nprint(divmod(17, 5))  # 3 个完整批次，剩余 2 行\nprint(0.1 + 0.2 == 0.3)\nprint(isclose(0.1 + 0.2, 0.3))\nprint(Decimal(\"0.1\") + Decimal(\"0.2\"))\ntry:\n    print(10 / 0)\nexcept ZeroDivisionError:\n    print(\"没有记录，平均值暂缺\")",
@@ -106,6 +129,13 @@
         "steps": "先求商和余数，再根据余数增加一批。",
         "code": "full, rest = divmod(23, 10)\nprint(full + (rest > 0))",
         "output": "3"
+      },
+      {
+        "question": "将合法计数字符串转换为整数，并区分拒绝小数和计算均值。",
+        "thinking": "计数输入必须是整数。平均每场的计数可以出现小数，两步应当分开。",
+        "steps": "先逐项转换，捕获 ValueError。对两个有效计数求和，再用真除法计算平均值并查看类型。",
+        "code": "counts = []\nfor raw in [\"8\", \"2.5\", \"7\"]:\n    try:\n        counts.append(int(raw))\n    except ValueError:\n        print(\"拒绝\", raw)\n\ntotal = sum(counts)\naverage = total / len(counts)\nprint(total, type(total).__name__)\nprint(average, type(average).__name__)",
+        "output": "拒绝 2.5\n15 int\n7.5 float"
       }
     ],
     "mastery": [
@@ -147,6 +177,14 @@
       {
         "title": "格式化是展示层",
         "text": "f-string 把表达式的值嵌进字符串，{value:.2f} 控制显示两位小数；它不是数据校验。join 要求每项都是字符串，批量拼接一般先整理列表再 join。换行写 \n、制表写 \t，原始字符串适合含反斜杠的模式；不要为了显示效果把数值永久转成带单位的文字，后面还要计算。"
+      },
+      {
+        "title": "大小写变换分清展示与比较",
+        "text": "选中英文分类名 \"campus AI\" 做实验，upper 得到全大写，lower 得到小写，title 会把词首转为大写、其余字母转为小写。因此 title 可能把 AI 变成 Ai，不宜直接改写活动原名。需要无视大小写比较时，可为英语标签另存一个比较键。字符串方法返回新值，原始标签可以继续用于展示。"
+      },
+      {
+        "title": "字符串字面量的引号以及不可见字符",
+        "text": "用双引号包住含有英文撇号的标题，例如 \"Students' Night\"。也可以用反斜杠转义同类引号。引号未闭合时程序在运行之前就可能报 SyntaxError。实际换行符在源码中可写成 \\n，制表可写成 \\t。用 repr(value) 检查导入字段，能在输出中看清空白或换行；对含中文的普通报表，不要假定制表符在所有终端都能对齐。"
       }
     ],
     "code": "raw = \"  事件:校园音乐节  \"\ntitle = raw.strip().removeprefix(\"事件:\")\nprint(title)\nprint(title[:2])\nprint(\"中\".encode(\"utf-8\").hex())\nprint(f\"平均点赞：{7 / 3:.2f}\")\ntry:\n    title[0] = \"新\"\nexcept TypeError:\n    print(\"TypeError：字符串不可原地修改\")\nprint(\" / \".join([title, str(12)]))",
@@ -163,6 +201,13 @@
         "steps": "strip 后再精确移除 .csv；不删除中间的 csv 字母。",
         "code": "name = \"  report.csv  \"\nprint(name.strip().removesuffix(\".csv\"))",
         "output": "report"
+      },
+      {
+        "question": "保留活动英文原名，同时输出适合比较的标签以及一份可见的分隔符诊断。",
+        "thinking": "清理外围空白后，展示标题沿用原大小写。单独生成标准化比较键。",
+        "steps": "先 strip。再对标签使用 casefold 并比较。最后构造带制表和换行的字符串，用 repr 检查。",
+        "code": "raw_title = \"  Students' AI Night  \"\ntitle = raw_title.strip()\nprint(title)\nprint(title.casefold() == \"students' ai night\")\nprint(repr(\"title\\tlikes\\n\"))",
+        "output": "Students' AI Night\nTrue\n'title\\tlikes\\n'"
       }
     ],
     "mastery": [
@@ -206,6 +251,18 @@
       {
         "title": "用成本直觉选择结构",
         "text": "CPython 列表索引通常 O(1)，遍历或按值查找通常 O(n)，中间插入/删除要移动后面的引用。append 摊销 O(1)，不是每一次都零成本。sorted 常见上界 O(n log n)。队列若反复 pop(0)，可能累计 O(n²)；collections.deque 的 popleft 更适合。先保证行为正确，再用实际输入规模判断优化价值。"
+      },
+      {
+        "title": "修改槽位、插入以及取得有效位置",
+        "text": "待处理列表里，tasks[0] = \"复核\" 会替换第一项，列表长度保持不变。tasks.insert(0, \"紧急\") 把新任务放到最前面，其余元素的位置向后移动。len(tasks) 是元素数，列表非空时最后一个正索引是 len(tasks) - 1。只想读末项可先判断列表非空。要取走末项则用 pop。用 remove 前应决定值缺失时跳过还是报错。"
+      },
+      {
+        "title": "切片遍历与两种同名列表的差异",
+        "text": "posts[:3] 取出当前顺序的前三条，记录不足三条时返回已有部分。起始偏移是 3 时，posts[3:6] 从第 4 条开始读取。用 for post in posts[:3] 可以只展示预览。preview = posts 会共享外层列表，而 preview = posts[:] 会复制外层。若元素是字典，两份外层列表仍引用原字典，修改字典字段可能影响两边。"
+      },
+      {
+        "title": "元组的遍历和名称重新绑定",
+        "text": "用 columns = (\"标题\", \"点赞\") 保存报告列顺序，可用普通 for 读取每一项。要切换到三列格式，可让 columns 绑定到一个新元组。旧引用仍指向原来的两列元组。逐项替换元组槽位会引发 TypeError，遇到需要动态编辑的列集合，可先用列表组装。"
       }
     ],
     "code": "posts = [{\"id\": 2, \"likes\": 8}, {\"id\": 1, \"likes\": 8}]\nranked = sorted(posts, key=lambda p: (-p[\"likes\"], p[\"id\"]))\nprint([p[\"id\"] for p in ranked])\nprint([p[\"id\"] for p in posts])  # 原列表次序没有变\nnumbers = [3, 1, 2]\nprint(numbers.sort())\nprint(numbers)\ntry:\n    print([][-1])\nexcept IndexError:\n    print(\"IndexError：空列表没有最后一项\")",
@@ -222,6 +279,13 @@
         "steps": "遍历后只收集非零项，打印原列表证明未改。",
         "code": "raw = [4, 0, 7, 0]\nclean = [n for n in raw if n != 0]\nprint(clean)\nprint(raw)",
         "output": "[4, 7]\n[4, 0, 7, 0]"
+      },
+      {
+        "question": "将三条事件标题组成待办队列，并在副本中调整预览顺序。",
+        "thinking": "先在主队列设置优先项。副本可移除优先项并替换一个标题，主队列仍承担处理任务。",
+        "steps": "先 insert 到头部，再做切片。用 pop 取得副本首项，修改剩下的首项，打印两份结果和长度。",
+        "code": "tasks = [\"音乐节\", \"读书会\"]\ntasks.insert(0, \"科技展\")\npreview = tasks[:2]\nprint(preview.pop(0))\npreview[0] = \"音乐节（预览）\"\nprint(preview)\nprint(tasks, len(tasks))",
+        "output": "科技展\n['音乐节（预览）']\n['科技展', '音乐节', '读书会'] 3"
       }
     ],
     "mastery": [
@@ -265,6 +329,34 @@
       {
         "title": "退出与正常完成不同",
         "text": "break 终止最近的一层循环；循环 else 仅在没有 break 时执行，适合“遍历完仍没找到”的场景，不是 if 的 else。写循环时给出不变量，例如 total 等于已处理记录的点赞和；每步保持它，结束时它就说明结果为何正确。遇到嵌套搜索先用函数 return 简化退出，不要靠多层隐藏标志维护。"
+      },
+      {
+        "title": "用缩进判断结果会打印几次",
+        "text": "for 行末要写冒号，循环体通常缩进四个空格。如果整段没有缩进，可能报 IndentationError。如果其中一行提前退回外层，语法可能仍合法，但那一行只在循环结束后执行一次。把给每条博文的通知留在循环内，把整批摘要放在循环后。每个块用一致的空格缩进，不要混用制表和空格。报错时也检查上一行的冒号，出错位置可能靠近下一行。"
+      },
+      {
+        "title": "从 range 到数值列表，再进行汇总",
+        "text": "range(1, 6, 2) 对应 1、3、5，右边界 6 不包括在内。它可以直接遍历，需要列表时再用 list 转成列表。要构造这些序号的平方，可先看 for 加 append 的写法，再压缩为 [n * n for n in range(1, 6, 2)]。sum 对空列表返回 0，min 和 max 遇到空列表且没有提供 default 会抛 ValueError。报表规格要求无记录时显示缺失，就显式检查空列表或使用 default=None。"
+      },
+      {
+        "title": "代码格式让一眼能看出循环的边界",
+        "text": "本手册采用 PEP 8 的四空格缩进。写长表达式时可借助括号分行，在计算和输出两个逻辑步骤间留空行。PEP 8 给出的默认代码行长是 79 个字符，团队有约定时遵守团队约定。新手可以先让每轮循环只做一件清楚的事，再调整排版。格式统一可以帮助发现一行本应在循环里却被放到外面的错误。"
+      },
+      {
+        "title": "从一条报名记录预测 True 和 False",
+        "text": "编辑部只把已核验的广播稿和校报稿编入晨报。先保留来源原文，再对比较用的副本做 strip() 和 casefold()。例如 \" Radio \" 整理为 \"radio\"，source == \"radio\" 得到 True，source != \"radio\" 得到 False。用 = 给名称赋值，用 == 比较两个值。把比较结果存为布尔变量后，可以先打印它，再决定是否执行 if 里的步骤。"
+      },
+      {
+        "title": "把两种来源写进同一个条件",
+        "text": "读作“已核验，并且来源是广播或校报”。写成 verified and (source == \"radio\" or source == \"press\")。若去掉括号，and 会先结合，未核验的校报稿也会通过。若写成 source == \"radio\" or \"press\"，后半项只是非空字符串，放进 if 就会被当成真。允许的名称较多时可写 source in [\"radio\", \"press\"]。PEP 8 建议在 ==、!=、>= 等比较运算符两侧留空格。空格便于读出比较的两端，括号决定这里的判断顺序。"
+      },
+      {
+        "title": "同一条记录可以有一个等级和两条提醒",
+        "text": "值班编辑给每条稿件定一个排队等级，又要收集所有提醒。按点赞数分级时，先处理缺失，再从高到低比较。若先问“至少 10 赞”，30 赞的稿件会在这一层命中，后面的最高等级就轮不到了。提醒则要逐条检查。对同一条有图片的高赞稿，两个独立 if 可以各追加一项。两项都不满足时让列表保持为空，省略 else 就会继续执行后面的汇总。练习中计数已经清洗，取值为非负整数或 None。"
+      },
+      {
+        "title": "空批次、空栏目名与未开设栏目",
+        "text": "值班台有一份已开设栏目清单，另有每批稿件申请的栏目列表。先看整批有没有申请，再逐项检查栏目名。列表 [] 进入空批次分支；[\"\"] 含一项，应该进入循环并报告名称缺失。对清单用 in 或 not in，比较的是整个元素。例如 \"校园\" 不在 [\"校园新闻\"] 中，而 \"校园\" in \"校园新闻\" 是子串判断。把清单拼成一段文字来查询会把这两种规则混在一起。"
       }
     ],
     "code": "likes_list = [0, 9, 10, 30]\ntotal = 0\nfor likes in likes_list:\n    if likes < 10:\n        continue\n    total += likes  # 累计已经接受的记录\nprint(total)\nfor likes in likes_list:\n    if likes > 100:\n        print(\"发现高赞\")\n        break\nelse:\n    print(\"没有超过 100 的记录\")\nprint(bool(\"False\"))\nprint(list(range(1, 4)))",
@@ -281,6 +373,34 @@
         "steps": "逐项比较，命中即 break；全部不命中走 else。",
         "code": "for value in [3, 12, 5]:\n    if value >= 10:\n        print(value)\n        break\nelse:\n    print(\"未找到\")",
         "output": "12"
+      },
+      {
+        "question": "生成 1、3、5 三个样本序号的平方，逐行输出，再输出一次整批摘要。",
+        "thinking": "用 range 表达间隔，先得到完整数值列表。逐行处理使用循环，整批结果放在循环末尾之外。",
+        "steps": "使用推导式构造列表，在循环内打印结果。退回原缩进后求和，并用 default 处理可能为空的最小值。",
+        "code": "scores = [number * number for number in range(1, 6, 2)]\nfor score in scores:\n    print(score)\n\nprint(\"合计\", sum(scores))\nprint(\"最小\", min(scores, default=None))\nprint(\"空批次\", min([], default=None))",
+        "output": "1\n9\n25\n合计 35\n最小 1\n空批次 None"
+      },
+      {
+        "question": "晨报收录已核验的广播稿（radio）或校报稿（press）。依次测试 (\" Radio \", True)、(\"press\", False)、(\"press\", True)、(\"blog\", True)。运行前写下每行的两个预测：来源是否符合、最终是否收录。",
+        "thinking": "第二行能检验括号是否放对，最后一行能检验是否真的比较了两个来源。",
+        "steps": "① 保留原文，把去首尾空白和忽略大小写后的来源存入新变量。② 用两个完整的相等比较求出来源是否符合，检查每个 == 两侧是否留了空格。③ 将来源条件与核验标记用 and 连接，逐行对照预测。",
+        "code": "submissions = [(\" Radio \", True), (\"press\", False), (\"press\", True), (\"blog\", True)]\nfor raw_source, verified in submissions:\n    source = raw_source.strip().casefold()\n    allowed_source = source == \"radio\" or source == \"press\"\n    accepted = verified and allowed_source\n    print(source, allowed_source, accepted)",
+        "output": "radio True True\npress True False\npress True True\nblog False False"
+      },
+      {
+        "question": "值班队列收到五条稿件，(赞数, 有图) 依次为 (None, False)、(0, False)、(9, True)、(10, False)、(30, True)。缺赞数标“待补”，其余按 0～9、10～29、30 及以上分为“常规”“关注”“优先”。每条另列出所有适用提醒：满 10 赞需“复核互动”，有图需“核对图注”。",
+        "thinking": "先手算 30 赞且有图那一行。等级只取一个，提醒要保留两个。0 赞那一行专门检查是否误判为缺失。",
+        "steps": "① 先用 is None 分流缺失，再用从高到低的 elif 比较求等级。② 在每轮新建提醒列表，分别检查互动和配图。③ 打印等级和提醒，核对前一条稿件的提醒没有带到下一条。",
+        "code": "queue = [(None, False), (0, False), (9, True), (10, False), (30, True)]\nfor likes, has_image in queue:\n    if likes is None:\n        level = \"待补\"\n    elif likes >= 30:\n        level = \"优先\"\n    elif likes >= 10:\n        level = \"关注\"\n    else:\n        level = \"常规\"\n\n    reminders = []\n    if likes is not None and likes >= 10:\n        reminders.append(\"复核互动\")\n    if has_image:\n        reminders.append(\"核对图注\")\n    print(level, reminders)",
+        "output": "待补 []\n常规 []\n常规 ['核对图注']\n关注 ['复核互动']\n优先 ['复核互动', '核对图注']"
+      },
+      {
+        "question": "现有栏目为“校园新闻”和“活动”。按申请顺序审核三批数据：[]、[\"\"]、[\"活动\", \"校园\", \" 校园新闻 \"]。空批提示一次；空白名称提示补填；未开设的栏目退回；其余接收。每项输出一行。",
+        "thinking": "先想第一批和第二批分别应打印什么。再用“校园”检验程序是否只接受完整栏目名。",
+        "steps": "① 在逐项循环外处理空批次。② 有申请时逐项去首尾空白，先判空名，再用 not in 检查栏目清单。③ 接收或退回时打印整理后的名称，对照输入次序逐行检查。",
+        "code": "channels = [\"校园新闻\", \"活动\"]\nbatches = [[], [\"\"], [\"活动\", \"校园\", \" 校园新闻 \"]]\nfor requests in batches:\n    if not requests:\n        print(\"本批无申请\")\n    else:\n        for raw_name in requests:\n            name = raw_name.strip()\n            if name == \"\":\n                print(\"请补填栏目\")\n            elif name not in channels:\n                print(\"退回\", name)\n            else:\n                print(\"接收\", name)",
+        "output": "本批无申请\n请补填栏目\n接收 活动\n退回 校园\n接收 校园新闻"
       }
     ],
     "mastery": [
