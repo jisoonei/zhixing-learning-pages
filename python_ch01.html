@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>第 1 章 · 变量、对象与第一条事件记录｜Python 实战与原理</title>
+  <script>
+    try {
+      const theme = localStorage.getItem('workbook-theme');
+      if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+    } catch {}
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#fff, #171b23);
+      --panel: light-dark(#f6f8fc, #202633);
+      --text: light-dark(#202a3b, #e3e9f3);
+      --muted: light-dark(#526078, #aebbd1);
+      --border: light-dark(#dbe2ed, #394359);
+      --accent: light-dark(#2458ac, #a4c5ff);
+      --keyword: light-dark(#73409c, #d4a6ff);
+      --string: light-dark(#176247, #a7e9b8);
+      --number: light-dark(#965112, #ffc58c);
+      --warning: light-dark(#a45618, #ffb877);
+      --top: 3.75rem;
+      --toc: 16rem;
+      --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+    :root[data-theme="light"] { color-scheme: light; }
+    :root[data-theme="dark"] { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.8 system-ui, "Microsoft YaHei", sans-serif; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    button { font: inherit; font-size: .85rem; cursor: pointer; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: .45rem; padding: .25rem .65rem; }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    .toolbar {
+      height: var(--top); position: sticky; top: 0; z-index: 3;
+      display: flex; align-items: center; gap: .65rem; padding: 0 clamp(.8rem, 3vw, 2rem);
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .toolbar strong { flex: 1; line-height: 1.3; font-size: .95rem; }
+    .toc {
+      position: fixed; z-index: 2; top: var(--top); bottom: 0; left: 0; width: var(--toc);
+      overflow-y: auto; background: var(--panel); border-right: 1px solid var(--border); padding: 1.25rem;
+    }
+    .toc ul { list-style: none; margin: 0; padding: .25rem 0 1rem .75rem; }
+    .toc a { display: block; padding: .3rem .4rem; font-size: .88rem; text-decoration: none; border-radius: .35rem; }
+    .toc a:hover, .toc a[aria-current="location"] { color: var(--text); background: var(--bg); }
+    main { padding: clamp(1rem, 4vw, 3rem); min-width: 0; }
+    article { max-width: 49rem; margin: 0 auto 3rem; }
+    .chapter-head { padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .eyebrow { color: var(--accent); font-size: .85rem; font-weight: 650; margin: 0; }
+    h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.25; margin: .45rem 0 .8rem; }
+    h2 { font-size: 1.24rem; line-height: 1.5; margin: 0 0 .55rem; }
+    [id] { scroll-margin-top: calc(var(--top) + 1rem); }
+    .chapter > div { margin: 2.1rem 0; }
+    .chapter p { margin: .55rem 0; }
+    .sources, .muted { color: var(--muted); font-size: .88rem; }
+    :not(pre) > code { padding: .1em .3em; border-radius: .25rem; background: var(--panel); }
+    code, pre { font-family: var(--mono); }
+    figure { margin: .9rem 0; border: 1px solid var(--border); border-radius: .65rem; overflow: hidden; background: var(--panel); }
+    figcaption { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; padding: .5rem .8rem; border-bottom: 1px solid var(--border); color: var(--muted); font-size: .83rem; }
+    .copy { margin-inline-start: auto; }
+    pre { margin: 0; padding: .85rem; overflow: auto; tab-size: 4; font-size: .88rem; line-height: 1.75; }
+    .numbered { counter-reset: line; }
+    .line { display: block; min-height: 1.75em; padding-inline-start: 3.1em; position: relative; }
+    .line::before {
+      content: counter(line); counter-increment: line; position: absolute;
+      left: 0; width: 2.2em; text-align: right; color: var(--muted); user-select: none;
+    }
+    .tok-keyword { color: var(--keyword); font-weight: 650; }
+    .tok-string { color: var(--string); }
+    .tok-number { color: var(--number); }
+    .tok-comment { color: var(--muted); font-style: italic; }
+    .analogy, details { margin: .6rem 0; padding: .75rem 1rem; background: var(--panel); border-radius: .5rem; }
+    .analogy { border-inline-start: 3px solid var(--accent); }
+    details { border: 1px solid var(--border); border-inline-start: 3px solid var(--accent); }
+    details.warning { border-inline-start-color: var(--warning); }
+    summary { cursor: pointer; font-weight: 650; }
+    details ul { padding-inline-start: 1.25rem; margin-bottom: .25rem; }
+    .scrim { position: fixed; z-index: 1; inset: var(--top) 0 0; background: #10182778; }
+    @media (min-width: 801px) { body.toc-open main { margin-inline-start: var(--toc); } }
+    @media (max-width: 800px) { .toc { width: min(var(--toc), 85vw); } }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <button id="toc-toggle" type="button" aria-controls="toc" aria-expanded="false">打开目录</button>
+    <strong>Python 实战与原理</strong>
+    <button id="theme-toggle" type="button">切换主题</button>
+  </header>
+
+  <aside id="toc" class="toc" hidden>
+    <nav id="toc-links" aria-label="章节目录"></nav>
+  </aside>
+  <div id="scrim" class="scrim" aria-hidden="true" hidden></div>
+
+  <main id="content">
+    <article id="py-01">
+      <header class="chapter-head">
+        <p class="eyebrow">第 1 章 · Python 基础</p>
+        <h1 id="py-01-title" tabindex="-1">变量、对象与第一条事件记录</h1>
+        <p>把一条模拟博文整理成 Python 字典，并在终端运行脚本核对结果。</p>
+      </header>
+
+      <!-- 每章的 section.chapter 内保留以下五个直接子模块。 -->
+      <section class="chapter" aria-labelledby="py-01-title">
+        <div data-module="concepts">
+          <h2>核心概念与官方定义</h2>
+          <p>Python 中的对象有<strong>身份、类型和值</strong>。类型决定对象支持哪些操作。整数 <code>int</code> 和字符串 <code>str</code> 不可变，字典 <code>dict</code> 可变。</p>
+          <p>简单名称赋值 <code>name = expression</code> 先求右侧表达式的值，再将左侧名称绑定到所得对象。再次对同一名称赋值会改变该名称的绑定。</p>
+          <p>字典是从可哈希的键到值的映射。本章用字符串作为字段名，把博文编号、所属事件、点赞数和正文放在同一条记录中。</p>
+          <p class="sources">官方参考 · <a href="https://docs.python.org/3.14/reference/datamodel.html#objects-values-and-types">对象、值与类型</a> · <a href="https://docs.python.org/3.14/reference/simple_stmts.html#assignment-statements">赋值语句</a> · <a href="https://docs.python.org/3.14/library/stdtypes.html#mapping-types-dict">字典</a></p>
+        </div>
+
+        <div data-module="analogy">
+          <h2>黑马级通俗类比</h2>
+          <p class="analogy">把变量名想成贴在资料卡上的标签：两张标签可以贴在同一张卡上，挪走一个标签不影响另一个。</p>
+        </div>
+
+        <div data-module="example">
+          <h2>最小可运行代码</h2>
+          <p>将代码保存为 UTF-8 编码的 <code>main.py</code>。在文件所在目录打开终端，Windows 运行 <code>py main.py</code>，macOS 或 Linux 运行 <code>python3 main.py</code>。</p>
+          <figure data-lang="python">
+            <figcaption>
+              <span>Python · main.py</span>
+              <button class="copy" type="button">复制代码</button>
+              <span class="copy-status" role="status"></span>
+            </figcaption>
+            <pre tabindex="0"><code>raw_likes = "12"                      # 模拟文件读入的文本字段
+likes = int(raw_likes)                # 将文本转换成整数，供后续求和
+raw_text = " 音乐节开幕 "               # 模拟正文首尾有空格
+text = raw_text.strip()               # 得到去掉首尾空白的字符串
+post = {                              # 用字典表示一条博文
+    "id": 1,                          # 博文编号
+    "event_id": 1,                    # 所属事件的编号
+    "likes": likes,                   # 已转成整数的点赞数
+    "text": text,                     # 已去掉首尾空白的正文
+}                                     # 字典定义结束
+print(post)                           # 在终端显示这条记录</code></pre>
+          </figure>
+          <figure>
+            <figcaption>预期输出</figcaption>
+            <pre tabindex="0"><code>{'id': 1, 'event_id': 1, 'likes': 12, 'text': '音乐节开幕'}</code></pre>
+          </figure>
+        </div>
+
+        <div data-module="demo">
+          <h2>贯穿式 Demo 演进</h2>
+          <p>为「热点事件观察站」定义第一条博文的结构。后续将同样的字典装入列表，从 CSV 读取多条记录，再以 <code>id</code> 去重、用 <code>event_id</code> 关联 SQL 事件表。</p>
+          <p><strong>本章验收：</strong>把 <code>raw_likes</code> 改为 <code>"0"</code>，运行后应看到字典里是 <code>'likes': 0</code>。临时添加 <code>print(type(post["likes"]).__name__)</code>，应输出 <code>int</code>。</p>
+        </div>
+
+        <div data-module="deep-dive">
+          <h2>底层原理 / 避坑指南</h2>
+          <details>
+            <summary>底层原理深潜 · 名称绑定与对象身份</summary>
+            <p>运行 <code>a = post</code> 后，<code>a</code> 和 <code>post</code> 引用同一个字典，<code>a is post</code> 为 <code>True</code>。此时执行 <code>a["likes"] = 99</code> 会修改共享字典，经 <code>post</code> 读取也得到 <code>99</code>。</p>
+            <p>接着执行 <code>a = {}</code>，只有 <code>a</code> 改为绑定新字典。原字典的 <code>likes</code> 仍是 <code>99</code>。这是语言层的引用关系，同一段 Python 代码可以在不同解释器实现上验证。</p>
+          </details>
+          <details class="warning">
+            <summary>常见报错避坑 · ValueError、TypeError 与业务边界</summary>
+            <ul>
+              <li><code>int("12次")</code> 或 <code>int("")</code> 引发 <code>ValueError</code>。实际导入时应记录原值及拒绝原因。</li>
+              <li><code>int(None)</code> 引发 <code>TypeError</code>。缺失值应在转换前单独处理。</li>
+              <li><code>int("-1")</code> 成功返回 <code>-1</code>。点赞数要求非负，转换后还需做范围校验。</li>
+            </ul>
+          </details>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const themeToggle = document.querySelector('#theme-toggle');
+    const systemDark = matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => (root.dataset.theme || (systemDark.matches ? 'dark' : 'light')) === 'dark';
+
+    function labelTheme() {
+      themeToggle.textContent = isDark() ? '切换浅色' : '切换深色';
+    }
+    themeToggle.addEventListener('click', () => {
+      const theme = isDark() ? 'light' : 'dark';
+      root.dataset.theme = theme;
+      try { localStorage.setItem('workbook-theme', theme); } catch {}
+      labelTheme();
+    });
+    systemDark.addEventListener('change', labelTheme);
+    labelTheme();
+
+    const sidebar = document.querySelector('#toc');
+    const tocLinks = document.querySelector('#toc-links');
+    const tocToggle = document.querySelector('#toc-toggle');
+    const scrim = document.querySelector('#scrim');
+    const content = document.querySelector('#content');
+    const desktop = matchMedia('(min-width: 801px)');
+
+    function showToc(open) {
+      if (!open && sidebar.contains(document.activeElement)) tocToggle.focus();
+      sidebar.hidden = !open;
+      scrim.hidden = !open || desktop.matches;
+      content.inert = open && !desktop.matches;
+      document.body.classList.toggle('toc-open', open);
+      tocToggle.textContent = open ? '收起目录' : '打开目录';
+      tocToggle.setAttribute('aria-expanded', String(open));
+    }
+
+    function tocLink(heading, container) {
+      const link = document.createElement('a');
+      link.href = '#' + heading.id;
+      link.textContent = heading.textContent;
+      link.addEventListener('click', () => {
+        if (!desktop.matches) showToc(false);
+        heading.focus({ preventScroll: true });
+      });
+      container.append(link);
+    }
+
+    for (const article of content.querySelectorAll('article[id]')) {
+      tocLink(article.querySelector('h1[id]'), tocLinks);
+      const list = document.createElement('ul');
+      for (const module of article.querySelectorAll('.chapter > [data-module]')) {
+        const heading = module.querySelector('h2');
+        heading.id = article.id + '-' + module.dataset.module;
+        heading.tabIndex = -1;
+        const item = document.createElement('li');
+        tocLink(heading, item);
+        list.append(item);
+      }
+      tocLinks.append(list);
+    }
+
+    function markLocation() {
+      for (const link of tocLinks.querySelectorAll('a')) {
+        if (link.hash === location.hash) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+    }
+
+    tocToggle.addEventListener('click', () => {
+      showToc(sidebar.hidden);
+      if (!sidebar.hidden && !desktop.matches) tocLinks.querySelector('a')?.focus();
+    });
+    scrim.addEventListener('click', () => showToc(false));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !sidebar.hidden) showToc(false);
+    });
+    desktop.addEventListener('change', () => showToc(desktop.matches));
+    window.addEventListener('hashchange', markLocation);
+    showToc(desktop.matches);
+    markLocation();
+    // 目录节点由 JS 生成，处理直接打开模块链接的情况。
+    document.getElementById(location.hash.slice(1))?.scrollIntoView();
+
+    // 示例用轻量高亮。SQL 册的代码 figure 使用 data-lang="sql"。
+    const tokens = {
+      python: /(?<comment>#[^\n]*)|(?<string>(?:\b[fFrRbBuU])?(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))|(?<keyword>\b(?:def|class|return|if|elif|else|for|in|while|is|not|and|or|import|from|with|as|try|except|finally|raise|pass|None|True|False|print|int|str|dict|type)\b)|(?<number>\b\d+(?:\.\d+)?\b)/g,
+      sql: /(?<comment>--[^\n]*)|(?<string>'(?:''|[^'])*')|(?<keyword>\b(?:SELECT|FROM|WHERE|JOIN|LEFT|INNER|OUTER|ON|GROUP BY|HAVING|ORDER BY|LIMIT|AS|AND|OR|IS|NOT|NULL|COUNT|SUM|CREATE|TABLE|INSERT|INTO|VALUES|UPDATE|DELETE|SET|WITH|OVER|PARTITION BY|BEGIN|COMMIT|ROLLBACK)\b)|(?<number>\b\d+(?:\.\d+)?\b)/gi
+    };
+
+    function highlight(code, source, pattern) {
+      for (const text of source.split('\n')) {
+        const line = document.createElement('span');
+        line.className = 'line';
+        let offset = 0;
+        for (const match of text.matchAll(pattern)) {
+          line.append(text.slice(offset, match.index));
+          const token = document.createElement('span');
+          token.className = 'tok-' + Object.keys(match.groups).find(key => match.groups[key] !== undefined);
+          token.textContent = match[0];
+          line.append(token);
+          offset = match.index + match[0].length;
+        }
+        line.append(text.slice(offset));
+        code.append(line);
+      }
+    }
+
+    async function copySource(source) {
+      try {
+        await navigator.clipboard.writeText(source);
+        return true;
+      } catch {
+        // 本地文件或剪贴板 API 不可用时，尝试浏览器兼容路径。
+        const field = document.createElement('textarea');
+        const focused = document.activeElement;
+        field.value = source;
+        field.readOnly = true;
+        field.style.cssText = 'position:fixed;left:-9999px;top:0';
+        document.body.append(field);
+        field.select();
+        try { return document.execCommand('copy'); }
+        catch { return false; }
+        finally { field.remove(); focused?.focus({ preventScroll: true }); }
+      }
+    }
+
+    for (const figure of document.querySelectorAll('figure[data-lang]')) {
+      const code = figure.querySelector('pre > code');
+      const source = code.textContent.trimEnd();
+      const pattern = tokens[figure.dataset.lang];
+      if (pattern) {
+        code.replaceChildren();
+        code.classList.add('numbered');
+        highlight(code, source, pattern);
+      }
+      figure.querySelector('.copy').addEventListener('click', async () => {
+        const status = figure.querySelector('.copy-status');
+        status.textContent = '';
+        if (await copySource(source)) {
+          status.textContent = '已复制';
+        } else {
+          const range = document.createRange();
+          range.selectNodeContents(code);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          status.textContent = '已选中，请按 Ctrl/Cmd + C';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

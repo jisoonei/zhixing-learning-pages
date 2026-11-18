@@ -1,0 +1,1331 @@
+[
+  {
+    "id": "runtime",
+    "title": "从保存文件到执行：解释器、终端与排错",
+    "group": "基础与表达式",
+    "book": "第 1 章 / 附录 A、B、C",
+    "tags": [
+      "解释器路径",
+      "工作目录",
+      "Traceback",
+      "最小复现"
+    ],
+    "before": [
+      39,
+      0,
+      35
+    ],
+    "goal": "能判断自己在哪个环境运行哪份文件，并把报错缩小成一个可验证的问题。",
+    "sections": [
+      {
+        "title": "编辑器和解释器各做什么",
+        "text": "编辑器保存文本，Python 解释器读取并执行文本。安装 VS Code 或它的扩展，不代表已安装 Python。先在终端执行 python --version（Windows 也可用 py --version），再保存 hello.py 并执行 python hello.py；不要把终端命令粘进带有 >>> 的交互提示符。交互模式会显示表达式的值，脚本文件通常要用 print 才有输出。"
+      },
+      {
+        "title": "工作目录不是文件所在目录",
+        "text": "相对路径按进程的当前工作目录解析。你从哪个目录启动、编辑器如何配置运行器，都会影响这个目录。pathlib.Path.cwd() 用来观察它；Path(__file__).resolve().parent 可定位脚本本身。先输出路径再修正路径，避免把找不到文件误判为编码问题。Windows 的反斜杠可能形成转义，优先用 Path 拼接目录。"
+      },
+      {
+        "title": "把一条错误拆成三层",
+        "text": "SyntaxError 往往在执行前暴露：先检查冒号、括号、引号、缩进。运行中的异常则读 Traceback 最后一行的类型与消息，再向上定位自己写的文件和行号。NameError 表示名称未绑定；ModuleNotFoundError 往往涉及环境或模块名。不要只搜索“Python 不运行”，记录版本、启动命令、最短输入和完整错误栈。"
+      },
+      {
+        "title": "安装、调试与提问的闭环",
+        "text": "Windows 用 py -m venv .venv 创建独立环境后，可直接运行 .venv\\Scripts\\python.exe，无须先处理 PowerShell 激活策略。macOS/Linux 常用 python3 -m venv .venv 和 .venv/bin/python。pip 始终通过同一解释器的 -m pip 调用。断点用于暂停观察变量，不是修改业务逻辑；用 step over 逐行核对预期，最后把修复缩成测试。"
+      }
+    ],
+    "code": "# 保存为 hello.py；在终端运行 python hello.py\nimport sys\nfrom pathlib import Path\n\nprint(\"解释器已启动\")\nprint(Path(\"data\") / \"posts.csv\")\nprint(sys.version_info.major == 3)\ntry:\n    print(missing_name)  # 主动演示一个定位明确的错误\nexcept NameError:\n    print(\"NameError：先赋值，再使用\")",
+    "output": "解释器已启动\ndata/posts.csv（Windows 显示 data\\posts.csv）\nTrue\nNameError：先赋值，再使用",
+    "pitfalls": [
+      "❌ 安装包装进一个环境、运行却用另一个；✅ 用 python -m pip 并检查 sys.executable。",
+      "❌ 未保存文件就怀疑新代码无效；✅ 保存后确认启动的是当前文件。",
+      "❌ 截掉错误最后一行；✅ 保留类型、行号和能复现的最小输入。"
+    ],
+    "exercises": [
+      {
+        "question": "为什么终端能导入包而编辑器不能？",
+        "thinking": "先验证两个程序是否使用同一个解释器。",
+        "steps": "分别运行下面两行，比较路径；选择相同环境，再复跑。",
+        "code": "import sys\nprint(sys.executable)",
+        "output": "输出当前解释器的绝对路径，因电脑而异。"
+      }
+    ],
+    "mastery": [
+      "独立创建环境并运行脚本",
+      "分清终端与 Python 提示符",
+      "用最小例子重现一次 NameError"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/interpreter.html",
+    "project": null
+  },
+  {
+    "id": "values",
+    "title": "变量与数值：从对象引用到精度取舍",
+    "group": "基础与表达式",
+    "book": "第 2 章",
+    "tags": [
+      "名称绑定",
+      "整数与浮点数",
+      "优先级",
+      "Decimal"
+    ],
+    "before": [
+      40,
+      1
+    ],
+    "goal": "解释每次赋值改变了谁，选择适合计数、均值与金额的数值表示。",
+    "sections": [
+      {
+        "title": "赋值是绑定，不是贴着变量存一份值",
+        "text": "解释器先计算等号右侧，再把名称绑定到结果。a = b 不承诺复制对象。整数不可变，a += 1 通常让 a 指向新的整数对象，不会沿着别的名称修改那个整数。可变容器中的 += 又可能原地操作，因此不能只看符号就推断是否复制；要结合类型判断。"
+      },
+      {
+        "title": "运算符表达不同业务含义",
+        "text": "/ 是真除法，// 是向下取整，% 给出余数，** 是幂。-7 // 3 得到 -3，并不是截断到 -2。分页、批次处理可用 divmod 一次获得商和余数。乘除先于加减，复杂公式加括号比依赖记忆更清楚。分母为 0 必须有明确业务约定，不能悄悄把平均数写成 0。"
+      },
+      {
+        "title": "浮点近似和十进制契约",
+        "text": "二进制浮点不能精确表示所有十进制小数，所以 0.1 + 0.2 == 0.3 为 False。展示可用格式说明保留两位，但这并未改变底层精度。近似测量比较用 math.isclose；金额等十进制契约可用 Decimal(\"0.1\") 从字符串构造。不要从已经近似的 float 构造再期待恢复原始十进制。"
+      },
+      {
+        "title": "命名、常量与可读性",
+        "text": "变量用有业务含义的 snake_case，例如 total_likes。MAX_ROWS 是约定常量，Python 本身不会阻止重新赋值。1_000_000 的下划线只为阅读。多重赋值先计算右侧表达式，可用 a, b = b, a 交换绑定。不要用 list、str 作为变量名遮住内置函数；注释解释业务原因，避免把代码翻译一遍。"
+      }
+    ],
+    "code": "from decimal import Decimal\nfrom math import isclose\n\nlikes = 12\nbackup = likes\nlikes += 3\nprint(likes, backup)\nprint(divmod(17, 5))  # 3 个完整批次，剩余 2 行\nprint(0.1 + 0.2 == 0.3)\nprint(isclose(0.1 + 0.2, 0.3))\nprint(Decimal(\"0.1\") + Decimal(\"0.2\"))\ntry:\n    print(10 / 0)\nexcept ZeroDivisionError:\n    print(\"没有记录，平均值暂缺\")",
+    "output": "15 12\n(3, 2)\nFalse\nTrue\n0.3\n没有记录，平均值暂缺",
+    "pitfalls": [
+      "❌ 用 is 比较两个点赞数的数值；✅ 值相等用 ==，对象身份才用 is。",
+      "❌ int(\"3.5\") 自动四舍五入；✅ 先明确是否允许小数，不允许就拒绝该输入。",
+      "❌ 把空样本平均数当作真实的 0；✅ 用 None 或“无记录”表达缺失。"
+    ],
+    "exercises": [
+      {
+        "question": "23 行每批最多 10 行，需要几批？",
+        "thinking": "有剩余就再开一批，不能只取整除结果。",
+        "steps": "先求商和余数，再根据余数增加一批。",
+        "code": "full, rest = divmod(23, 10)\nprint(full + (rest > 0))",
+        "output": "3"
+      }
+    ],
+    "mastery": [
+      "说清 a=b 与 a+=1 的变化",
+      "解释负数整除",
+      "说明显示精度与数值精度的区别"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/introduction.html",
+    "project": null
+  },
+  {
+    "id": "text",
+    "title": "字符串：字符、切片、格式化与清洗顺序",
+    "group": "基础与表达式",
+    "book": "第 2 章 / 文件分析延伸",
+    "tags": [
+      "Unicode 与编码",
+      "切片规则",
+      "前后缀",
+      "f-string"
+    ],
+    "before": [
+      15
+    ],
+    "goal": "把原始文本变成可展示、可比较的数据，同时保留原文以便核对。",
+    "sections": [
+      {
+        "title": "字符和字节必须分清",
+        "text": "str 表示 Unicode 文本，bytes 表示编码后的字节。中文字符通常在 UTF-8 中占多个字节，因此 len(text) 和 len(text.encode(\"utf-8\")) 不同。Python 索引按码点而非屏幕上的完整字形簇工作，含组合音标或复杂 emoji 时“一个显示字符”可能跨多个码点。数据清洗别把字节截断当作文本截断。"
+      },
+      {
+        "title": "不可变、索引和切片",
+        "text": "text[0] 取一个位置，越界抛 IndexError；text[start:stop:step] 左闭右开，普通边界越界会截到有效范围。text[0] = \"新\" 会抛 TypeError，因为字符串不可变。清洗方法返回新字符串，要接住结果。空文本没有第一个字符，读取之前先判断长度或用切片取前一段。"
+      },
+      {
+        "title": "清洗有顺序也有代价",
+        "text": "先保存 raw，再得到 normalized，才能追溯变化。strip() 去两端空白，不删中间空格；strip(\"abc\") 把参数看作字符集合，不能用来删除一个固定前缀。准确前缀用 removeprefix，后缀用 removesuffix。大小写无关比较可用 casefold，但标题展示仍应保留原本大小写。split() 合并空白分段；split(\",\") 保留中间空字段，两者契约不同。"
+      },
+      {
+        "title": "格式化是展示层",
+        "text": "f-string 把表达式的值嵌进字符串，{value:.2f} 控制显示两位小数；它不是数据校验。join 要求每项都是字符串，批量拼接一般先整理列表再 join。换行写 \n、制表写 \t，原始字符串适合含反斜杠的模式；不要为了显示效果把数值永久转成带单位的文字，后面还要计算。"
+      }
+    ],
+    "code": "raw = \"  事件:校园音乐节  \"\ntitle = raw.strip().removeprefix(\"事件:\")\nprint(title)\nprint(title[:2])\nprint(\"中\".encode(\"utf-8\").hex())\nprint(f\"平均点赞：{7 / 3:.2f}\")\ntry:\n    title[0] = \"新\"\nexcept TypeError:\n    print(\"TypeError：字符串不可原地修改\")\nprint(\" / \".join([title, str(12)]))",
+    "output": "校园音乐节\n校园\ne4b8ad\n平均点赞：2.33\nTypeError：字符串不可原地修改\n校园音乐节 / 12",
+    "pitfalls": [
+      "❌ raw.strip() 后认为 raw 已改变；✅ 保存返回值。",
+      "❌ 用 strip(\"事件:\") 删除固定前缀；✅ 用 removeprefix(\"事件:\")。",
+      "❌ 对空字符串直接取 [0]；✅ 先检查或用 [:1]。"
+    ],
+    "exercises": [
+      {
+        "question": "把 \"  report.csv  \" 转成文件主名 report。",
+        "thinking": "空白与后缀是两种规则，先移除外围空白。",
+        "steps": "strip 后再精确移除 .csv；不删除中间的 csv 字母。",
+        "code": "name = \"  report.csv  \"\nprint(name.strip().removesuffix(\".csv\"))",
+        "output": "report"
+      }
+    ],
+    "mastery": [
+      "区别 strip、replace 和 removeprefix",
+      "预测切片结果",
+      "保留 raw 与 normalized 两列"
+    ],
+    "source": "https://docs.python.org/3.14/library/stdtypes.html#text-sequence-type-str",
+    "project": null
+  },
+  {
+    "id": "sequence",
+    "title": "列表与元组：位置、修改、遍历与成本",
+    "group": "容器与流程",
+    "book": "第 3、4 章",
+    "tags": [
+      "append 与 extend",
+      "排序返回值",
+      "切片与别名",
+      "线性复杂度"
+    ],
+    "before": [
+      16,
+      3,
+      27
+    ],
+    "goal": "能按业务选择列表操作，并解释索引错误、浅拷贝和排序造成的变化。",
+    "sections": [
+      {
+        "title": "列表保存的是有顺序的引用",
+        "text": "列表适合有顺序、可增删的记录集合。索引从 0 开始，负索引从尾部数；空列表不能取 [-1]。修改某个槽位并不等于修改被引用对象，嵌套字典的变化可能被多个列表共同观察。元组固定的是槽位绑定，不意味着内部可变对象也冻结；单元素元组要写逗号，如 (12,)。"
+      },
+      {
+        "title": "增删操作需要说清按位置还是按值",
+        "text": "append 把一个对象放到末尾，extend 逐项追加一个可迭代对象；对字符串 extend 会逐字符添加。pop(index) 删除并返回某个位置的元素，remove(value) 删除第一个相等值，没有会报 ValueError。del 删除槽位或切片。要删所有不合格记录，优先生成筛选后的新列表，不要边正向遍历边删当前列表。"
+      },
+      {
+        "title": "排序与反转是两套概念",
+        "text": "list.sort 原地排序并返回 None；sorted 返回新列表。reverse 只翻转当前次序，并不比较数值；reversed 返回反向迭代器。业务排行榜要给出确定的相同分数规则，例如 key=lambda p: (-p[\"likes\"], p[\"id\"])。Python 排序稳定，但如果源数据本身顺序不固定，只依靠稳定性仍不能保证跨运行的并列顺序。"
+      },
+      {
+        "title": "用成本直觉选择结构",
+        "text": "CPython 列表索引通常 O(1)，遍历或按值查找通常 O(n)，中间插入/删除要移动后面的引用。append 摊销 O(1)，不是每一次都零成本。sorted 常见上界 O(n log n)。队列若反复 pop(0)，可能累计 O(n²)；collections.deque 的 popleft 更适合。先保证行为正确，再用实际输入规模判断优化价值。"
+      }
+    ],
+    "code": "posts = [{\"id\": 2, \"likes\": 8}, {\"id\": 1, \"likes\": 8}]\nranked = sorted(posts, key=lambda p: (-p[\"likes\"], p[\"id\"]))\nprint([p[\"id\"] for p in ranked])\nprint([p[\"id\"] for p in posts])  # 原列表次序没有变\nnumbers = [3, 1, 2]\nprint(numbers.sort())\nprint(numbers)\ntry:\n    print([][-1])\nexcept IndexError:\n    print(\"IndexError：空列表没有最后一项\")",
+    "output": "[1, 2]\n[2, 1]\nNone\n[1, 2, 3]\nIndexError：空列表没有最后一项",
+    "pitfalls": [
+      "❌ ranked = posts.sort()；✅ 用 sorted，或排序后继续用 posts。",
+      "❌ for x in rows 时 remove(x)；✅ 用筛选表达式构造新列表。",
+      "❌ 以为切片复制嵌套字典；✅ 根据修改层级决定是否 deepcopy。"
+    ],
+    "exercises": [
+      {
+        "question": "从 [4, 0, 7, 0] 移除所有零，保留原列表。",
+        "thinking": "把结果和源数据分开，不在迭代期间删除。",
+        "steps": "遍历后只收集非零项，打印原列表证明未改。",
+        "code": "raw = [4, 0, 7, 0]\nclean = [n for n in raw if n != 0]\nprint(clean)\nprint(raw)",
+        "output": "[4, 7]\n[4, 0, 7, 0]"
+      }
+    ],
+    "mastery": [
+      "区分按值删除和按位置删除",
+      "解释排序的返回值",
+      "说出列表查找和集合查找的成本差别"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/datastructures.html",
+    "project": null
+  },
+  {
+    "id": "branch",
+    "title": "条件与循环：短路、边界和退出证明",
+    "group": "容器与流程",
+    "book": "第 4、5、7 章",
+    "tags": [
+      "真值与短路",
+      "range 半开区间",
+      "break/continue/else",
+      "循环不变量"
+    ],
+    "before": [
+      2,
+      41,
+      44
+    ],
+    "goal": "在执行前预测循环次数，并说明每个分支会筛掉哪一类记录。",
+    "sections": [
+      {
+        "title": "真假不是只看 True 和 False",
+        "text": "None、0 和空容器通常是假值；非空字符串 \"False\" 仍是真值。and 和 or 会短路，并返回参与运算的操作数，不保证返回 bool。判断可用 rows and rows[0] 避免空列表越界，但保存结果时要意识到结果可能是列表或字典。数字 0 是有效计数时，不要用 value or default 偷换掉它。"
+      },
+      {
+        "title": "互斥分类与独立条件",
+        "text": "if/elif 链从上往下挑第一个成立分支，适合互斥等级；多个独立 if 可同时成立，适合给博文打多个标签。用 0 <= likes < 10 明确区间，边界值 0、9、10 都要测试。先校验类型再比较数值，字符串与整数不能直接排序比较。"
+      },
+      {
+        "title": "循环推进与缩进",
+        "text": "for 从可迭代对象逐项取值；range(1, 4) 只产生 1、2、3。循环体缩进内的语句每轮执行，退回缩进的汇总只在循环结束后执行。while 每轮重新检查条件，需要一个可达到的退出状态。continue 跳到下一轮，若把计数更新放在它后面，就可能永远不能退出。"
+      },
+      {
+        "title": "退出与正常完成不同",
+        "text": "break 终止最近的一层循环；循环 else 仅在没有 break 时执行，适合“遍历完仍没找到”的场景，不是 if 的 else。写循环时给出不变量，例如 total 等于已处理记录的点赞和；每步保持它，结束时它就说明结果为何正确。遇到嵌套搜索先用函数 return 简化退出，不要靠多层隐藏标志维护。"
+      }
+    ],
+    "code": "likes_list = [0, 9, 10, 30]\ntotal = 0\nfor likes in likes_list:\n    if likes < 10:\n        continue\n    total += likes  # 累计已经接受的记录\nprint(total)\nfor likes in likes_list:\n    if likes > 100:\n        print(\"发现高赞\")\n        break\nelse:\n    print(\"没有超过 100 的记录\")\nprint(bool(\"False\"))\nprint(list(range(1, 4)))",
+    "output": "40\n没有超过 100 的记录\nTrue\n[1, 2, 3]",
+    "pitfalls": [
+      "❌ if likes 检查字段是否存在；✅ 用 is None 区分缺失与合法的 0。",
+      "❌ 把 >=10 和 <=10 分成独立等级；✅ 使用无重叠的 if/elif 区间。",
+      "❌ continue 前没有推进 while 状态；✅ 把推进放在所有继续路径都会经过的位置。"
+    ],
+    "exercises": [
+      {
+        "question": "从 [3, 12, 5] 找第一项不少于 10 的值。",
+        "thinking": "题目要求第一个，不需要收集全部再排序。",
+        "steps": "逐项比较，命中即 break；全部不命中走 else。",
+        "code": "for value in [3, 12, 5]:\n    if value >= 10:\n        print(value)\n        break\nelse:\n    print(\"未找到\")",
+        "output": "12"
+      }
+    ],
+    "mastery": [
+      "预测 range 与边界分支",
+      "写出 while 的退出条件",
+      "解释循环 else 是否执行"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/controlflow.html",
+    "project": null
+  },
+  {
+    "id": "mapping",
+    "title": "字典与集合：记录、索引、嵌套和去重策略",
+    "group": "容器与流程",
+    "book": "第 6 章",
+    "tags": [
+      "键的可哈希性",
+      "get 与缺失值",
+      "items 遍历",
+      "去重冲突"
+    ],
+    "before": [
+      16,
+      3
+    ],
+    "goal": "用字典建立查询索引，既识别重复，也识别同一 ID 的内容冲突。",
+    "sections": [
+      {
+        "title": "键值记录和位置列表",
+        "text": "字典用键定位数据，适合一条博文的多个字段，也适合 id→博文的索引。键必须可哈希，常见的字符串、整数可用，列表不能作键。不同键可能有相同哈希值，字典还会比较键相等性来处理冲突；“哈希冲突”不等于业务中的“相同 ID 不同内容”。"
+      },
+      {
+        "title": "缺失字段与字段值为空不同",
+        "text": "row[\"likes\"] 在缺键时抛 KeyError；get 不会，但默认 None 可能和真实 None 混淆。先做 \"likes\" in row 可以明确区分两者。setdefault 在缺键时插入默认值，适合建立分组列表；默认表达式仍会在调用前求值。不要对不完整数据无差别填 0，这会改变统计意义。"
+      },
+      {
+        "title": "嵌套与遍历",
+        "text": "列表里放字典适合一批记录，字典里放列表适合事件分组，字典里放字典适合按 ID 快速定位。items 同时遍历键值，keys 和 values 是视图，不是永久快照。迭代字典时改变大小会出错；需要删除时先记录待删键。字典保持插入顺序，但这不是按键排序，要排序需显式 sorted。"
+      },
+      {
+        "title": "去重不能把数据冲突藏起来",
+        "text": "set 适合判断是否出现过，通常平均 O(1) 成员查询；它不保证展示顺序。dict 的覆盖赋值会保留最后一条，这必须是明确策略，不能误当作安全去重。观察站主线选择同 ID 同内容跳过，不同内容进入 conflicts.csv，原数据保留。教学中 id 是简写，项目输入是 post_id，落库映射为 dbo.posts.id。"
+      }
+    ],
+    "code": "index = {}\nfor row in [{\"id\": \"01\", \"likes\": 12}, {\"id\": \"01\", \"likes\": 20}]:\n    key = row[\"id\"]\n    if key in index and index[key] != row:\n        print(\"冲突\", key)\n    else:\n        index[key] = row.copy()\nprint(index[\"01\"][\"likes\"])\nprint({\"likes\": 0}.get(\"likes\"))\ntry:\n    print(index[\"02\"])\nexcept KeyError:\n    print(\"KeyError：没有此 ID\")",
+    "output": "冲突 01\n12\n0\nKeyError：没有此 ID",
+    "pitfalls": [
+      "❌ 字典推导式直接覆盖同 ID 记录；✅ 先判断同内容还是冲突。",
+      "❌ 用 set 的顺序作为报告顺序；✅ 显式排序或使用保序去重策略。",
+      "❌ ID 转整数后丢失前导零；✅ 标识符按数据契约保存为字符串。"
+    ],
+    "exercises": [
+      {
+        "question": "统计 [\"音乐节\", \"科技展\", \"音乐节\"] 的频数。",
+        "thinking": "每出现一次就在对应键上加一，缺键从 0 开始。",
+        "steps": "遍历名称、更新计数，最后排序输出避免依赖展示顺序。",
+        "code": "counts = {}\nfor name in [\"音乐节\", \"科技展\", \"音乐节\"]:\n    counts[name] = counts.get(name, 0) + 1\nprint(sorted(counts.items()))",
+        "output": "[('科技展', 1), ('音乐节', 2)]"
+      }
+    ],
+    "mastery": [
+      "区分缺键与 None",
+      "解释两种不同的冲突",
+      "设计保留原记录的去重流程"
+    ],
+    "source": "https://docs.python.org/3.14/library/stdtypes.html#mapping-types-dict",
+    "project": null
+  },
+  {
+    "id": "input",
+    "title": "交互输入：从字符串到可退出的命令循环",
+    "group": "容器与流程",
+    "book": "第 7 章",
+    "tags": [
+      "input 返回值",
+      "哨兵与标志",
+      "队列处理",
+      "EOF/KeyboardInterrupt"
+    ],
+    "before": [
+      44
+    ],
+    "goal": "写一个能接受输入、拒绝脏数据、正常退出的交互流程。",
+    "sections": [
+      {
+        "title": "输入永远先是文本",
+        "text": "input 提示并读取一行，返回 str，自动去除行尾换行但不承诺去掉所有外围空格。输入数字 12 得到 \"12\"，需要转换才可参与数值计算。先识别退出命令再转换，避免把 q 送进 int。非交互测试可以用一组已知字符串替代真实键盘输入，使每条分支可重复验证。"
+      },
+      {
+        "title": "退出协议要单一明确",
+        "text": "常见方式是 while 条件、运行标志和 break。小程序用 while True 加明确 break 最直接；复杂界面适合有含义的状态。continue 表示本轮输入作废，程序仍可继续。对用户按 Ctrl+C 或输入流结束，可以在最外层处理 KeyboardInterrupt、EOFError；不要用一个裸 except 把所有代码错误也当作输入问题。"
+      },
+      {
+        "title": "移动元素时知道谁在变",
+        "text": "用 while pending: 然后 pop 可处理待办队列；如果按先来先走，deque.popleft 比列表 pop(0) 更合适。删除一个列表中所有相等值可用筛选生成新列表。收集输入进字典前要先决定重复名称是拒绝、合并还是覆盖，否则界面看起来接受了两条，实际只留下一条。"
+      }
+    ],
+    "code": "# 用固定输入流模拟键盘：把 for 改为 while，并使用 input 即可交互。\naccepted = []\nfor raw in [\" 12 \", \"坏数据\", \"-1\", \"q\", \"99\"]:\n    text = raw.strip()\n    if text.casefold() == \"q\":\n        break\n    try:\n        value = int(text)\n    except ValueError:\n        print(\"请输入整数\")\n        continue\n    if value < 0:\n        print(\"不能为负数\")\n        continue\n    accepted.append(value)\nprint(accepted)",
+    "output": "请输入整数\n不能为负数\n[12]",
+    "pitfalls": [
+      "❌ 输入 q 后还执行 int(q)；✅ 先判退出，再转类型。",
+      "❌ while True 没有可到达的 break；✅ 为每个状态写清退出路径。",
+      "❌ 只捕获 Exception 期待处理 Ctrl+C；✅ 在交互最外层按需捕获 KeyboardInterrupt。"
+    ],
+    "exercises": [
+      {
+        "question": "把固定输入流改成真实键盘输入。",
+        "thinking": "转换逻辑不变，只更换输入来源。",
+        "steps": "循环读取、判断 q、尝试转换，最后输出结果。",
+        "code": "values = []\nwhile True:\n    raw = input(\"点赞数（q 结束）：\").strip()\n    if raw == \"q\":\n        break\n    try:\n        n = int(raw)\n    except ValueError:\n        print(\"请输入整数\")\n        continue\n    if n >= 0:\n        values.append(n)\nprint(values)",
+        "output": "输入 12、q 时，最终输出 [12]。"
+      }
+    ],
+    "mastery": [
+      "处理合法、非法、退出三条路径",
+      "将输入读取与校验分开",
+      "给循环写一个有限输入测试"
+    ],
+    "source": "https://docs.python.org/3.14/library/functions.html#input",
+    "project": null
+  },
+  {
+    "id": "functions",
+    "title": "函数接口：参数、返回值、作用域与副作用",
+    "group": "代码组织与可靠性",
+    "book": "第 8 章",
+    "tags": [
+      "参数绑定",
+      "默认参数",
+      "*args/**kwargs",
+      "纯函数与作用域"
+    ],
+    "before": [
+      4
+    ],
+    "goal": "把数据清洗拆成可测试函数，并明确哪些输入允许修改。",
+    "sections": [
+      {
+        "title": "形参是函数的局部名称",
+        "text": "调用时实参对象绑定到形参，Python 不会自动深拷贝。函数中重新给形参赋值只影响局部绑定；对它指向的列表 append 则会修改调用者也能看到的对象。设计函数时明确“返回新对象”或“原地修改”，不要让调用者从函数名猜测。print 是输出副作用，return 才把结果交还调用者；没有 return 的函数返回 None。"
+      },
+      {
+        "title": "参数种类表达接口限制",
+        "text": "位置参数按位置对应，关键字参数按名称对应。同一参数不能重复提供。*args 收集额外位置实参为元组，**kwargs 收集额外关键字实参为字典；调用处的 * 和 ** 则解包已有容器。星号后的具名参数可强制关键字调用，例如 normalize(raw, *, minimum=0)，能减少阈值写错位置的风险。"
+      },
+      {
+        "title": "默认值只在定义时求值",
+        "text": "def f(items=[]) 的列表在函数定义时创建，后续调用会共享它。正确方式通常是默认 None，在函数体里创建新列表。这个规则也作用于时间戳、随机数等默认表达式。默认值应表达稳定的约定，而每次调用需要的状态在调用时创建。"
+      },
+      {
+        "title": "局部状态比隐式全局更好测试",
+        "text": "名称查找遵循局部、外层函数、模块全局和内置作用域。函数里出现赋值，通常就让该名称成为局部名称，因此先读后赋值可能抛 UnboundLocalError。尽量把阈值作为参数、统计作为返回值；需要 global/nonlocal 时先思考是否可以通过显式状态对象表达。每个函数聚焦一项职责，文档字符串写清输入、输出和异常。"
+      }
+    ],
+    "code": "def parse_likes(raw, *, minimum=0):\n    \"\"\"把整数文本转为计数；非法或过小输入抛 ValueError。\"\"\"\n    value = int(raw.strip())\n    if value < minimum:\n        raise ValueError(\"低于下限\")\n    return value\n\ndef collect(value, bucket=None):\n    if bucket is None:  # 每次默认调用创建独立列表\n        bucket = []\n    bucket.append(value)\n    return bucket\n\nprint(parse_likes(\" 12 \", minimum=0))\nprint(collect(1), collect(2))\ntry:\n    parse_likes(\"-3\")\nexcept ValueError as exc:\n    print(str(exc))",
+    "output": "12\n[1] [2]\n低于下限",
+    "pitfalls": [
+      "❌ 默认列表在多次调用间累积；✅ 使用 None 后新建。",
+      "❌ 函数只 print，调用者却对结果求和；✅ return 数值，把展示留给外层。",
+      "❌ 任意 **kwargs 透传掩盖拼写错误；✅ 公共接口优先显式具名参数。"
+    ],
+    "exercises": [
+      {
+        "question": "写一个不修改输入的排序函数。",
+        "thinking": "接口承诺新结果，因此使用 sorted。",
+        "steps": "让方向成为关键字参数，并打印原列表核对。",
+        "code": "def ranked(values, *, reverse=False):\n    return sorted(values, reverse=reverse)\nraw = [3, 1]\nprint(ranked(raw))\nprint(raw)",
+        "output": "[1, 3]\n[3, 1]"
+      }
+    ],
+    "mastery": [
+      "解释函数为什么会修改调用者列表",
+      "写安全默认参数",
+      "区分 return 与 print"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/controlflow.html#defining-functions",
+    "project": null
+  },
+  {
+    "id": "modules",
+    "title": "模块与标准库：导入、入口和职责拆分",
+    "group": "代码组织与可靠性",
+    "book": "第 8、9 章 / 附录 C",
+    "tags": [
+      "模块命名空间",
+      "主入口保护",
+      "导入缓存",
+      "标准库选择"
+    ],
+    "before": [
+      6,
+      30,
+      35
+    ],
+    "goal": "把一份脚本拆成可导入、可测试、可命令行运行的项目。",
+    "sections": [
+      {
+        "title": "导入不是复制粘贴",
+        "text": "import helpers 会加载模块并创建其命名空间；helpers.parse 表明函数从哪里来。from helpers import parse 在当前模块绑定一个名称；as 可给名称起别名。通配导入会让来源难以追踪，也可能覆盖已有名称。模块首次正常导入会执行顶层代码，后续通常复用 sys.modules 中的模块对象，因此别在导入时直接读用户输入、连库或删除文件。"
+      },
+      {
+        "title": "程序入口保护",
+        "text": "直接运行文件时 __name__ 为 \"__main__\"，被导入时是模块名。把 main() 的调用放在 if __name__ == \"__main__\": 下，可以让测试安全导入清洗函数。入口只负责读参数、调用业务和报告结果；业务模块不应依赖“程序从哪一个终端启动”。"
+      },
+      {
+        "title": "拆分要沿责任边界",
+        "text": "例如 readers.py 读取文本、cleaners.py 校验记录、reports.py 汇总、main.py 协调。模块互相交叉导入经常意味着边界不清，优先把共享的数据契约移到独立模块，而不是到处在函数里临时 import。不要把文件命名成 json.py、csv.py 或 requests.py，否则可能遮住要用的库。"
+      },
+      {
+        "title": "先找标准库再安装依赖",
+        "text": "pathlib 管路径，csv/json 管结构化文件，collections.Counter 管计数，datetime 管时间，argparse 管命令行，logging 管运行记录。这些在 Python 中附带；pandas、pytest、Pygame 是第三方包。要学会用 help、官方文档的函数签名和一个小例子回答问题，而不是猜参数。写求助帖时附最小输入与输出预期。"
+      }
+    ],
+    "code": "from collections import Counter\nimport json as json_tools\n\ndef summarize(names):\n    return dict(Counter(names))\n\ndef main():\n    result = summarize([\"音乐节\", \"科技展\", \"音乐节\"])\n    print(json_tools.dumps(result, ensure_ascii=False, sort_keys=True))\n\nif __name__ == \"__main__\":\n    main()",
+    "output": "{\"科技展\": 1, \"音乐节\": 2}",
+    "pitfalls": [
+      "❌ 文件叫 json.py 然后 import json；✅ 改名并清理该模块的旧缓存后重试。",
+      "❌ import 就开始导入数据库；✅ 外部动作放在显式入口。",
+      "❌ 两个模块互相依赖全部函数；✅ 抽出共同契约，保持依赖方向清楚。"
+    ],
+    "exercises": [
+      {
+        "question": "如何让测试导入 summarize 时不打印结果？",
+        "thinking": "导入会执行顶层语句，所以主业务调用必须有条件。",
+        "steps": "保留函数定义，将 main 调用放在入口保护内。",
+        "code": "def summarize(values):\n    return sum(values)\nif __name__ == \"__main__\":\n    print(summarize([2, 3]))",
+        "output": "直接运行输出 5；作为模块导入时不打印。"
+      }
+    ],
+    "mastery": [
+      "能安全导入自己的函数",
+      "说明导入别名的用途",
+      "按责任拆出三个模块"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/modules.html",
+    "project": null
+  },
+  {
+    "id": "objects",
+    "title": "类与对象：实例、继承、组合与不变量",
+    "group": "代码组织与可靠性",
+    "book": "第 9 章",
+    "tags": [
+      "self 与 __init__",
+      "实例/类属性",
+      "super 与重写",
+      "组合"
+    ],
+    "before": [
+      6,
+      29
+    ],
+    "goal": "建模带状态的对象，理解何时用类、何时函数和字典更直接。",
+    "sections": [
+      {
+        "title": "类把状态与行为放在一起",
+        "text": "类是创建实例的一种定义，实例分别保存自己的状态。__init__ 初始化已创建的实例，self 是接收该实例的约定参数。post.add(3) 调用方法时会自动传入 post；不是把 self 当作 Python 保留字。只做输入到输出转换的工作，函数通常更简单；需要持续维护状态和约束时，类才更有价值。"
+      },
+      {
+        "title": "实例属性与类属性",
+        "text": "self.likes 属于实例；类体里定义的属性通常可被所有实例通过查找共享。把可变列表放在类属性中，可能导致不同用户共享记录。应在 __init__ 中给每个实例创建独立列表。方法通过统一入口维护“点赞非负”等不变量，但 Python 的下划线命名是约定，不能代替访问控制或输入校验。"
+      },
+      {
+        "title": "继承表达可替代，组合表达拥有",
+        "text": "继承适合“子类也应能当父类使用”的关系。子类重写行为时，可通过 super 调用父类初始化，避免漏掉父类状态。组合则把另一个实例保存在属性里，如 Report 拥有一个 Exporter；切换导出方式时不必增加一长串子类。不要仅为复用两行代码就建立难以理解的继承树。"
+      },
+      {
+        "title": "建模是选择，不是现实一比一复制",
+        "text": "只保留当前需求用到的属性和行为，例如事件名称、记录列表和汇总方法。类变大时，把文件访问或网络请求抽离，让核心对象可在内存中测试。dataclass 可减少数据容器的样板，但类型标注不会自动校验运行时输入；外部脏数据仍需显式验证。"
+      }
+    ],
+    "code": "class Post:\n    def __init__(self, likes=0):\n        if likes < 0:\n            raise ValueError(\"点赞不能为负\")\n        self.likes = likes\n        self.tags = []  # 每个实例各有一个列表\n\n    def label(self):\n        return f\"{self.likes} 赞\"\n\nclass FeaturedPost(Post):\n    def __init__(self, likes, reason):\n        super().__init__(likes)\n        self.reason = reason\n\n    def label(self):\n        return f\"精选：{super().label()}\"\n\na, b = Post(12), Post(8)\na.tags.append(\"校园\")\nprint(a.tags, b.tags)\nprint(FeaturedPost(20, \"热门\").label())\ntry:\n    Post(-1)\nexcept ValueError as exc:\n    print(exc)",
+    "output": "['校园'] []\n精选：20 赞\n点赞不能为负",
+    "pitfalls": [
+      "❌ 在类属性放所有实例的 items=[]；✅ 每个实例在初始化时创建列表。",
+      "❌ 子类初始化遗漏父类状态；✅ 合理使用 super().__init__。",
+      "❌ 每条数据都套复杂继承层次；✅ 简单记录优先字典或 dataclass。"
+    ],
+    "exercises": [
+      {
+        "question": "给 Report 组合一个 Post，返回其标签。",
+        "thinking": "报告拥有博文，不是博文的子类。",
+        "steps": "通过构造参数保存实例，再委托 label 方法。",
+        "code": "class Post:\n    def label(self):\n        return \"12 赞\"\nclass Report:\n    def __init__(self, post):\n        self.post = post\n    def render(self):\n        return self.post.label()\nprint(Report(Post()).render())",
+        "output": "12 赞"
+      }
+    ],
+    "mastery": [
+      "解释 self 是如何传入的",
+      "证明两个实例不共享列表",
+      "用一句话区分继承与组合"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/classes.html",
+    "project": null
+  },
+  {
+    "id": "files",
+    "title": "文件与 JSON：路径、编码、流式读取和持久化",
+    "group": "代码组织与可靠性",
+    "book": "第 10 章",
+    "tags": [
+      "pathlib",
+      "编码与换行",
+      "JSON schema",
+      "流式处理"
+    ],
+    "before": [
+      5,
+      18,
+      19
+    ],
+    "goal": "从可追溯的文件输入建立可靠数据流，避免意外覆盖源文件。",
+    "sections": [
+      {
+        "title": "路径是位置，编码是解释规则",
+        "text": "Path 对象表达位置，不代表文件存在。相对路径相对于当前工作目录；读写时明确 encoding=\"utf-8\"，处理带 BOM 的 CSV 可用 utf-8-sig。编码错误是字节与字符规则不匹配，不应无条件 errors=\"ignore\" 丢掉字节来掩盖。FileNotFoundError 和 UnicodeDecodeError 应分别报告。"
+      },
+      {
+        "title": "整文件与逐行读取的内存边界",
+        "text": "read_text 一次读取全部内容，适合小配置；open 后逐行迭代能控制读取部分的内存。splitlines 去行尾换行，与直接 strip 每一行不同，后者可能删掉有业务意义的空白。生成器减少同时驻留的数据，但若后面马上 list(generator)，又会一次全部放进内存。"
+      },
+      {
+        "title": "JSON 是文本协议，不是任意 Python 对象",
+        "text": "dumps 把支持的对象编码成 JSON 字符串，loads 解析字符串；dump/load 面向文件对象。JSON 的对象键是字符串，元组会表现为数组，集合和自定义类不能直接编码。解析成功只说明语法合法，不代表包含必须字段或计数非负。读取后仍需检查顶层类型、键和字段范围。"
+      },
+      {
+        "title": "保存策略决定会不会丢数据",
+        "text": "w 和 Path.write_text 会覆盖原文件，x 模式仅在文件不存在时创建，a 是追加但不适合直接拼成一个合法 JSON 文档。教学代码用 TemporaryDirectory 隔离演示，实际导出用新目录和明确文件名。重要配置可先写同目录临时文件，验证后 replace；这能减小半写文件风险，但还需结合备份与文件系统保证。"
+      }
+    ],
+    "code": "import json\nfrom pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nwith TemporaryDirectory() as folder:\n    path = Path(folder) / \"summary.json\"\n    data = {\"event\": \"音乐节\", \"likes\": 12}\n    with path.open(\"x\", encoding=\"utf-8\") as stream:\n        json.dump(data, stream, ensure_ascii=False)\n    loaded = json.loads(path.read_text(encoding=\"utf-8\"))\n    print(loaded[\"event\"], loaded[\"likes\"])\n    try:\n        json.loads('{\"likes\":}')\n    except json.JSONDecodeError:\n        print(\"JSON 语法错误：保留源文件核查\")",
+    "output": "音乐节 12\nJSON 语法错误：保留源文件核查",
+    "pitfalls": [
+      "❌ 用 w 打开原始采集文件测试写入；✅ 导出到新文件或临时目录。",
+      "❌ JSON 解析成功就直接信任字段；✅ 再做结构与业务校验。",
+      "❌ 用 split(\",\") 解析 CSV；✅ 使用 csv 模块处理引号和字段内逗号。"
+    ],
+    "exercises": [
+      {
+        "question": "读取配置后发现 likes=\"abc\"，如何报告？",
+        "thinking": "JSON 合法不等于字段类型正确。",
+        "steps": "先解析，再转整数；分别给出两个阶段的失败原因。",
+        "code": "import json\nrow = json.loads('{\"likes\": \"abc\"}')\ntry:\n    print(int(row[\"likes\"]))\nexcept (KeyError, TypeError, ValueError):\n    print(\"likes 字段不合法\")",
+        "output": "likes 字段不合法"
+      }
+    ],
+    "mastery": [
+      "选择小文件或逐行读取",
+      "区分 JSON 语法和业务验证",
+      "说明 x/w/a 的风险差异"
+    ],
+    "source": "https://docs.python.org/3.14/tutorial/inputoutput.html",
+    "project": null
+  },
+  {
+    "id": "errors",
+    "title": "异常与测试：让失败可解释、可复现",
+    "group": "代码组织与可靠性",
+    "book": "第 10、11 章",
+    "tags": [
+      "try/except/else/finally",
+      "pytest 参数化",
+      "fixture",
+      "tmp_path"
+    ],
+    "before": [
+      17,
+      20
+    ],
+    "goal": "将预期脏数据与程序缺陷分开，并为业务边界建立自动回归检查。",
+    "sections": [
+      {
+        "title": "捕获范围就是责任范围",
+        "text": "try 内只放可能按预期失败的最小操作；except 捕获能处理的具体异常。else 只在 try 未抛异常时执行，finally 用于无论成功失败都需要的清理。with 已为文件等资源封装清理过程。不要在 finally 中 return，因为它可能覆盖原来的返回结果或异常。"
+      },
+      {
+        "title": "拒绝记录需要可追溯",
+        "text": "清洗一行失败时记录行号、原值和原因，继续下一行是否合理由业务决定；配置丢失、目标目录不可写等全局故障通常应停止整批。日志中保留异常栈便于定位，但不要输出密码或访问令牌。把所有失败静默忽略，得到的报告可能看似成功却严重漏数。"
+      },
+      {
+        "title": "测试应检验契约",
+        "text": "先明确合法输入结果、边界与错误输入行为，再写测试。pytest 发现 test_*.py 中以 test_ 开头的函数，普通 assert 负责核对结果，pytest.raises 负责核对预期异常。测试失败要先看期望是否正确，再修业务代码；把期望改成当前错误结果不叫修复。"
+      },
+      {
+        "title": "fixture 隔离状态，参数化覆盖边界",
+        "text": "fixture 按依赖准备测试数据，默认每个测试重新调用，避免上一个测试污染后一个。tmp_path 提供独立临时目录，可真实测试文件 I/O。parametrize 用不同输入复用同一行为约定；不需要复制十个几乎相同的测试函数。测试网络和数据库接口可替换边界，但替身通过不能证明真实服务也通过。"
+      }
+    ],
+    "code": "# 保存为 test_counts.py，安装 pytest 后运行 python -m pytest -q\nimport pytest\n\ndef parse_count(raw):\n    value = int(raw)\n    if value < 0:\n        raise ValueError(\"计数不能为负\")\n    return value\n\n@pytest.mark.parametrize(\"raw, expected\", [(\"0\", 0), (\"12\", 12)])\ndef test_valid(raw, expected):\n    assert parse_count(raw) == expected\n\n@pytest.mark.parametrize(\"raw\", [\"\", \"abc\", \"-1\"])\ndef test_invalid(raw):\n    with pytest.raises(ValueError):\n        parse_count(raw)\n\ndef test_file(tmp_path):\n    path = tmp_path / \"count.txt\"\n    path.write_text(\"12\", encoding=\"utf-8\")\n    assert parse_count(path.read_text(encoding=\"utf-8\")) == 12",
+    "output": "pytest 汇总：6 passed（耗时因电脑而异）。直接 python test_counts.py 不会自动执行这些测试函数。",
+    "pitfalls": [
+      "❌ except: pass 后宣布清洗成功；✅ 保存拒绝原因并报告数量。",
+      "❌ 所有测试复用可变全局列表；✅ fixture 或每次新建数据。",
+      "❌ 只测正常的 12；✅ 同时覆盖 0、空值、非数字、负数和文件路径。"
+    ],
+    "exercises": [
+      {
+        "question": "给转换函数加一个 bool 边界：True 不应当作计数 1。",
+        "thinking": "bool 是 int 的子类，仅 int(raw) 会接受 True。",
+        "steps": "在转换之前显式拒绝 bool，再验证异常。",
+        "code": "def count(raw):\n    if isinstance(raw, bool):\n        raise TypeError(\"不接受布尔值\")\n    return int(raw)\ntry:\n    count(True)\nexcept TypeError as exc:\n    print(exc)",
+        "output": "不接受布尔值"
+      }
+    ],
+    "mastery": [
+      "讲清 except/else/finally 的时机",
+      "运行并读懂一次失败测试",
+      "用临时目录测试文件而非污染真实目录"
+    ],
+    "source": "https://docs.pytest.org/en/stable/how-to/fixtures.html",
+    "project": null
+  },
+  {
+    "id": "game-loop",
+    "title": "游戏开发 1：窗口、坐标、输入与帧循环",
+    "group": "游戏开发",
+    "book": "第 12 章",
+    "tags": [
+      "事件队列",
+      "Surface/Rect",
+      "时间步长",
+      "资源路径"
+    ],
+    "before": [
+      6
+    ],
+    "goal": "解释一个窗口为什么要不停循环，并把按键转成独立于帧率的移动。",
+    "sections": [
+      {
+        "title": "一帧分成三件事",
+        "text": "游戏不是画一次图就结束，而是重复“处理输入→更新状态→绘制画面”。pygame.event.get 消费队列中的退出、按键和鼠标事件；不持续处理事件，窗口可能被系统认为无响应。draw 后调用 display.flip 才把画面更新给用户。退出时离开循环并 pygame.quit，避免把退出写成窗口关闭后仍继续绘制。"
+      },
+      {
+        "title": "图像和碰撞位置分开",
+        "text": "Surface 保存可绘制像素，Rect 保存整数位置与大小。坐标原点在左上角，x 向右、y 向下。载入图片可用 pygame.image.load(path).convert_alpha() 保留透明度，前提是已创建显示窗口。项目用几何图形免除素材依赖；换图像时要重新取得 rect，并恢复原位置。相对素材路径最好基于 __file__ 而不是启动目录。"
+      },
+      {
+        "title": "按下事件和持续按住不同",
+        "text": "KEYDOWN 适合发射一次、开始游戏等离散动作；持续移动可每帧读取 key.get_pressed，或在 KEYDOWN/KEYUP 中维护标志。不要用系统按键重复频率决定运动速度。左右同时按下时 movement=right-left 得到 0，行为明确且容易测试。"
+      },
+      {
+        "title": "帧率上限不等于实际帧率",
+        "text": "clock.tick(60) 限制循环速度并返回自上次调用起的毫秒数。速度用像素/秒，再乘 dt 秒，才能减轻电脑快慢导致的运动差异。位置保留浮点数，绘制时转换给 Rect，避免每帧小于一个像素的增量被截断。窗口拖动后可能出现很大 dt，项目对单次 dt 设上限；更复杂物理模拟可采用固定时间步长。"
+      }
+    ],
+    "code": "# 先安装 pygame；这个最小实验不创建交互窗口。\nimport pygame\n\nplayer = pygame.Rect(10, 50, 40, 20)\nx = float(player.x)\nspeed, dt = 120, 0.25\nx += speed * dt  # 120 像素/秒 × 0.25 秒\nplayer.x = round(x)\nplayer.clamp_ip(pygame.Rect(0, 0, 100, 100))\nprint(player.x, player.right)\nprint(player.collidepoint(45, 55))",
+    "output": "40 80\nTrue（pygame 导入时可能另显示版本欢迎行）",
+    "pitfalls": [
+      "❌ 每帧固定移动 5 像素就认为速度恒定；✅ 用速度乘时间或固定步长。",
+      "❌ 只绘制不消费事件；✅ 每帧处理退出和输入队列。",
+      "❌ 位置每帧先转 int 再累加；✅ 浮点状态与绘制矩形分离。"
+    ],
+    "exercises": [
+      {
+        "question": "宽 800 的窗口中，宽 40 的玩家最右 x 是多少？",
+        "thinking": "矩形右边界等于 x+width，必须小于等于窗口宽度。",
+        "steps": "先算最大 x，再夹取越界的新位置。",
+        "code": "width, player_width = 800, 40\nx = 900\nx = min(max(x, 0), width - player_width)\nprint(x)",
+        "output": "760"
+      }
+    ],
+    "mastery": [
+      "画出一帧的执行顺序",
+      "解释持续按键为何不能只看一次事件",
+      "使用窗口边界约束玩家"
+    ],
+    "source": "https://www.pygame.org/docs/ref/time.html",
+    "project": "game"
+  },
+  {
+    "id": "game-collision",
+    "title": "游戏开发 2：编组、碰撞、波次和生命周期",
+    "group": "游戏开发",
+    "book": "第 12、13 章",
+    "tags": [
+      "Sprite/Group",
+      "碰撞矩形",
+      "安全删除",
+      "波次生成"
+    ],
+    "before": [],
+    "goal": "管理多个独立对象，处理命中、越界、刷新目标和失败状态。",
+    "sections": [
+      {
+        "title": "对象集合需要统一管理",
+        "text": "Sprite 表示一个有 image 和 rect 的对象，Group 管理集合，可以统一绘制和更新。玩家、弹体、目标可共享一个简单基类，但速度与行为由各自规则决定。把数十个目标放进编组，比 enemy1、enemy2 等独立变量容易扩展，也让“删除所有离场对象”变成明确的操作。"
+      },
+      {
+        "title": "生成阵列要从几何关系推导",
+        "text": "先确定对象宽度、水平间距、起始位置，再用列号计算 x，行号计算 y。嵌套循环不是背语法，而是在枚举行列坐标组合。阵列到边缘时整组改变方向并下移，不应每个目标独立翻转，否则队形会散。检查下一步会否越界再整体推进，可以减少贴边抖动。"
+      },
+      {
+        "title": "碰撞检测给出事实，业务决定后果",
+        "text": "矩形碰撞是近似；透明图像边缘需要更精细规则时可考虑 mask。groupcollide 返回命中关系，删除参数决定是否移除相应精灵。一次更新可能出现多对命中，应按唯一目标计分，不能把同一目标与多颗弹的重叠重复算分。高速物体在两帧间越过目标可能漏检，进一步可减小步长或做扫掠检测。"
+      },
+      {
+        "title": "生命周期比画出来更重要",
+        "text": "弹体离开屏幕后及时 kill，否则对象数会不断增长。遍历列表时删除可用列表副本，编组则使用官方支持的删除方式。全部目标清空再生成下一波，并清理旧弹体，避免新波立即被旧弹体击中。目标碰到玩家或到达底线时扣生命、重置波次；生命归零后只处理菜单输入，不再推进战斗。"
+      }
+    ],
+    "code": "import pygame\n\nclass Target(pygame.sprite.Sprite):\n    def __init__(self, x):\n        super().__init__()\n        self.image = pygame.Surface((20, 20))\n        self.rect = self.image.get_rect(topleft=(x, 30))\n\ntargets = pygame.sprite.Group(Target(10), Target(80))\nshots = pygame.sprite.Group(Target(10))\nhits = pygame.sprite.groupcollide(shots, targets, True, True)\nunique = {target for group in hits.values() for target in group}\nprint(len(unique), len(targets), len(shots))",
+    "output": "1 1 0（pygame 导入时可能另显示版本欢迎行）",
+    "pitfalls": [
+      "❌ 用命中配对数直接当击毁数；✅ 按被击毁目标去重。",
+      "❌ 只隐藏飞出屏幕的弹体；✅ 从管理集合移除它。",
+      "❌ 每个目标各自碰边翻转；✅ 先判断整组，再统一转向。"
+    ],
+    "exercises": [
+      {
+        "question": "生成两行、每行三列的坐标，列间隔 40、行间隔 30。",
+        "thinking": "坐标分别由行号和列号决定。",
+        "steps": "外循环行、内循环列，收集坐标而非写六个变量。",
+        "code": "positions = [(c * 40, r * 30) for r in range(2) for c in range(3)]\nprint(positions)",
+        "output": "[(0, 0), (40, 0), (80, 0), (0, 30), (40, 30), (80, 30)]"
+      }
+    ],
+    "mastery": [
+      "限制弹体总数",
+      "解释清理旧对象的重要性",
+      "为碰撞后计分与删除写测试"
+    ],
+    "source": "https://www.pygame.org/docs/ref/sprite.html",
+    "project": "game"
+  },
+  {
+    "id": "game-state",
+    "title": "游戏开发 3：开始按钮、计分、难度与重开",
+    "group": "游戏开发",
+    "book": "第 14 章",
+    "tags": [
+      "状态机",
+      "UI 命中测试",
+      "最高分持久化",
+      "回归测试"
+    ],
+    "before": [],
+    "goal": "让游戏可开始、可结束、可重开，明确一局状态与长期状态的边界。",
+    "sections": [
+      {
+        "title": "用状态替代相互打架的布尔值",
+        "text": "ready、playing、over 三个状态分别允许不同输入。菜单中 Enter 或按钮点击开始；playing 中才允许发射；over 中保留结算展示。若只用 started、dead、paused 多个标志，会出现“死了但仍可射击”的非法组合。状态变化应集中在 reset 和 lose_life 等少量入口。"
+      },
+      {
+        "title": "按钮也是一个矩形约定",
+        "text": "按钮 Rect.collidepoint(event.pos) 判断点击位置。只响应左键，并且仅在非游戏状态触发重开，避免玩家射击时点击画面误重置。渲染文本通过 Font.render 生成 Surface，再 blit 到位置。分数文本由状态生成，显示格式 {score:,} 加千分位，不应把格式化后的字符串存回数值字段。"
+      },
+      {
+        "title": "重开重置哪些值",
+        "text": "本局得分、生命、关卡、速度、对象集合属于本局状态；最高分属于跨局状态。速度随关卡递增应有上限，避免过快造成不可玩或碰撞漏检。重开必须恢复初始速度，不是只把分数归零。最高分存文件后要校验类型，损坏时允许继续游戏并保留损坏副本。"
+      },
+      {
+        "title": "测试动作序列而不只测静态值",
+        "text": "先命中一次、失去三条命，再重开，检查得分归零、生命恢复、关卡归一但最高分保留。无窗口测试能检验逻辑与部分绘制调用，不能保证真实键盘体验或不同显示缩放正常。项目的测试刻意把显示后端设为 dummy，验收时仍建议在你的电脑上走一轮完整游戏。"
+      }
+    ],
+    "code": "state = {\"mode\": \"over\", \"score\": 120, \"best\": 120, \"lives\": 0, \"level\": 3}\ndef restart(state):\n    state.update(mode=\"playing\", score=0, lives=3, level=1)\nrestart(state)\nprint(state[\"mode\"], state[\"score\"], state[\"best\"], state[\"lives\"], state[\"level\"])",
+    "output": "playing 0 120 3 1",
+    "pitfalls": [
+      "❌ 重开只清分数，难度继续叠加；✅ 把所有本局状态集中初始化。",
+      "❌ 每帧都写最高分文件；✅ 在结算或退出时保存。",
+      "❌ 把模拟显示测试说成真实试玩；✅ 分开记录逻辑测试和人工体验。"
+    ],
+    "exercises": [
+      {
+        "question": "状态为 over 时，发射应增加弹体吗？",
+        "thinking": "只有 playing 状态允许战斗动作。",
+        "steps": "在动作入口判断状态，让所有调用者遵守同一规则。",
+        "code": "def can_fire(mode, bullet_count):\n    return mode == \"playing\" and bullet_count < 4\nprint(can_fire(\"over\", 0))\nprint(can_fire(\"playing\", 3))",
+        "output": "False\nTrue"
+      }
+    ],
+    "mastery": [
+      "列出跨局与局内状态",
+      "完成一次失败后重开",
+      "检查分数只对唯一目标累计"
+    ],
+    "source": "https://www.pygame.org/docs/",
+    "project": "game"
+  },
+  {
+    "id": "plotting",
+    "title": "可视化 1：图形语法、随机游走与概率模拟",
+    "group": "数据分析与可视化",
+    "book": "第 15 章",
+    "tags": [
+      "Figure/Axes",
+      "随机种子",
+      "散点与色图",
+      "离散频数"
+    ],
+    "before": [
+      36,
+      37
+    ],
+    "goal": "从“画出一张图”提升为能解释坐标、样式、随机性和读图边界。",
+    "sections": [
+      {
+        "title": "先决定比较关系，再选图",
+        "text": "折线适合按有序时间连接的变化，散点适合两数值变量的对应，条形适合类别频数。Matplotlib 中 Figure 是整张画布，Axes 是一个绘图区；使用 fig, ax = plt.subplots() 后显式调用 ax 方法，能减少多张图时画错画布。坐标数量必须一致，每个点代表什么要在标题或轴名里说明。"
+      },
+      {
+        "title": "样式应服务于信息",
+        "text": "设置线宽、标记、刻度和图例是为了辨认系列。颜色映射把数值映到颜色，颜色条说明映射含义；不能仅凭颜色深浅假设比例。散点面积与半径不是同一尺度，直接把数量当半径会夸大视觉差异。导出用 fig.savefig 再关闭画布，避免长批次中累积内存。中文字体缺失需选本机已安装字体，不要只屏蔽警告。"
+      },
+      {
+        "title": "随机游走是累加状态",
+        "text": "每步在旧位置基础上增加 dx、dy，方向和步长决定过程。固定 Random(seed) 可以重复同一伪随机序列，适合排错和比较参数，但不代表这一次轨迹就是总体规律。等比例坐标避免把同样长度的横纵位移画成不同长度。用步序着色、明确起点终点，能看出路径如何推进。"
+      },
+      {
+        "title": "两颗骰子的和不是均匀分布",
+        "text": "单颗公平骰子的各面机会相同，但和有不同数量的组合方式。两颗六面骰的 7 有六种组合，2 只有一种。模拟频数应加总为试验次数；增加次数通常让比例更稳定，并不保证每次都更接近理论值。Plotly 可用 hover 查看每一项并导出 HTML；自包含脚本使离线文件更大，但可不依赖 CDN。"
+      }
+    ],
+    "code": "from collections import Counter\n\n# 枚举两颗骰子的所有结果，避免把一次模拟误当理论分布。\ncounts = Counter(a + b for a in range(1, 7) for b in range(1, 7))\nprint(sum(counts.values()))\nprint(counts[2], counts[7], counts[12])\nprint(f\"P(7) = {counts[7] / 36:.3f}\")",
+    "output": "36\n1 6 1\nP(7) = 0.167",
+    "pitfalls": [
+      "❌ 把离散频数的索引当真实横坐标；✅ 显式提供点值或类别。",
+      "❌ 固定种子后只报告一条轨迹结论；✅ 多次试验并区分演示与统计推断。",
+      "❌ 截断纵轴却不标注；✅ 保持标尺透明并说明比较对象。"
+    ],
+    "exercises": [
+      {
+        "question": "一颗六面骰和一颗八面骰共有多少组合？和为 2 的有几个？",
+        "thinking": "独立结果两两配对，共 6×8；枚举可直接验证。",
+        "steps": "双循环枚举，再统计和。",
+        "code": "from collections import Counter\nfreq = Counter(a+b for a in range(1,7) for b in range(1,9))\nprint(sum(freq.values()), freq[2])",
+        "output": "48 1"
+      }
+    ],
+    "mastery": [
+      "写清每个点与轴的含义",
+      "检查总频数",
+      "保存一张 PNG 和一张离线 HTML"
+    ],
+    "source": "https://matplotlib.org/stable/users/explain/quick_start.html",
+    "project": "analysis"
+  },
+  {
+    "id": "datasets",
+    "title": "可视化 2：CSV、日期与 GeoJSON 的完整读取链",
+    "group": "数据分析与可视化",
+    "book": "第 16 章",
+    "tags": [
+      "字段头校验",
+      "日期对齐",
+      "fill_between",
+      "GeoJSON 坐标"
+    ],
+    "before": [
+      18,
+      5
+    ],
+    "goal": "保证图上的一个日期和对应数值来自同一条有效记录，正确解释地理字段。",
+    "sections": [
+      {
+        "title": "先看表头再看数值",
+        "text": "CSV 表头是数据契约的一部分，DictReader 用名称取字段比硬编码列号稳妥。若需要检查未知文件，先 enumerate(fieldnames) 观察列名和位置；缺必须字段应在读行前停止。带逗号的文本、引号和换行必须交给 csv 解析。网络下载完成只说明拿到字节，还应检查是不是登录页或错误 JSON。"
+      },
+      {
+        "title": "日期与测量值必须一起接受或拒绝",
+        "text": "最隐蔽的错误是先 append 日期，转换数值失败后 continue，导致两列长度或位置错位。把整行转成一个记录元组，全部验证通过后再追加。date.fromisoformat 适合 YYYY-MM-DD；其他格式使用 datetime.strptime 的明确格式。按日期排序后再画折线，不要按源文件顺序猜测时间。缺失一天是否连线是展示选择，不可暗示观测连续。"
+      },
+      {
+        "title": "多条系列与区间图",
+        "text": "最高、最低值可画两条线，再 fill_between 着色区间；前提是同一日期低值不大于高值。不要用零填补“未观测”，零本身是有效测量。跨城市或事件比较时，日期窗口、单位和统计口径必须一致。图注注明拒绝行数，读者才能判断是否因清洗丢失关键日期。"
+      },
+      {
+        "title": "GeoJSON 先看几何类型",
+        "text": "FeatureCollection 包含 features，每项通常有 geometry 与 properties。Point 坐标通常为经度、纬度，可选第三个高度；不是纬度在前。检查经纬度范围和数值类型，缺失属性单独处理。地理散点还涉及地图投影；项目离线图采用普通经纬度坐标并明确标识，不能当作准确距离图。若用 Plotly scatter_geo，底图资源的网络可达性要额外验证。"
+      }
+    ],
+    "code": "from datetime import date\n\naccepted, rejected = [], []\nfor raw in [(\"2026-01-01\", \"3\", \"12\"), (\"bad\", \"1\", \"2\"), (\"2026-01-03\", \"\", \"9\")]:\n    try:\n        day = date.fromisoformat(raw[0])\n        low, high = int(raw[1]), int(raw[2])\n        if not 0 <= low <= high:\n            raise ValueError(\"上下界错误\")\n    except ValueError:\n        rejected.append(raw)\n    else:\n        accepted.append((day, low, high))\nprint(len(accepted), len(rejected))\nprint(accepted[0][0].isoformat(), accepted[0][1:])",
+    "output": "1 2\n2026-01-01 (3, 12)",
+    "pitfalls": [
+      "❌ 日期先入列表，数值失败再跳过；✅ 一整行验证后统一追加。",
+      "❌ 把经纬度写反但只看图“像对的”；✅ 校验字段顺序与地理范围。",
+      "❌ 缺失测量填零后画趋势；✅ 保留缺失并解释断点或拒绝策略。"
+    ],
+    "exercises": [
+      {
+        "question": "检查坐标 [121.5, 31.2] 是否有效。",
+        "thinking": "GeoJSON Point 的前两项是经度、纬度。",
+        "steps": "先解包，再按各自允许范围判断。",
+        "code": "lon, lat = [121.5, 31.2]\nprint(-180 <= lon <= 180 and -90 <= lat <= 90)",
+        "output": "True"
+      }
+    ],
+    "mastery": [
+      "对坏日期、缺数值分别拒绝",
+      "保证系列一一对齐",
+      "说明坐标散点与地理投影的不同"
+    ],
+    "source": "https://docs.python.org/3.14/library/csv.html",
+    "project": "analysis"
+  },
+  {
+    "id": "api",
+    "title": "可视化 3：HTTP API、分页、限流与结果验证",
+    "group": "数据分析与可视化",
+    "book": "第 17 章",
+    "tags": [
+      "状态码与 JSON",
+      "超时",
+      "分页与限流",
+      "离线快照"
+    ],
+    "before": [
+      5,
+      17
+    ],
+    "goal": "把网络获取当作会失败的输入边界，避免拿到 JSON 就当成完整有效数据。",
+    "sections": [
+      {
+        "title": "API 调用的四个阶段",
+        "text": "请求由 URL、查询参数、请求头等组成；服务返回状态码、响应头与正文。Requests 用 params 构建查询参数，用 headers 明确接受的数据格式。先检查 HTTP 状态再解析 JSON，最后校验业务结构。200 也可能返回缺字段，404 的 JSON 也可能解析成功；解析与成功是两件事。"
+      },
+      {
+        "title": "超时与重试是不同控制",
+        "text": "timeout=(connect, read) 分别控制连接等待和读取等待的相应阶段，不是整个任务的总时限。捕获 Timeout、ConnectionError、HTTPError 后报告失败来源。只对适合重试的暂时失败做有上限的退避；收到限流响应要尊重服务端说明。不要对所有请求无限重试，更不能对会创建数据的请求盲目重发。"
+      },
+      {
+        "title": "列表接口通常只是某一页",
+        "text": "GitHub 搜索返回的 items 不是所有仓库，per_page 和分页有服务端限制。记录查询条件、抓取时间、页数和停止理由，否则所谓“排行榜”可能只是前几条响应。Hacker News 一类接口可能先返回 ID 列表，再逐个获取详情，详情缺失或 null 要单独处理；不要把请求失败当作零点赞。"
+      },
+      {
+        "title": "把实时获取和绘图解耦",
+        "text": "先保存原始响应和元信息，再由纯解析函数转成图表数据。测试使用合成快照和请求替身，能覆盖字段变更、空说明和限流分支；只有实际访问才能验证实时服务。图表标题必须注明样本或实时来源。若要添加可点击链接，验证链接来自预期 HTTPS 域名，文本仍按普通数据转义，避免把不可信内容当 HTML。"
+      }
+    ],
+    "code": "def rows_from_response(payload):\n    if not isinstance(payload.get(\"items\"), list):\n        raise ValueError(\"缺少 items 列表\")\n    rows = []\n    for item in payload[\"items\"]:\n        count = item.get(\"stargazers_count\")\n        if type(count) is not int or count < 0:\n            raise ValueError(\"星标数不合法\")\n        rows.append((item[\"full_name\"], count, item.get(\"description\") or \"暂无说明\"))\n    return rows\n\nprint(rows_from_response({\"items\": [{\"full_name\": \"demo/tool\", \"stargazers_count\": 12, \"description\": None}]}))\ntry:\n    rows_from_response({\"message\": \"rate limited\"})\nexcept ValueError as exc:\n    print(exc)",
+    "output": "[('demo/tool', 12, '暂无说明')]\n缺少 items 列表",
+    "pitfalls": [
+      "❌ requests.get 不设超时；✅ 指定等待边界并报告失败。",
+      "❌ 第一页结果称为全量数据；✅ 实现分页或明确样本范围。",
+      "❌ 离线快照图写成实时榜单；✅ 标明来源、时间和抓取范围。"
+    ],
+    "exercises": [
+      {
+        "question": "响应 {\"items\": []} 和 {\"message\": \"forbidden\"} 有何不同？",
+        "thinking": "空数组是结构有效但无记录；缺数组是另一种响应契约。",
+        "steps": "按字段和类型区分，不把两者都默认为空列表。",
+        "code": "for payload in [{\"items\": []}, {\"message\": \"forbidden\"}]:\n    print(\"有效空结果\" if isinstance(payload.get(\"items\"), list) else \"响应结构错误\")",
+        "output": "有效空结果\n响应结构错误"
+      }
+    ],
+    "mastery": [
+      "依次检查状态、解析和结构",
+      "给分页设置停止条件",
+      "解释替身测试的验证范围"
+    ],
+    "source": "https://requests.readthedocs.io/en/latest/user/quickstart/",
+    "project": "analysis"
+  },
+  {
+    "id": "web-foundations",
+    "title": "Web 开发 1：Django 请求链、模型与页面",
+    "group": "Web 应用",
+    "book": "第 18 章",
+    "tags": [
+      "project/app",
+      "模型与迁移",
+      "URL/view/template",
+      "QuerySet"
+    ],
+    "before": [
+      6,
+      35,
+      7
+    ],
+    "goal": "把浏览器的一次访问追踪到数据查询和 HTML 响应，并运行独立的笔记应用。",
+    "sections": [
+      {
+        "title": "先划分浏览器与服务器",
+        "text": "浏览器发送 HTTP 请求，Django 根据 URL 找视图函数，视图查询模型或处理输入，再用模板生成 HTML 响应。CSS 控制外观，不承担权限校验。当前学习网站是静态站；下载的 Django 工程需要本地 Python 进程运行，不能把 .py 上传到静态目录就期待成为后端。"
+      },
+      {
+        "title": "项目与应用是不同粒度",
+        "text": "project 放整体配置、根 URL、WSGI 入口；app 组织一个业务，如 notes。从空目录可依次使用 python -m django startproject notebook .、python manage.py startapp notes，然后注册应用。下载包已完成这一步，照 README 安装、迁移、启动即可。模型 Topic 和 Entry 表达主题与笔记的一对多，不把整篇 HTML 存作模型字段。"
+      },
+      {
+        "title": "迁移是可追溯的结构变更",
+        "text": "修改 models.py 并不立刻改数据库。makemigrations 生成迁移文件，migrate 应用迁移；迁移文件与源码一起保存。不要通过删库来解决每次模型变化，那会丢记录。Django admin 适合受信管理者维护数据，创建超级用户后注册模型；普通用户仍使用业务页面。独立框架练习用本地 SQLite，SQL Server 主线沙盒与项目包不变。"
+      },
+      {
+        "title": "查询与模板各有责任",
+        "text": "QuerySet 表达查询，很多操作是惰性的；遍历等时机才真正取数据。视图明确过滤与排序，模板只负责展示，避免在模板堆业务规则。base.html 提取公共导航，子模板通过 block 填充正文。列表为空需要 empty 分支，详情不存在应返回 404，不是把异常栈展示给读者。"
+      }
+    ],
+    "code": "# 在下载包 projects/web 目录运行，命令输入终端。\npython -m pip install -r requirements.txt\npython manage.py migrate\npython manage.py createsuperuser\npython manage.py runserver",
+    "output": "依赖安装后，迁移创建本地表；createsuperuser 交互创建管理员；runserver 打印本地地址。浏览器访问后可注册、建主题和写笔记。",
+    "pitfalls": [
+      "❌ 修改模型后认为表已更新；✅ 生成并检查迁移，再应用。",
+      "❌ 把 Django 源码上传静态空间当部署；✅ 使用支持 Python 服务的运行环境。",
+      "❌ 让前端隐藏按钮代替权限；✅ 在视图查询中检查当前用户。"
+    ],
+    "exercises": [
+      {
+        "question": "访问主题详情时，四层分别做什么？",
+        "thinking": "从请求入口到响应逐层区分责任。",
+        "steps": "URL 解析主键；视图查所属主题；模型执行查询；模板渲染内容。",
+        "code": "route = \"URL → view → model/query → template → response\"\nprint(route)",
+        "output": "URL → view → model/query → template → response"
+      }
+    ],
+    "mastery": [
+      "从空环境运行下载包",
+      "说明 makemigrations 与 migrate",
+      "从 URL 定位视图和模板"
+    ],
+    "source": "https://docs.djangoproject.com/en/5.2/intro/tutorial01/",
+    "project": "web",
+    "runner": "shell"
+  },
+  {
+    "id": "web-users",
+    "title": "Web 开发 2：表单、账户与每条记录的所有权",
+    "group": "Web 应用",
+    "book": "第 19 章",
+    "tags": [
+      "ModelForm 校验",
+      "会话认证",
+      "对象级授权",
+      "CSRF 与 POST"
+    ],
+    "before": [],
+    "goal": "实现登录后的增改操作，并证明用户不能通过改网址读取或修改别人的数据。",
+    "sections": [
+      {
+        "title": "表单绑定与验证流程",
+        "text": "GET 返回空表单或已有实例；POST 绑定 request.POST，再调用 is_valid。未通过时把带错误的同一表单渲染回来，不丢掉用户输入；成功后重定向到结果页，减少刷新导致重复提交。ModelForm 用字段白名单，owner 和 topic 这类关系由服务端决定，不能让客户端通过隐藏字段任意指定。"
+      },
+      {
+        "title": "认证回答“你是谁”",
+        "text": "Django 自带用户模型、密码哈希、登录视图和会话机制，使用 UserCreationForm 创建普通用户，不自己保存明文密码。login_required 要求先登录，但这仅证明身份，不能证明用户有权访问某条笔记。退出采用 POST 表单并带 CSRF token，避免把有状态操作做成普通链接。"
+      },
+      {
+        "title": "授权回答“你能访问哪条记录”",
+        "text": "列表过滤 owner=request.user；详情用 get_object_or_404(Topic, pk=pk, owner=request.user)。编辑 Entry 时沿 topic__owner 过滤，在展示表单之前就完成检查。创建时用 commit=False 得到尚未保存的实例，再把 owner 或 topic 设为服务端确认的值。只在首页过滤而忘记详情和编辑入口，会留下直接改 URL 的越权路径。"
+      },
+      {
+        "title": "防护需要不同机制配合",
+        "text": "CSRF 防止另一站点借用户会话伪造某些请求，不能代替对象所有权判断。模板自动转义减少把输入当脚本执行的风险，随意加 safe 会取消这层保护。ORM 参数化查询减少 SQL 注入风险，但拼接原始 SQL 仍需单独处理。项目测试用用户 A 与 B 尝试读写同一记录，并启用真实 CSRF 检查测试缺令牌请求。"
+      }
+    ],
+    "code": "# 来自下载包 notes/views.py；依赖 Django 项目上下文，不是独立脚本。\n@login_required\ndef detail(request, pk):\n    topic = get_object_or_404(Topic, pk=pk, owner=request.user)\n    entries = topic.entries.order_by(\"created_at\", \"pk\")\n    return render(request, \"detail.html\", {\"topic\": topic, \"entries\": entries})",
+    "output": "用户访问自己的主题：返回 200 与正文；另一用户访问同一个主键：返回 404；未登录：重定向登录页面。",
+    "pitfalls": [
+      "❌ login_required 后按主键直接查任何记录；✅ 查询中加入所有者条件。",
+      "❌ 让 POST 中的 owner 决定所属用户；✅ 服务端赋值 request.user。",
+      "❌ 为显示换行把输入标记为 safe；✅ 使用默认转义和安全的换行展示。"
+    ],
+    "exercises": [
+      {
+        "question": "新增笔记也要检查主题所有者吗？",
+        "thinking": "要。否则攻击者可向别人的主题写入自己的内容。",
+        "steps": "先按 pk 与 owner 查主题，再把合法主题绑定到新笔记；下载包 new_entry 已实现。",
+        "code": "allowed = {\"owner_id\": 7}\ncurrent_user_id = 8\nprint(allowed[\"owner_id\"] == current_user_id)",
+        "output": "False"
+      }
+    ],
+    "mastery": [
+      "两个账户互相访问均被拒绝",
+      "空表单显示校验错误",
+      "知道 CSRF 与授权不是一件事"
+    ],
+    "source": "https://docs.djangoproject.com/en/5.2/topics/auth/default/",
+    "project": "web",
+    "runner": "project"
+  },
+  {
+    "id": "web-deploy",
+    "title": "Web 开发 3：样式、生产配置、部署与排障",
+    "group": "Web 应用",
+    "book": "第 20 章 / 附录 E",
+    "tags": [
+      "模板继承与响应式",
+      "静态资源",
+      "生产配置",
+      "迁移与回滚"
+    ],
+    "before": [],
+    "goal": "分清“本地能启动”和“可以给别人长期使用”，按顺序诊断部署故障。",
+    "sections": [
+      {
+        "title": "样式是可复用的展示系统",
+        "text": "base 模板统一导航、登录状态和 CSS，表单控件要有标签、错误说明和键盘焦点，手机布局避免固定宽度。Bootstrap 是一套现成 CSS/JS 组件，django-bootstrap5 可辅助渲染 Django 表单；它们并非 Django 必需部分。本项目用短小本地 CSS 让依赖更少，如引入组件框架，仍需检查语义、版本与静态路径。"
+      },
+      {
+        "title": "静态资源与动态服务分开",
+        "text": "CSS、图像和脚本属于静态资源，开发服务器会提供便利支持，生产需要 collectstatic 收集后由静态服务提供。下载包使用 WhiteNoise 提供已收集资源。WSGI 是 Python Web 应用与服务器的接口，生产示例通过 Waitress 运行；runserver 是开发服务，不应当成生产托管方案。"
+      },
+      {
+        "title": "生产配置要从环境注入",
+        "text": "SECRET_KEY 不写进公开源码，DEBUG 关闭，ALLOWED_HOSTS 配成实际域名。HTTPS 入口、会话 Cookie 的 Secure 属性和 CSRF 共同工作。反向代理的协议头必须由可信代理清理并重设，才能启用信任，否则可能误信客户端。数据库要在持久存储，重部署时不能消失；单机教学 SQLite 与多实例服务的存储需求不同。"
+      },
+      {
+        "title": "部署的可验证顺序",
+        "text": "在支持 Python 的主机安装依赖→配置环境变量与持久存储→备份并应用迁移→collectstatic→check --deploy→启动 WSGI→接入 HTTPS→验收。具体云平台界面和定价会变，书中的某一提供商不是必选。500 看服务日志，静态 404 看收集目录，403 看 CSRF 与来源，反复重定向看代理协议；不要靠打开 DEBUG 来长期解决。下线前导出数据、撤销密钥并按提供商流程停资源，确认计费结束。"
+      }
+    ],
+    "code": "# 生产主机已配置环境变量、HTTPS 代理与持久磁盘后运行：\npython manage.py migrate\npython manage.py collectstatic --noinput\npython manage.py check --deploy\nwaitress-serve --listen=127.0.0.1:8000 notebook.wsgi:application",
+    "output": "迁移成功，静态资源收集完成；check --deploy 提供待处理检查；Waitress 在本地回环端口运行，由 HTTPS 反向代理转发。公网后端尚未替你部署。",
+    "pitfalls": [
+      "❌ 为“能打开”长期保留 DEBUG=True；✅ 修正日志指向的问题并关闭调试。",
+      "❌ 无条件信任外部转发协议头；✅ 仅信任会清理并重设头的代理。",
+      "❌ 回滚代码就以为数据库也回到旧版；✅ 先检查迁移兼容性与备份恢复方案。"
+    ],
+    "exercises": [
+      {
+        "question": "本地 CSS 正常，上线全没样式，先查什么？",
+        "thinking": "动态响应正常时，先沿静态资源链排查。",
+        "steps": "检查浏览器请求路径与状态，再查 collectstatic、STATIC_ROOT 和静态服务配置。",
+        "code": "checks = [\"请求 URL 与 404\", \"STATIC_URL\", \"collectstatic 输出\", \"静态服务目录\"]\nprint(\" → \".join(checks))",
+        "output": "请求 URL 与 404 → STATIC_URL → collectstatic 输出 → 静态服务目录"
+      }
+    ],
+    "mastery": [
+      "理解静态站不能托管 Python 进程",
+      "按 README 复述部署依赖",
+      "列出上线和下线的验收项"
+    ],
+    "source": "https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/",
+    "project": "web",
+    "runner": "shell"
+  },
+  {
+    "id": "git",
+    "title": "版本控制与求助：把项目变成可恢复的工作",
+    "group": "工程延伸",
+    "book": "附录 A、B、C、D、E",
+    "tags": [
+      "工作区/暂存区/提交",
+      "差异审查",
+      "最小复现",
+      "版本锁定"
+    ],
+    "before": [
+      30,
+      35
+    ],
+    "goal": "在修改之前留下恢复点，并让别人能在新环境重现你的问题。",
+    "sections": [
+      {
+        "title": "三个区域回答三个问题",
+        "text": "工作区是正在修改的文件，暂存区是准备纳入下一次快照的内容，提交是已记录的快照。git status 看哪些文件变化，git diff 看未暂存差异，git diff --staged 看即将提交什么。提交不是把文件上传到网络；远程 push 才会同步到远端。提交信息描述行为变化，不写“随便改改”。"
+      },
+      {
+        "title": "分支与恢复要保留证据",
+        "text": "分支给一条开发线起名字，适合尝试重构后再合并。遇到错误先看 git log 和 diff，不要直接 reset --hard 丢弃未保存工作。想撤销一个已共享提交可研究 revert 生成反向提交；只想恢复某文件也先备份未提交改动。把数据库、环境目录和密钥放进 .gitignore，但忽略规则不会自动删除历史中已经提交的密钥。"
+      },
+      {
+        "title": "可复现环境不是只记一个库名",
+        "text": "README 写 Python 与依赖版本范围、安装命令、启动命令、样本输入和预期结果。稳定交付可记录锁定的依赖快照，并在新环境安装验证。只把自己电脑的整个 pip freeze 倒进项目可能混入无关包，最好从独立环境生成。操作系统差异、字体和网络服务仍可能影响结果，需单独标注。"
+      },
+      {
+        "title": "高质量求助要能运行",
+        "text": "写清你想做什么、实际发生什么、最小输入、完整错误和启动命令；删除私密数据，用合成样例替代。先尝试官方文档按版本查询，再比较函数签名。编辑器快捷键可以提升效率，但不应成为阻碍：保存、运行、调试都有菜单入口。笔记本功能键是媒体模式时可使用菜单运行，或按设备设置选择 Fn 组合。"
+      }
+    ],
+    "code": "# 在一个新建的练习目录执行，不在重要项目里盲目操作。\ngit init\ngit status\ngit add README.md\ngit diff --staged\ngit commit -m \"Document setup and expected output\"\ngit log --oneline",
+    "output": "README.md 需要先创建。首次提交可能要求配置 user.name/user.email；提交后 log 会显示一个短哈希和说明，哈希因环境而异。",
+    "pitfalls": [
+      "❌ git add . 前不检查密钥和数据库；✅ 先配置忽略并查看暂存差异。",
+      "❌ 把提交误认为已经远程备份；✅ 核对远程配置与 push 结果。",
+      "❌ 看到错误就重装全部软件；✅ 先用最小例子确认是路径、版本还是代码问题。"
+    ],
+    "exercises": [
+      {
+        "question": "README 至少写哪些内容才能让同学复现？",
+        "thinking": "对方应从新目录和新环境开始，不依赖你的记忆。",
+        "steps": "提供环境、安装、运行、输入、输出与验证命令。",
+        "code": "sections = [\"环境版本\", \"依赖安装\", \"运行命令\", \"样本输入\", \"预期输出\", \"验证方法\"]\nprint(len(sections))",
+        "output": "6"
+      }
+    ],
+    "mastery": [
+      "解释未暂存和已暂存差异",
+      "创建一次可审查的提交",
+      "写出别人能照做的 README"
+    ],
+    "source": "https://git-scm.com/docs/gittutorial",
+    "project": null,
+    "runner": "shell"
+  },
+  {
+    "id": "advanced",
+    "title": "超出入门：生成器、装饰器与上下文协议",
+    "group": "工程延伸",
+    "book": "网站扩展：连接既有进阶章节",
+    "tags": [
+      "惰性迭代",
+      "闭包与 wraps",
+      "上下文管理",
+      "性能测量"
+    ],
+    "before": [
+      19,
+      28,
+      29,
+      30,
+      36,
+      37,
+      38
+    ],
+    "goal": "把语法知识连接到可复用的数据流水线，理解抽象带来的成本。",
+    "sections": [
+      {
+        "title": "生成器不是自动更快",
+        "text": "yield 保存暂停位置，next 时继续执行，适合逐行处理大输入；消耗后不会自动从头再来。生成器减少一次持有的数据量，但函数调用和逐项处理也有开销。若下游排序必须知道全部元素，惰性本身不能消除排序的整体内存需求。先分析整条处理链，不只替换一个列表表达式。"
+      },
+      {
+        "title": "装饰器是函数到函数的变换",
+        "text": "@decorator 写法相当于把原函数传给 decorator，再把返回对象绑定到原名称。wrapper 通过闭包保留原函数，用 *args/**kwargs 转发调用，functools.wraps 保留名称和文档等元信息。日志、计时、权限检查可以复用，但额外状态和副作用也可能隐藏行为，装饰器顺序需要明确。"
+      },
+      {
+        "title": "上下文协议保证退出处理",
+        "text": "with 通过对象协议管理进入和退出，contextlib.contextmanager 可用 yield 把资源交给代码块，finally 做释放。它负责清理，不自动意味着事务成功；数据库事务是否提交或回滚取决于具体连接协议。不要把文件 with 和 SQL 提交混为一谈。"
+      },
+      {
+        "title": "性能优化以证据开始",
+        "text": "先用小数据证明正确，再用代表性规模测量耗时和内存。循环中反复做线性查找可能成 O(n²)，建立集合索引常能改善；但索引也耗内存。pandas 合并需验证基数，否则行数膨胀可能比运行速度更严重。SQL 主线的安全沙盒、事务与冲突审计处理的是数据完整性，不能为追求更短代码而删掉。"
+      }
+    ],
+    "code": "from functools import wraps\n\ndef trace(fn):\n    @wraps(fn)\n    def wrapper(*args, **kwargs):\n        result = fn(*args, **kwargs)\n        print(f\"{fn.__name__} 完成\")\n        return result\n    return wrapper\n\n@trace\ndef total(values):\n    return sum(values)\n\nstream = (n for n in [3, 4, 5] if n >= 4)\nprint(total(stream))\nprint(list(stream))  # 已消费，不会自动重来",
+    "output": "total 完成\n9\n[]",
+    "pitfalls": [
+      "❌ 把同一个生成器用于两次完整遍历；✅ 重建生成器或明确缓存。",
+      "❌ 装饰器丢掉 return result；✅ 保留被包装函数的返回契约。",
+      "❌ 先微调语法再检查算法；✅ 测量热点并先改高成本步骤。"
+    ],
+    "exercises": [
+      {
+        "question": "生成器过滤后总和为多少？第二次求和呢？",
+        "thinking": "迭代器有消费状态。",
+        "steps": "第一次消耗满足条件的元素，第二次没有剩余元素。",
+        "code": "g = (n for n in range(5) if n % 2 == 0)\nprint(sum(g))\nprint(sum(g))",
+        "output": "6\n0"
+      }
+    ],
+    "mastery": [
+      "解释生成器一次性消费",
+      "写保持返回值的装饰器",
+      "区分资源关闭和事务提交"
+    ],
+    "source": "https://docs.python.org/3.14/library/contextlib.html",
+    "project": null
+  }
+]

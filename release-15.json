@@ -1,0 +1,27 @@
+{
+  "version": 15,
+  "date": "2026-11-17",
+  "preserved_chapters": 46,
+  "added_units": 23,
+  "explanation_sections": 91,
+  "validation": {
+    "snippet_and_answer_checks": 39,
+    "pytest_example_cases": 6,
+    "game_tests": 6,
+    "analysis_tests": 7,
+    "django_tests": 10,
+    "game_dummy_render": "passed",
+    "offline_figures": "passed",
+    "django_system_check": "passed",
+    "real_sql_server": "not rerun; protected artifacts unchanged",
+    "live_api": "not tested",
+    "django_public_deployment": "not performed",
+    "windows_game_manual_play": "not performed"
+  },
+  "protected_sha256": {
+    "chapters.json": "a35643f11c9e95f7c11256cbb41abaa182b2693d2d816d1f63afe794b04a3e86",
+    "sqlserver-demo.zip": "0029389a0f49510f035f3d45b8673715e686d7cef4a817fc1df474ceb81ea9c6",
+    "sqlserver-setup.sql": "e97068b80206fe7a63f17d3a78df738d54a81440bbe504d859220e344dbf56fc"
+  },
+  "scope": "Original chapter data and SQL assets preserved byte-for-byte. New original topic library, book-level coverage map, source reader, and three independent project packages."
+}

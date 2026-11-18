@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 七天学习计划与速查手册 · 黑马程序员课程配套</title>
+<style>
+  :root{
+    --ink:#1d2321;
+    --ink-2:#4a5551;
+    --ink-3:#77837e;
+    --paper:#fbfaf6;
+    --card:#ffffff;
+    --line:#e3e0d6;
+    --teal:#2f6f5e;
+    --teal-soft:#e8f1ed;
+    --amber:#b4651f;
+    --amber-soft:#fbeee1;
+    --red:#a94438;
+    --red-soft:#f8e9e6;
+    --blue:#3c5f8a;
+    --blue-soft:#e9eff7;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(29,35,33,.05), 0 8px 24px rgba(29,35,33,.05);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, #eef3ef 0%, transparent 60%),
+      radial-gradient(900px 400px at 100% 0%, #f7efe4 0%, transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.85;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ===== 封面 ===== */
+  .cover{padding:64px 0 40px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;letter-spacing:.12em;color:var(--teal);
+    text-transform:uppercase;font-weight:600;
+    background:var(--teal-soft);padding:6px 12px;border-radius:999px;
+  }
+  h1{
+    font-size:clamp(30px,5vw,46px);
+    line-height:1.25;margin:20px 0 14px;letter-spacing:-.02em;
+    font-weight:800;
+  }
+  h1 .thin{color:var(--ink-3);font-weight:500;}
+  .sub{font-size:17px;color:var(--ink-2);max-width:720px;margin:0;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+  .meta span{
+    font-size:13px;color:var(--ink-2);background:var(--card);
+    border:1px solid var(--line);padding:6px 12px;border-radius:999px;
+  }
+
+  /* ===== 目录 ===== */
+  .toc{
+    margin:36px 0 8px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);
+  }
+  .toc h2{font-size:15px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 14px;font-weight:600;}
+  .toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px 24px;}
+  .toc li{counter-increment:toc;}
+  .toc a{
+    color:var(--ink);text-decoration:none;display:flex;gap:10px;
+    padding:5px 0;border-bottom:1px dashed transparent;font-size:15px;
+  }
+  .toc a:hover{color:var(--teal);border-bottom-color:var(--teal);}
+  .toc a::before{content:counter(toc,decimal-leading-zero);color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:13px;}
+
+  /* ===== 通用区块 ===== */
+  section{margin-top:56px;}
+  h2.sec{
+    font-size:26px;margin:0 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px;
+  }
+  h2.sec .n{
+    font-size:13px;font-weight:700;color:#fff;background:var(--ink);
+    width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;
+    font-variant-numeric:tabular-nums;
+  }
+  .lead{color:var(--ink-2);margin:0 0 22px;font-size:15px;}
+  h3{font-size:19px;margin:32px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:16px;margin:20px 0 8px;}
+  p{margin:10px 0;}
+
+  /* ===== 卡片/表格 ===== */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;box-shadow:var(--shadow);
+  }
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  thead th{
+    background:#f3f1ea;color:var(--ink-2);text-align:left;font-weight:600;
+    font-size:13px;letter-spacing:.04em;padding:11px 14px;border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:11px 14px;border-bottom:1px solid #efede6;vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fcfbf7;}
+  td strong{color:var(--ink);}
+
+  .tag{
+    display:inline-block;font-size:12px;line-height:1.6;padding:2px 9px;border-radius:6px;
+    font-weight:600;white-space:nowrap;
+  }
+  .tag.must{background:var(--teal-soft);color:var(--teal);}
+  .tag.imp{background:var(--amber-soft);color:var(--amber);}
+  .tag.opt{background:#eef0ef;color:var(--ink-3);}
+  .tag.hot{background:var(--red-soft);color:var(--red);}
+
+  .callout{
+    border-left:4px solid var(--teal);background:var(--teal-soft);
+    padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:14.5px;
+  }
+  .callout.warn{border-color:var(--amber);background:var(--amber-soft);}
+  .callout.tip{border-color:var(--blue);background:var(--blue-soft);}
+  .callout b{color:var(--ink);}
+
+  /* ===== 代码 ===== */
+  code{
+    font-family:"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    font-size:.9em;background:#f1efe7;color:#33413c;
+    padding:1px 6px;border-radius:5px;
+  }
+  pre{
+    background:#202724;color:#e6ece8;border-radius:12px;
+    padding:18px 20px;overflow-x:auto;line-height:1.75;
+    font-size:13.5px;margin:14px 0 18px;
+    border:1px solid #2f3834;
+  }
+  pre code{
+    background:none;color:inherit;padding:0;font-size:inherit;
+    font-family:"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+  }
+  pre .cm{color:#8a9a92;}
+  pre .kw{color:#8fd0b6;font-weight:600;}
+  .cheat-head{
+    display:flex;align-items:baseline;gap:10px;margin:34px 0 4px;
+    padding-bottom:8px;border-bottom:2px solid var(--line);
+  }
+  .cheat-head h3{margin:0;font-size:20px;}
+  .cheat-head span{font-size:12.5px;color:var(--ink-3);}
+
+  /* ===== 自测清单 ===== */
+  .check{list-style:none;margin:6px 0;padding:0;}
+  .check li{
+    position:relative;padding:7px 0 7px 30px;font-size:14.5px;
+    border-bottom:1px dashed #eceae2;
+  }
+  .check li:last-child{border-bottom:none;}
+  .check li::before{
+    content:"";position:absolute;left:4px;top:13px;
+    width:13px;height:13px;border:1.6px solid #b9c4bf;border-radius:4px;
+  }
+
+  @media print{
+    body{background:#fff;font-size:12pt;}
+    .wrap{max-width:none;padding:0;}
+    .card,.toc,table{box-shadow:none;}
+    section{page-break-inside:auto;}
+    .card,table,pre{page-break-inside:avoid;}
+    pre{background:#f4f4f4;color:#111;border-color:#ddd;}
+    pre .kw{color:#0a6b52;}
+    pre .cm{color:#777;}
+    a{color:inherit;text-decoration:none;}
+  }
+  @media (max-width:640px){
+    .wrap{padding:0 16px 60px;}
+    h1{font-size:28px;}
+    table{font-size:13px;}
+    thead th,td{padding:9px 10px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 封面 ============ -->
+  <header class="cover">
+    <span class="eyebrow">7-DAY SQL SPRINT</span>
+    <h1>SQL 七天学习计划<br><span class="thin">配套黑马程序员 MySQL 课程的速查手册</span></h1>
+    <p class="sub">
+      按“学习—练习—自测”三段式排布，覆盖基础篇全部核心语法；
+      进阶篇（索引、优化、锁）单独标注，学完基础后再按需补。
+      每个模块都写明工作中用在哪、要不要重点学、面试考不考。
+    </p>
+    <div class="meta">
+      <span>适用课程：黑马程序员 MySQL 入门到精通（基础篇）</span>
+      <span>数据库版本：MySQL 8.0</span>
+      <span>每日投入：3–4 小时</span>
+      <span>配套数据：emp / dept / salgrade</span>
+    </div>
+  </header>
+
+  <!-- ============ 目录 ============ -->
+  <nav class="toc" aria-label="目录">
+    <h2>目 录</h2>
+    <ol>
+      <li><a href="#scope">先看这里：课程范围与准备</a></li>
+      <li><a href="#plan">七天学习计划表</a></li>
+      <li><a href="#usage">模块用途 × 重点分级</a></li>
+      <li><a href="#cheat1">速查手册：DDL / DML / DQL</a></li>
+      <li><a href="#cheat2">速查手册：多表 / 函数 / 约束 / 事务</a></li>
+      <li><a href="#test">每日自测清单</a></li>
+      <li><a href="#pitfall">新手最容易踩的 10 个坑</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ 01 范围与准备 ============ -->
+  <section id="scope">
+    <h2 class="sec"><span class="n">01</span>先看这里：课程范围与准备</h2>
+    <p class="lead">七天能学完的是“能独立写业务 SQL”，不是“精通 MySQL”。先把边界划清楚，才不会学着学着焦虑。</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--teal);">七天内必须拿下</h4>
+        <p style="margin:6px 0;">DDL 建库建表 · DML 增删改 · DQL 查询（条件/聚合/分组/排序/分页）· 多表查询（内连接、左连接、子查询）· 常用函数 · 约束 · 事务基础</p>
+        <p style="margin:6px 0;color:var(--ink-3);font-size:14px;">目标：给一张表结构和一句需求，你能直接写出 SQL，并解释为什么这么写。</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--amber);">七天后再补（进阶篇）</h4>
+        <p style="margin:6px 0;">索引原理与使用 · SQL 优化 · 存储引擎 · 视图 / 存储过程 / 触发器 · 锁 · MVCC</p>
+        <p style="margin:6px 0;color:var(--ink-3);font-size:14px;">这些是“面试拉开差距 + 线上排障”的内容，零基础阶段硬啃容易劝退。第七天只做导览。</p>
+      </div>
+    </div>
+
+    <h3>开课前 30 分钟：环境三件套</h3>
+    <table>
+      <thead><tr><th style="width:150px;">项目</th><th>做什么</th><th style="width:260px;">检查标准</th></tr></thead>
+      <tbody>
+        <tr><td><strong>MySQL 8.0</strong></td><td>安装社区版，记住 root 密码与端口 3306；Windows 勾选 MySQL Server + 命令行客户端。</td><td>命令行输入 <code>mysql -u root -p</code> 能进 <code>mysql&gt;</code> 提示符</td></tr>
+        <tr><td><strong>图形化工具</strong></td><td>DataGrip（学生可申请免费）或 Navicat；只用一个，别来回换。</td><td>能连上 localhost:3306 并看到库列表</td></tr>
+        <tr><td><strong>课程资料</strong></td><td>下载黑马配套资料：建库脚本、emp/dept/salgrade 数据、课件 PDF。</td><td>执行脚本后 <code>select count(*) from emp;</code> 有数据</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <b>每天固定节奏（建议）：</b>看视频 40% → 关掉视频自己敲 40% → 做 3–5 道题并口述思路 20%。
+      只看不敲，第三天就会“看得懂、写不出”。
+    </div>
+  </section>
+
+  <!-- ============ 02 七天计划 ============ -->
+  <section id="plan">
+    <h2 class="sec"><span class="n">02</span>七天学习计划表</h2>
+    <p class="lead">前六天吃透基础篇，第七天做进阶导览 + 总复盘。每天的“产出”是硬指标：写不出来就不算学完。</p>
+
+    <table style="margin-bottom:24px;">
+      <thead>
+        <tr><th style="width:64px;">天</th><th style="width:210px;">主题</th><th>对应黑马课程</th><th style="width:230px;">当天产出（硬指标）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>D1</strong></td><td>概念 + DDL</td><td>MySQL 概述、SQL 通用语法、DDL 库/表操作</td><td>能独立建一个带主键、非空、默认值的表</td></tr>
+        <tr><td><strong>D2</strong></td><td>DML + DQL 入门</td><td>INSERT / UPDATE / DELETE、基础查询、条件查询</td><td>能完成 10 道单表条件查询题</td></tr>
+        <tr><td><strong>D3</strong></td><td>DQL 进阶</td><td>聚合函数、分组、排序、分页、DQL 执行顺序</td><td>能写“按部门统计平均薪资并取前三”</td></tr>
+        <tr><td><strong>D4</strong></td><td>多表查询</td><td>多表关系、内连接、外连接、自连接、子查询、联合查询</td><td>能写 5 表以内的关联查询</td></tr>
+        <tr><td><strong>D5</strong></td><td>函数 + 约束</td><td>字符串/数值/日期/流程函数、约束、外键</td><td>能设计一张符合三范式的业务表</td></tr>
+        <tr><td><strong>D6</strong></td><td>事务 + 综合实战</td><td>事务操作、ACID、并发问题、隔离级别</td><td>独立完成 8–10 道综合题</td></tr>
+        <tr><td><strong>D7</strong></td><td>进阶导览 + 复盘</td><td>存储引擎、索引、SQL 优化、视图、锁（只看不深究）</td><td>整理一页错题 + 能画知识脑图</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <h4 style="margin-top:0;">D1 · 概念与 DDL <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 2h ｜ 练习 1h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>数据库、表、记录的关系；MySQL 数据模型</li>
+          <li>SQL 四大分类：DDL / DML / DQL / DCL</li>
+          <li>库操作：create / drop / use / show</li>
+          <li>表操作：create table、数据类型、alter、drop、desc</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>建 <code>db_study</code> 库，设计 <code>student</code> 表（id、姓名、性别、生日、手机号、创建时间）。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D2 · DML 与基础查询 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 2.5h ｜ 练习 1.5h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>insert 三种写法、update、delete 与 truncate 区别</li>
+          <li>select 列、别名、去重 distinct</li>
+          <li>where：比较、between、in、like、is null、and/or/not</li>
+          <li>今天必须把 <code>emp</code> 表数据跑起来</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>查出“薪资高于 2000 且在 20 号部门”的员工，再用 like 查名字第二个字是“小”的。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D3 · 聚合、分组与分页 <span class="tag must">重点中的重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 2.5h ｜ 练习 2h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>count / sum / avg / max / min，注意 null 不参与</li>
+          <li>group by + having 与 where 的区别</li>
+          <li>order by 多字段、asc/desc</li>
+          <li>limit 分页公式 <code>(页码-1)*每页条数, 每页条数</code></li>
+          <li>DQL 书写顺序 ≠ 执行顺序</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>按部门统计人数与平均薪资，筛选平均薪资 &gt; 2500 的部门，按平均薪资降序取前 2。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D4 · 多表查询 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 3h ｜ 练习 2h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>一对多 / 多对多 / 一对一与中间表设计</li>
+          <li>笛卡尔积、内连接（隐式 + 显式）</li>
+          <li>左外连接、右外连接，理解“谁是主表”</li>
+          <li>自连接：同一张表当两张用</li>
+          <li>标量子查询、列子查询、表子查询</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>查每个员工的姓名、部门名、薪资等级；再查“薪资高于本部门平均薪资”的员工。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D5 · 函数与约束 <span class="tag imp">重点 + 了解</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 2.5h ｜ 练习 1.5h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>字符串：concat、substring、replace、trim、lpad</li>
+          <li>数值：round、ceil、floor、mod、rand</li>
+          <li>日期：now、curdate、date_add、datediff、date_format</li>
+          <li>流程：if、ifnull、case when</li>
+          <li>约束：not null、unique、primary key、default、check、foreign key</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>用 case when 给薪资分档（低/中/高），并用 date_format 输出“2026年11月14日”。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D6 · 事务与综合实战 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 2h ｜ 练习 2.5h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>start transaction / commit / rollback</li>
+          <li>ACID 四大特性（能用自己的话解释）</li>
+          <li>脏读、不可重复读、幻读</li>
+          <li>四种隔离级别与 MySQL 默认级别（RR）</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>模拟转账：A 扣 100、B 加 100，中途 rollback，验证两边余额不变。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D7 · 进阶导览与复盘 <span class="tag opt">选学</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频挑看 2h ｜ 复盘 2h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>存储引擎：InnoDB 与 MyISAM 的区别（面试常问）</li>
+          <li>索引：是什么、B+Tree、什么时候失效（只记结论）</li>
+          <li>SQL 优化：explain 看 type/key/rows</li>
+          <li>视图、存储过程、触发器：知道用途即可</li>
+          <li>锁：全局锁、表锁、行锁的概念</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>画一张“SQL 知识脑图”，把七天内容串起来；重做前六天错题。</p>
+      </div>
+
+      <div class="card" style="background:linear-gradient(160deg,#f4f8f6,#fff);border-color:#cfe0d9;">
+        <h4 style="margin-top:0;color:var(--teal);">时间不够时的取舍</h4>
+        <p style="font-size:14.5px;margin:6px 0;">如果每天只有 2 小时，按这个顺序砍：</p>
+        <ol style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>先砍 D7 的进阶篇（本来就可选）</li>
+          <li>再砍 DCL 用户权限、存储过程/触发器</li>
+          <li>自连接、联合查询会写例题即可</li>
+          <li><b>绝不砍：</b>DQL、多表查询、事务</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 03 模块用途 ============ -->
+  <section id="usage">
+    <h2 class="sec"><span class="n">03</span>模块用途 × 重点分级</h2>
+    <p class="lead">学之前先知道“这东西以后在哪用”，记忆效率会高很多。优先级按找工作 + 实际开发综合排序。</p>
+
+    <div class="callout">
+      <b>分级说明：</b>
+      <span class="tag must">必掌握</span> 写不出就等于不会 SQL；
+      <span class="tag imp">重要</span> 工作常见，需要会用；
+      <span class="tag opt">了解</span> 知道概念和用途即可；
+      <span class="tag hot">面试高频</span> 不一定天天写，但面试爱问。
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:130px;">模块</th>
+          <th>工作中用在哪</th>
+          <th style="width:112px;">优先级</th>
+          <th style="width:88px;">面试</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>DDL</strong><br><span style="font-size:12.5px;color:var(--ink-3);">建库建表</span></td>
+          <td>项目初始化建表、需求变更加字段/改类型、上线前的 <code>ALTER TABLE</code>、数据迁移脚本。<b>后端开发每天都在跟表结构打交道。</b></td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>DML</strong><br><span style="font-size:12.5px;color:var(--ink-3);">增删改</span></td>
+          <td>业务写入（注册、下单、改资料）、运营修数据、批量订正历史脏数据。<b>注意：线上改数据必须带 where + 先 select 验证。</b></td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>DQL</strong><br><span style="font-size:12.5px;color:var(--ink-3);">查询</span></td>
+          <td>后端接口取数、后台列表与搜索、报表统计、BI 取数、风控规则、运营临时捞数。<b>占日常 SQL 工作量的 70%–80%，七天里最该砸时间的部分。</b></td>
+          <td><span class="tag must">必掌握</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>多表查询</strong><br><span style="font-size:12.5px;color:var(--ink-3);">连接/子查询</span></td>
+          <td>几乎所有真实业务都是多表：订单×用户×商品、文章×作者×分类、角色×权限、评论×回复。单表查询只存在于教学示例里。</td>
+          <td><span class="tag must">必掌握</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>函数</strong><br><span style="font-size:12.5px;color:var(--ink-3);">字符串/日期/流程</span></td>
+          <td>报表格式化（日期转“2026年11月”）、手机号脱敏、字符串拼接、按条件分档统计、时间差计算（逾期天数、留存天数）。</td>
+          <td><span class="tag imp">重要</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>约束</strong><br><span style="font-size:12.5px;color:var(--ink-3);">主键/唯一/外键</span></td>
+          <td>保证数据质量：主键防重、唯一索引防重复注册、非空防漏字段、外键保证关联完整性。互联网公司常用“逻辑外键”（不建物理外键，靠代码保证）。</td>
+          <td><span class="tag imp">重要</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>事务</strong><br><span style="font-size:12.5px;color:var(--ink-3);">ACID/隔离级别</span></td>
+          <td>支付扣款、库存扣减、转账、批量导入、订单状态流转——<b>凡是“要么全成功、要么全失败”的多步操作都要事务。</b></td>
+          <td><span class="tag must">必掌握</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>DCL</strong><br><span style="font-size:12.5px;color:var(--ink-3);">用户/权限</span></td>
+          <td>给同事开数据库账号、分配只读/读写权限、回收权限。多数公司由 DBA 或运维做，开发偶尔接触。</td>
+          <td><span class="tag opt">了解</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>索引</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>接口变慢时加索引、排查“为什么没走索引”、联合索引最左前缀、覆盖索引。工作中极其重要，但需要先会写 SQL 再学。</td>
+          <td><span class="tag imp">重要</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>SQL 优化</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>慢查询治理、深分页优化、大表 count、explain 执行计划分析。属于“有经验后拉开差距”的技能。</td>
+          <td><span class="tag imp">重要</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>存储引擎</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>建表时选 InnoDB / MyISAM / Memory；理解事务和行锁为什么依赖 InnoDB。实际项目 99% 用 InnoDB。</td>
+          <td><span class="tag opt">了解</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>视图</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>把复杂多表查询封装成视图、给只读账号做数据隔离。互联网业务用得不多，传统行业和报表系统常见。</td>
+          <td><span class="tag opt">了解</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>存储过程 / 触发器</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>银行、运营商、ERP 等老系统把业务逻辑写在数据库里；互联网公司基本不用（逻辑放代码里，便于版本管理）。</td>
+          <td><span class="tag opt">可选</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>锁</strong><br><span style="font-size:12.5px;color:var(--ink-3);">进阶篇</span></td>
+          <td>秒杀库存、并发更新、死锁排查、理解事务隔离。属于后端进阶与面试八股，零基础阶段知道“有这回事”即可。</td>
+          <td><span class="tag opt">了解</span></td>
+          <td>高频</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--teal);">如果目标是“找工作”</h4>
+        <p style="font-size:14.5px;margin:6px 0;">优先级：<b>DQL &gt; 多表查询 &gt; 事务 &gt; 索引 &gt; 约束 &gt; 函数</b>。</p>
+        <p style="font-size:14.5px;margin:6px 0;">面试准备顺序：先能手写 SQL，再背事务/索引/锁的结论，最后用 explain 讲一个优化案例。</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--amber);">如果目标是“做科研/数据分析”</h4>
+        <p style="font-size:14.5px;margin:6px 0;">优先级：<b>DQL &gt; 多表查询 &gt; 聚合分组 &gt; 函数 &gt; 窗口函数（课程外补充）</b>。</p>
+        <p style="font-size:14.5px;margin:6px 0;">索引、锁、存储过程可以完全跳过；把时间花在“把业务问题翻译成 SQL”上。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 速查手册 1 ============ -->
+  <section id="cheat1">
+    <h2 class="sec"><span class="n">04</span>速查手册：DDL / DML / DQL</h2>
+    <p class="lead">按“忘了一眼就能想起来”的标准写，示例基于黑马配套的 emp / dept / salgrade 三张表。建议打印出来放在手边。</p>
+
+    <div class="callout tip">
+      <b>关于示例字段：</b>基础篇的 emp 表只含工号、姓名、性别、年龄、身份证、地址、入职日期；到多表查询章节会补上
+      <code>dept_id</code>，部分版本还含 <code>salary</code>。本文示例默认 emp 已有 <code>salary</code>、<code>dept_id</code>，
+      跟练前先执行 <code>alter table emp add salary decimal(10,2), add dept_id int;</code>，或直接使用课程配套的完整脚本。
+    </div>
+
+    <div class="cheat-head"><h3>DDL · 定义数据库和表</h3><span>建库、建表、改表结构</span></div>
+    <pre><code><span class="cm">-- 1. 数据库</span>
+<span class="kw">create database</span> if not exists db_study default charset utf8mb4;
+<span class="kw">use</span> db_study;
+<span class="kw">show</span> databases;
+<span class="kw">show tables</span>;
+<span class="kw">desc</span> emp;                          <span class="cm">-- 看表结构</span>
+
+<span class="cm">-- 2. 建表（字段 类型 [约束] [comment]）</span>
+<span class="kw">create table</span> tb_user(
+  id        int <span class="kw">primary key auto_increment</span> comment '主键',
+  username  varchar(20) <span class="kw">not null unique</span>   comment '用户名',
+  phone     char(11)                         comment '手机号',
+  balance   decimal(10,2) <span class="kw">default</span> 0.00     comment '余额',
+  create_time datetime <span class="kw">default</span> current_timestamp comment '创建时间'
+) comment '用户表';
+
+<span class="cm">-- 3. 改表</span>
+<span class="kw">alter table</span> tb_user <span class="kw">add</span> email varchar(50);          <span class="cm">-- 加字段</span>
+<span class="kw">alter table</span> tb_user <span class="kw">modify</span> phone varchar(20);       <span class="cm">-- 改类型</span>
+<span class="kw">alter table</span> tb_user <span class="kw">change</span> phone mobile varchar(20); <span class="cm">-- 改名+类型</span>
+<span class="kw">alter table</span> tb_user <span class="kw">drop</span> email;                    <span class="cm">-- 删字段</span>
+<span class="kw">alter table</span> tb_user <span class="kw">rename to</span> tb_member;           <span class="cm">-- 改表名</span>
+<span class="kw">drop table</span> if exists tb_member;                       <span class="cm">-- 删表</span></code></pre>
+
+    <table style="margin-bottom:18px;">
+      <thead><tr><th style="width:150px;">类型</th><th style="width:200px;">占用/范围</th><th>什么时候用</th></tr></thead>
+      <tbody>
+        <tr><td><code>tinyint</code></td><td>1 字节，-128~127</td><td>状态、性别、年龄等小整数</td></tr>
+        <tr><td><code>int</code></td><td>4 字节</td><td>常规主键、数量、部门编号</td></tr>
+        <tr><td><code>bigint</code></td><td>8 字节</td><td>雪花 ID、订单号、超大计数</td></tr>
+        <tr><td><code>decimal(10,2)</code></td><td>精确小数</td><td>金额、薪资——<b>不要用 float/double 存钱</b></td></tr>
+        <tr><td><code>char(11)</code> / <code>varchar(255)</code></td><td>定长 / 变长</td><td>手机号、身份证用 char；姓名、地址用 varchar</td></tr>
+        <tr><td><code>date</code> / <code>datetime</code></td><td>日期 / 日期时间</td><td>生日用 date；创建时间、更新时间用 datetime</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cheat-head"><h3>DML · 增删改</h3><span>写数据</span></div>
+    <pre><code><span class="cm">-- 插入：指定字段（推荐，表结构变化不影响）</span>
+<span class="kw">insert into</span> emp(id, workno, name, gender, age, dept_id)
+<span class="kw">values</span> (1,'E001','张三','男',25,10),
+       (2,'E002','李四','女',28,20);
+
+<span class="cm">-- 插入：全字段（字段数、顺序必须与表结构一致）</span>
+<span class="kw">insert into</span> tb_user <span class="kw">values</span> (null,'王五','13800000000',100.00,now());
+
+<span class="cm">-- 修改：务必先 select 验证条件！</span>
+<span class="kw">update</span> emp <span class="kw">set</span> salary = salary + 500 <span class="kw">where</span> dept_id = 20;
+
+<span class="cm">-- 删除</span>
+<span class="kw">delete from</span> emp <span class="kw">where</span> id = 3;
+<span class="kw">truncate table</span> emp;   <span class="cm">-- 清空全表，自增归零，不可回滚</span></code></pre>
+
+    <div class="callout warn">
+      <b>delete vs truncate：</b>delete 可带 where、可回滚、自增不重置；truncate 只能清全表、不可回滚、自增重置、速度更快。
+      线上误删靠 binlog 恢复，别指望 rollback。
+    </div>
+
+    <div class="cheat-head"><h3>DQL · 查询</h3><span>七天里的核心，占工作量 70%+</span></div>
+    <p>先背下这个完整模板，再往里填：</p>
+    <pre><code><span class="kw">select</span>   [distinct] 字段列表
+<span class="kw">from</span>     表名
+<span class="kw">where</span>    行级条件
+<span class="kw">group by</span> 分组字段
+<span class="kw">having</span>   分组后条件
+<span class="kw">order by</span> 排序字段 [asc|desc]
+<span class="kw">limit</span>    起始索引, 每页条数;</code></pre>
+
+    <div class="callout tip">
+      <b>执行顺序（面试常问）：</b>
+      <code>from → where → group by → having → select → order by → limit</code>。
+      所以 where 里不能用聚合函数，having 里才能用；select 的别名一般不能在 where 中用。
+    </div>
+
+    <h4>1）基础查询与条件</h4>
+    <pre><code><span class="kw">select</span> name, salary, salary * 12 <span class="kw">as</span> 年薪 <span class="kw">from</span> emp;
+<span class="kw">select distinct</span> dept_id <span class="kw">from</span> emp;
+
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> age between 20 <span class="kw">and</span> 30;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> dept_id <span class="kw">in</span> (10, 20);
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> name <span class="kw">like</span> '张%';      <span class="cm">-- % 任意多个字符</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> name <span class="kw">like</span> '_三';       <span class="cm">-- _ 单个字符</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> idcard <span class="kw">is null</span>;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> gender = '女' <span class="kw">and</span> age &lt; 30;</code></pre>
+
+    <div class="callout warn">
+      <b>null 的坑：</b><code>salary != 2000</code> 查不出 salary 为 null 的行，因为 null 参与比较结果是 unknown。
+      要写 <code>salary is null or salary &lt;&gt; 2000</code>。同理 <code>count(字段)</code> 不统计 null，<code>count(*)</code> 统计所有行。
+    </div>
+
+    <h4>2）聚合、分组、排序、分页</h4>
+    <pre><code><span class="cm">-- 聚合：count / sum / avg / max / min</span>
+<span class="kw">select</span> count(*) 总人数, avg(salary) 平均薪资, max(salary) 最高薪资 <span class="kw">from</span> emp;
+
+<span class="cm">-- 分组 + 分组后筛选</span>
+<span class="kw">select</span> dept_id, count(*) 人数, avg(salary) 平均薪资
+<span class="kw">from</span> emp
+<span class="kw">where</span> age &gt;= 20                 <span class="cm">-- 分组前过滤</span>
+<span class="kw">group by</span> dept_id
+<span class="kw">having</span> count(*) &gt; 2            <span class="cm">-- 分组后过滤</span>
+<span class="kw">order by</span> 平均薪资 <span class="kw">desc</span>;
+
+<span class="cm">-- 分页：第 n 页，每页 m 条 → limit (n-1)*m, m</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">order by</span> id <span class="kw">limit</span> 0, 10;   <span class="cm">-- 第 1 页</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">order by</span> id <span class="kw">limit</span> 10, 10;  <span class="cm">-- 第 2 页</span></code></pre>
+
+    <div class="callout">
+      <b>where 和 having 怎么选：</b>能放在 where 的条件就不要放 having。where 在分组前过滤行，能减少参与分组的数据量；having 是对聚合结果过滤。分组字段本身的条件，也可以写在 where 里。
+    </div>
+  </section>
+
+  <!-- ============ 05 速查手册 2 ============ -->
+  <section id="cheat2">
+    <h2 class="sec"><span class="n">05</span>速查手册：多表 / 函数 / 约束 / 事务</h2>
+    <p class="lead">这四块是“从会写到写对”的分水岭。多表查询尤其要多画图，先想清楚表之间怎么连，再动手写。</p>
+
+    <div class="cheat-head"><h3>多表查询 · 连接与子查询</h3><span>真实业务几乎全是多表</span></div>
+    <pre><code><span class="cm">-- 笛卡尔积：不加连接条件 = 左表行数 × 右表行数（错误写法）</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp, dept;
+
+<span class="cm">-- 内连接（隐式）：只保留两表都匹配上的行</span>
+<span class="kw">select</span> e.name 员工, d.name 部门
+<span class="kw">from</span> emp e, dept d
+<span class="kw">where</span> e.dept_id = d.id;
+
+<span class="cm">-- 内连接（显式）：推荐，语义更清楚</span>
+<span class="kw">select</span> e.name, d.name
+<span class="kw">from</span> emp e <span class="kw">inner join</span> dept d <span class="kw">on</span> e.dept_id = d.id;
+
+<span class="cm">-- 左外连接：左表全保留，右表匹配不上补 null（统计“每个部门有几个人”用它）</span>
+<span class="kw">select</span> d.name 部门, count(e.id) 人数
+<span class="kw">from</span> dept d <span class="kw">left join</span> emp e <span class="kw">on</span> e.dept_id = d.id
+<span class="kw">group by</span> d.id, d.name;
+
+<span class="cm">-- 右外连接：右表全保留，实际项目中通常改写成左连接</span>
+<span class="kw">select</span> e.name, d.name
+<span class="kw">from</span> emp e <span class="kw">right join</span> dept d <span class="kw">on</span> e.dept_id = d.id;
+
+<span class="cm">-- 自连接：同一张表起两个别名（员工-上级、分类-父分类）</span>
+<span class="kw">select</span> a.name 员工, b.name 上级
+<span class="kw">from</span> emp a <span class="kw">join</span> emp b <span class="kw">on</span> a.manager_id = b.id;</code></pre>
+
+    <div class="callout tip">
+      <b>选连接的口诀：</b>要“两表都有才算”用内连接；要“主表一条都不能少”用左连接（主表放左边）；
+      要“同一张表自己跟自己比”用自连接。不确定时先画两张表的行，手动连一遍。
+    </div>
+
+    <pre><code><span class="cm">-- 标量子查询：子查询返回一个值</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp
+<span class="kw">where</span> salary &gt; (<span class="kw">select</span> avg(salary) <span class="kw">from</span> emp);
+
+<span class="cm">-- 列子查询：返回一列多行，配合 in / any / all</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp
+<span class="kw">where</span> dept_id <span class="kw">in</span> (<span class="kw">select</span> id <span class="kw">from</span> dept <span class="kw">where</span> name = '教研部');
+
+<span class="cm">-- 表子查询：把子查询结果当一张临时表，常用于“高于本部门平均薪资”</span>
+<span class="kw">select</span> e.name, e.salary, t.avg_sal
+<span class="kw">from</span> emp e
+<span class="kw">join</span> (<span class="kw">select</span> dept_id, avg(salary) avg_sal <span class="kw">from</span> emp <span class="kw">group by</span> dept_id) t
+  <span class="kw">on</span> e.dept_id = t.dept_id
+<span class="kw">where</span> e.salary &gt; t.avg_sal;
+
+<span class="cm">-- 联合查询：上下拼接结果集，列数、类型要一致</span>
+<span class="kw">select</span> name, gender <span class="kw">from</span> emp <span class="kw">where</span> age &lt; 25
+<span class="kw">union all</span>                         <span class="cm">-- union all 不去重，union 去重</span>
+<span class="kw">select</span> name, gender <span class="kw">from</span> emp <span class="kw">where</span> salary &gt; 10000;</code></pre>
+
+    <div class="cheat-head"><h3>常用函数</h3><span>记住最常用的几个就够</span></div>
+    <table>
+      <thead><tr><th style="width:110px;">分类</th><th style="width:300px;">常用函数</th><th>典型场景</th></tr></thead>
+      <tbody>
+        <tr><td><strong>字符串</strong></td><td><code>concat</code> <code>substring</code> <code>replace</code> <code>trim</code> <code>lpad</code> <code>upper/lower</code></td><td>拼接姓名与部门、截取身份证出生日期、手机号中间四位打码、编号左补零</td></tr>
+        <tr><td><strong>数值</strong></td><td><code>round</code> <code>ceil</code> <code>floor</code> <code>mod</code> <code>rand</code></td><td>金额保留两位、向上取整算页数、奇偶分组、随机抽题</td></tr>
+        <tr><td><strong>日期</strong></td><td><code>now</code> <code>curdate</code> <code>date_add</code> <code>datediff</code> <code>date_format</code> <code>str_to_date</code></td><td>算入职天数、会员到期日、按月统计、把“2026-11-14”格式化成“2026年11月14日”</td></tr>
+        <tr><td><strong>流程</strong></td><td><code>if</code> <code>ifnull</code> <code>case when</code></td><td>薪资分档、空值兜底显示 0、按状态翻译成中文</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code><span class="kw">select</span> concat(name, '（', gender, '）') 姓名性别,
+       substring(idcard, 7, 8) 出生日期,
+       date_format(entrydate, '%Y年%m月%d日') 入职日,
+       datediff(now(), entrydate) 入职天数,
+       <span class="kw">case when</span> salary &gt;= 10000 <span class="kw">then</span> '高'
+            <span class="kw">when</span> salary &gt;= 5000  <span class="kw">then</span> '中'
+            <span class="kw">else</span> '低' <span class="kw">end</span> 薪资档位,
+       ifnull(manager_id, '无上级') 上级
+<span class="kw">from</span> emp;</code></pre>
+
+    <div class="callout warn">
+      <b>函数用在 where 里会导致索引失效：</b><code>where date_format(entrydate,'%Y') = '2026'</code> 无法走索引，
+      应改成 <code>where entrydate &gt;= '2026-01-01' and entrydate &lt; '2027-01-01'</code>。第七天学索引时会再遇到这个结论。
+    </div>
+
+    <div class="cheat-head"><h3>约束 · 把脏数据挡在门外</h3><span>建表时顺手加，后面省很多事</span></div>
+    <pre><code><span class="kw">create table</span> tb_emp(
+  id       int <span class="kw">primary key auto_increment</span>,
+  name     varchar(20) <span class="kw">not null</span>,
+  idcard   char(18) <span class="kw">unique</span>,
+  age      tinyint unsigned <span class="kw">check</span> (age between 18 <span class="kw">and</span> 60),
+  dept_id  int,
+  <span class="kw">constraint</span> fk_emp_dept <span class="kw">foreign key</span> (dept_id) <span class="kw">references</span> dept(id)
+);
+
+<span class="cm">-- 外键的级联行为（按业务选，不要默认全加）</span>
+<span class="kw">alter table</span> tb_emp <span class="kw">add constraint</span> fk_emp_dept
+  <span class="kw">foreign key</span> (dept_id) <span class="kw">references</span> dept(id)
+  <span class="kw">on update cascade</span>        <span class="cm">-- 部门 id 变了，员工表跟着变</span>
+  <span class="kw">on delete set null</span>;      <span class="cm">-- 部门删了，员工 dept_id 置空</span>
+
+<span class="kw">alter table</span> tb_emp <span class="kw">drop foreign key</span> fk_emp_dept;</code></pre>
+
+    <table>
+      <thead><tr><th style="width:130px;">约束</th><th>作用</th><th style="width:250px;">注意</th></tr></thead>
+      <tbody>
+        <tr><td><code>not null</code></td><td>该字段不能为 null</td><td>配合默认值使用，避免插入时报错</td></tr>
+        <tr><td><code>unique</code></td><td>该列值不能重复，但可以有多个 null</td><td>手机号、身份证、用户名常用</td></tr>
+        <tr><td><code>primary key</code></td><td>唯一 + 非空，一张表只能有一个</td><td>常用自增 int 或雪花 ID</td></tr>
+        <tr><td><code>default</code></td><td>不传值时用默认值</td><td>状态默认 0、余额默认 0.00</td></tr>
+        <tr><td><code>check</code></td><td>限制取值范围（MySQL 8.0.16+ 才真正生效）</td><td>年龄 18–60、金额不能为负</td></tr>
+        <tr><td><code>foreign key</code></td><td>保证子表的值在父表中存在</td><td>互联网常用“逻辑外键”，不建物理外键，避免级联锁表</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cheat-head"><h3>事务 · 要么全成功，要么全失败</h3><span>支付、库存、转账的底层</span></div>
+    <pre><code><span class="kw">start transaction</span>;                      <span class="cm">-- 开启事务</span>
+<span class="kw">update</span> account <span class="kw">set</span> balance = balance - 100 <span class="kw">where</span> name = 'A';
+<span class="kw">update</span> account <span class="kw">set</span> balance = balance + 100 <span class="kw">where</span> name = 'B';
+<span class="kw">commit</span>;                                 <span class="cm">-- 两步都成功才提交</span>
+<span class="cm">-- rollback;                            -- 任何一步失败就回滚</span></code></pre>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="margin-top:0;">ACID 四特性（用大白话记）</h4>
+        <ul style="margin:6px 0;padding-left:20px;font-size:14.5px;">
+          <li><b>原子性 A：</b>转账扣钱和加钱是一个整体，不能只做一半。</li>
+          <li><b>一致性 C：</b>转账前后两人余额总和不变。</li>
+          <li><b>隔离性 I：</b>多个事务同时跑，彼此不偷看中间结果。</li>
+          <li><b>持久性 D：</b>commit 之后即使断电，数据也还在。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">并发三大问题</h4>
+        <ul style="margin:6px 0;padding-left:20px;font-size:14.5px;">
+          <li><b>脏读：</b>读到了别人还没提交的数据。</li>
+          <li><b>不可重复读：</b>同一事务内两次读同一行，结果不一样（别人 update 并提交）。</li>
+          <li><b>幻读：</b>同一事务内两次查同一范围，行数变多（别人 insert 并提交）。</li>
+        </ul>
+      </div>
+    </div>
+
+    <table style="margin-top:16px;">
+      <thead><tr><th style="width:220px;">隔离级别</th><th>脏读</th><th>不可重复读</th><th>幻读</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>read uncommitted</code> 读未提交</td><td>可能</td><td>可能</td><td>可能</td><td>几乎不用</td></tr>
+        <tr><td><code>read committed</code> 读已提交</td><td>不会</td><td>可能</td><td>可能</td><td>Oracle 默认</td></tr>
+        <tr><td><code>repeatable read</code> 可重复读</td><td>不会</td><td>不会</td><td>可能（MVCC 基本规避）</td><td><b>MySQL 默认</b></td></tr>
+        <tr><td><code>serializable</code> 串行化</td><td>不会</td><td>不会</td><td>不会</td><td>性能最差，极少用</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>查看与设置隔离级别：</b>
+      <code>select @@transaction_isolation;</code> /
+      <code>set session transaction isolation level read committed;</code>。
+      面试通常只要求说出四种级别、MySQL 默认是可重复读、以及各自能解决什么问题。
+    </div>
+  </section>
+
+  <!-- ============ 06 自测 ============ -->
+  <section id="test">
+    <h2 class="sec"><span class="n">06</span>每日自测清单</h2>
+    <p class="lead">每天结束前逐条打勾。做不到的条目，第二天开始前先补，不要往后拖。</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="margin-top:0;">D1 · DDL</h4>
+        <ul class="check">
+          <li>能说出 DDL / DML / DQL / DCL 各管什么</li>
+          <li>不看资料写出建库、建表、改字段、删表语句</li>
+          <li>能解释 char 与 varchar、decimal 与 float 的区别</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D2 · DML + 基础查询</h4>
+        <ul class="check">
+          <li>能写出三种 insert 写法并说明差异</li>
+          <li>能熟练组合 where 的比较、in、between、like、is null</li>
+          <li>能说出 delete 与 truncate 的三点区别</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D3 · 聚合与分组</h4>
+        <ul class="check">
+          <li>能说出 where 与 having 的区别和使用顺序</li>
+          <li>能写出“按部门统计平均薪资并筛选、排序、取前 N”</li>
+          <li>能默写 DQL 的书写顺序和执行顺序</li>
+          <li>能写出正确的分页公式</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D4 · 多表查询</h4>
+        <ul class="check">
+          <li>能画出 emp、dept、salgrade 三表的关系图</li>
+          <li>能区分内连接、左外连接的结果差异</li>
+          <li>能写出“高于本部门平均薪资”的查询</li>
+          <li>能解释笛卡尔积是怎么产生的</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D5 · 函数与约束</h4>
+        <ul class="check">
+          <li>能写出日期格式化、字符串截取、case when 的例句</li>
+          <li>能说出六种约束的作用和适用场景</li>
+          <li>能独立设计一张带主键、唯一、非空、默认值的表</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D6 · 事务</h4>
+        <ul class="check">
+          <li>能徒手写出转账事务并正确 commit / rollback</li>
+          <li>能用自己的话解释 ACID</li>
+          <li>能说出三种并发问题与四种隔离级别的对应关系</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D7 · 进阶与复盘</h4>
+        <ul class="check">
+          <li>能说出 InnoDB 与 MyISAM 的三点区别</li>
+          <li>能说出索引失效的常见场景（至少 3 个）</li>
+          <li>能用 explain 看懂 type、key、rows 三列</li>
+          <li>能画出七天内容的完整脑图</li>
+        </ul>
+      </div>
+      <div class="card" style="background:linear-gradient(160deg,#f4f8f6,#fff);border-color:#cfe0d9;">
+        <h4 style="margin-top:0;color:var(--teal);">结课标准</h4>
+        <p style="font-size:14.5px;margin:6px 0;">给一张订单、用户、商品、订单明细四张表，能在 30 分钟内写出：</p>
+        <ul style="margin:6px 0;padding-left:20px;font-size:14.5px;">
+          <li>每个用户的订单总数与总金额</li>
+          <li>销量前 10 的商品及分类</li>
+          <li>本月未支付订单明细</li>
+        </ul>
+        <p style="font-size:14.5px;margin:6px 0;">写得出，七天目标达成；写不出，回到 DQL 和 D4 重练。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 常见坑 ============ -->
+  <section id="pitfall">
+    <h2 class="sec"><span class="n">07</span>新手最容易踩的 10 个坑</h2>
+    <p class="lead">这些错误在课程作业和真实工作中都会出现，提前知道能省很多 debug 时间。</p>
+
+    <table>
+      <thead><tr><th style="width:38px;">#</th><th style="width:250px;">错误写法 / 做法</th><th>问题与正确做法</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>where count(*) &gt; 2</code></td><td>where 执行在分组之前，此时还没有聚合结果。改用 <code>having count(*) &gt; 2</code>。</td></tr>
+        <tr><td>2</td><td><code>where salary = null</code></td><td>null 不能用 = 比较，结果永远是 unknown。改用 <code>is null</code> / <code>is not null</code>。</td></tr>
+        <tr><td>3</td><td><code>update emp set salary = 0;</code></td><td>忘写 where 会改全表，线上属于事故。养成“先 select 验证、再 update”的习惯。</td></tr>
+        <tr><td>4</td><td><code>select name, sum(salary) from emp;</code></td><td>有聚合函数却没有 group by，MySQL 8 默认报错。除聚合字段外，其余字段必须出现在 group by 中。</td></tr>
+        <tr><td>5</td><td>左连接的条件写在 where 里</td><td><code>left join ... where d.id = 10</code> 会把补 null 的行过滤掉，等价于内连接。右表条件应写在 <code>on</code> 后面。</td></tr>
+        <tr><td>6</td><td><code>where price = 9.9</code>（float 字段）</td><td>浮点数存在精度误差，可能查不到。金额一律用 <code>decimal</code>。</td></tr>
+        <tr><td>7</td><td><code>where id = (select dept_id from emp)</code></td><td>子查询返回多行时用 = 会报错。根据语义改用 <code>in</code>，或加限制保证只返回一行。</td></tr>
+        <tr><td>8</td><td><code>limit 100000, 10</code></td><td>深分页会先扫描前 10 万行再丢弃。大数据量时改为“记住上一页最大 id，用 where id &gt; ? limit 10”。</td></tr>
+        <tr><td>9</td><td>建表不设主键、不指定字符集</td><td>无主键影响复制与更新效率；字符集不统一会出现中文乱码。建库建表都显式写 <code>utf8mb4</code>。</td></tr>
+        <tr><td>10</td><td>以为 commit 之后还能 rollback</td><td>commit 是事务终点，提交后只能靠备份或 binlog 恢复。重要操作前先备份，生产环境谨慎执行 DML。</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip" style="margin-top:24px;">
+      <b>最后一句建议：</b>七天结束后不要立刻去啃《高性能 MySQL》。先找一个小项目（比如课程设计、个人记账、爬虫数据入库），
+      把建表、增删改查、多表统计完整写一遍，SQL 才算真正长在身上。之后再用进阶篇补索引与优化，顺序反过来会轻松很多。
+    </div>
+  </section>
+
+  <footer style="margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>SQL 七天学习计划与速查手册 · 配套黑马程序员 MySQL 课程</span>
+    <span>建议配合课程视频与 emp / dept / salgrade 数据集使用</span>
+  </footer>
+</div>
+</body>
+</html>

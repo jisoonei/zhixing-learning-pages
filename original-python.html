@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 学习计划与速查手册 · 黑马程序员课程配套</title>
+<style>
+  :root{
+    --ink:#1b2230;
+    --ink-2:#485061;
+    --ink-3:#7b8494;
+    --paper:#fafbfc;
+    --card:#ffffff;
+    --line:#e3e7ee;
+    --blue:#2f6fb3;
+    --blue-soft:#e8f0fa;
+    --amber:#b4651f;
+    --amber-soft:#fbeee1;
+    --red:#a94438;
+    --red-soft:#f8e9e6;
+    --green:#2f7d5e;
+    --green-soft:#e7f2ec;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(27,34,48,.05), 0 8px 24px rgba(27,34,48,.05);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, #eef2f8 0%, transparent 60%),
+      radial-gradient(900px 400px at 100% 0%, #fff6e8 0%, transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.85;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px 80px;}
+
+  .cover{padding:64px 0 40px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;letter-spacing:.12em;color:var(--blue);
+    text-transform:uppercase;font-weight:600;
+    background:var(--blue-soft);padding:6px 12px;border-radius:999px;
+  }
+  h1{
+    font-size:clamp(30px,5vw,46px);
+    line-height:1.25;margin:20px 0 14px;letter-spacing:-.02em;
+    font-weight:800;
+  }
+  h1 .thin{color:var(--ink-3);font-weight:500;}
+  .sub{font-size:17px;color:var(--ink-2);max-width:720px;margin:0;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+  .meta span{
+    font-size:13px;color:var(--ink-2);background:var(--card);
+    border:1px solid var(--line);padding:6px 12px;border-radius:999px;
+  }
+
+  .toc{
+    margin:36px 0 8px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);
+  }
+  .toc h2{font-size:15px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 14px;font-weight:600;}
+  .toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px 24px;}
+  .toc li{counter-increment:toc;}
+  .toc a{
+    color:var(--ink);text-decoration:none;display:flex;gap:10px;
+    padding:5px 0;border-bottom:1px dashed transparent;font-size:15px;
+  }
+  .toc a:hover{color:var(--blue);border-bottom-color:var(--blue);}
+  .toc a::before{content:counter(toc,decimal-leading-zero);color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:13px;}
+
+  section{margin-top:56px;}
+  h2.sec{
+    font-size:26px;margin:0 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px;
+  }
+  h2.sec .n{
+    font-size:13px;font-weight:700;color:#fff;background:var(--ink);
+    width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;
+    font-variant-numeric:tabular-nums;
+  }
+  .lead{color:var(--ink-2);margin:0 0 22px;font-size:15px;}
+  h3{font-size:19px;margin:32px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:16px;margin:20px 0 8px;}
+  p{margin:10px 0;}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;box-shadow:var(--shadow);
+  }
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  thead th{
+    background:#f3f5f9;color:var(--ink-2);text-align:left;font-weight:600;
+    font-size:13px;letter-spacing:.04em;padding:11px 14px;border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:11px 14px;border-bottom:1px solid #eff1f5;vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fcfdfe;}
+  td strong{color:var(--ink);}
+
+  .tag{
+    display:inline-block;font-size:12px;line-height:1.6;padding:2px 9px;border-radius:6px;
+    font-weight:600;white-space:nowrap;
+  }
+  .tag.must{background:var(--green-soft);color:var(--green);}
+  .tag.imp{background:var(--amber-soft);color:var(--amber);}
+  .tag.opt{background:#eef0f3;color:var(--ink-3);}
+  .tag.hot{background:var(--red-soft);color:var(--red);}
+  .tag.blue{background:var(--blue-soft);color:var(--blue);}
+
+  .callout{
+    border-left:4px solid var(--blue);background:var(--blue-soft);
+    padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:14.5px;
+  }
+  .callout.warn{border-color:var(--amber);background:var(--amber-soft);}
+  .callout.tip{border-color:var(--green);background:var(--green-soft);}
+  .callout b{color:var(--ink);}
+
+  code{
+    font-family:"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+    font-size:.9em;background:#eef1f6;color:#2c3950;
+    padding:1px 6px;border-radius:5px;
+  }
+  pre{
+    background:#1e2532;color:#e6ecf5;border-radius:12px;
+    padding:18px 20px;overflow-x:auto;line-height:1.75;
+    font-size:13.5px;margin:14px 0 18px;
+    border:1px solid #2c3444;
+  }
+  pre code{
+    background:none;color:inherit;padding:0;font-size:inherit;
+    font-family:"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+  }
+  pre .cm{color:#8a97ab;}
+  pre .kw{color:#7fd0b6;font-weight:600;}
+  pre .str{color:#e8c07a;}
+  pre .fn{color:#8ab8f0;}
+  .cheat-head{
+    display:flex;align-items:baseline;gap:10px;margin:34px 0 4px;
+    padding-bottom:8px;border-bottom:2px solid var(--line);
+  }
+  .cheat-head h3{margin:0;font-size:20px;}
+  .cheat-head span{font-size:12.5px;color:var(--ink-3);}
+
+  .check{list-style:none;margin:6px 0;padding:0;}
+  .check li{
+    position:relative;padding:7px 0 7px 30px;font-size:14.5px;
+    border-bottom:1px dashed #eceae2;
+  }
+  .check li:last-child{border-bottom:none;}
+  .check li::before{
+    content:"";position:absolute;left:4px;top:13px;
+    width:13px;height:13px;border:1.6px solid #b9c4bf;border-radius:4px;
+  }
+
+  @media print{
+    body{background:#fff;font-size:12pt;}
+    .wrap{max-width:none;padding:0;}
+    .card,.toc,table{box-shadow:none;}
+    .card,table,pre{page-break-inside:avoid;}
+    pre{background:#f4f4f4;color:#111;border-color:#ddd;}
+    pre .kw{color:#0a6b52;}
+    pre .cm{color:#777;}
+    pre .str{color:#7a4a00;}
+    a{color:inherit;text-decoration:none;}
+  }
+  @media (max-width:640px){
+    .wrap{padding:0 16px 60px;}
+    h1{font-size:28px;}
+    table{font-size:13px;}
+    thead th,td{padding:9px 10px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 封面 -->
+  <header class="cover">
+    <span class="eyebrow">14-DAY PYTHON SPRINT</span>
+    <h1>Python 学习计划<br><span class="thin">配套黑马程序员课程的速查手册</span></h1>
+    <p class="sub">
+      和 SQL 手册同款结构：每天“学习—敲代码—自测”三段式，覆盖从零到能独立写小项目的全部核心语法；
+      爬虫、数据分析、Web 后端单独标注，学完基础再按需补。每个模块写明用在哪、要不要重点学、面试考不考。
+    </p>
+    <div class="meta">
+      <span>适用课程：黑马程序员 Python 入门到精通（B站 av93830218）</span>
+      <span>Python 版本：3.10+</span>
+      <span>每日投入：3–4 小时 × 14 天</span>
+      <span>工具：PyCharm 或 VS Code</span>
+    </div>
+  </header>
+
+  <!-- 目录 -->
+  <nav class="toc" aria-label="目录">
+    <h2>目 录</h2>
+    <ol>
+      <li><a href="#pick">先看这里：课程怎么选 + 环境准备</a></li>
+      <li><a href="#plan">14 天学习计划表</a></li>
+      <li><a href="#usage">模块用途 × 重点分级</a></li>
+      <li><a href="#cheat1">速查手册：基础语法 / 流程控制</a></li>
+      <li><a href="#cheat2">速查手册：容器 / 函数 / 文件异常</a></li>
+      <li><a href="#cheat3">速查手册：面向对象 / 模块包</a></li>
+      <li><a href="#test">每日自测清单</a></li>
+      <li><a href="#pitfall">新手最容易踩的 12 个坑</a></li>
+    </ol>
+  </nav>
+
+  <!-- 01 选课与准备 -->
+  <section id="pick">
+    <h2 class="sec"><span class="n">01</span>先看这里：课程怎么选 + 环境准备</h2>
+    <p class="lead">先定课程再定环境，别在"看哪个视频"上浪费一整天。结论已经帮你筛选好了。</p>
+
+    <table>
+      <thead><tr><th style="width:180px;">课程</th><th style="width:200px;">特点</th><th>适合谁</th><th style="width:110px;">建议</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>黑马程序员</strong><br><span style="font-size:12.5px;color:var(--ink-3);">600集 · av93830218</span></td>
+          <td>最系统、配套资料全、就业导向，和你学的 SQL 是同一套人马</td>
+          <td>零基础、想系统学到能找工作的</td>
+          <td><span class="tag must">首选</span></td>
+        </tr>
+        <tr>
+          <td><strong>尚硅谷</strong><br><span style="font-size:12.5px;color:var(--ink-3);">Python 2024版</span></td>
+          <td>讲解更细致、节奏慢、案例通俗</td>
+          <td>想精简、慢慢啃、怕跟不上的</td>
+          <td><span class="tag imp">备选</span></td>
+        </tr>
+        <tr>
+          <td><strong>路飞学城 Alex</strong><br><span style="font-size:12.5px;color:var(--ink-3);">面向对象专项</span></td>
+          <td>面向对象讲得透，案例多</td>
+          <td>学完基础后专攻 OOP</td>
+          <td><span class="tag opt">进阶补</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <b>选课建议：</b>主看黑马（和你 SQL 同一个老师风格，衔接顺），把 600 集里"基础语法 → 容器 → 函数 → 面向对象 → 文件/异常"看完就够入门，爬虫和 Web 是后话。
+      若黑马节奏太快跟不上，换成尚硅谷 2024 版，两者知识体系一致，可以混着对照看。
+    </div>
+
+    <h3>开课前 30 分钟：环境三件套</h3>
+    <table>
+      <thead><tr><th style="width:150px;">项目</th><th>做什么</th><th style="width:270px;">检查标准</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Python 3.10+</strong></td><td>官网 python.org 下载安装，Windows 勾选 <code>Add to PATH</code>。</td><td>命令行输入 <code>python --version</code> 能显示版本号</td></tr>
+        <tr><td><strong>PyCharm 社区版</strong></td><td>JetBrains 官网免费下载（或 VS Code + Python 插件），只用一个。</td><td>能新建 <code>.py</code> 文件并运行出 <code>Hello World</code></td></tr>
+        <tr><td><strong>pip 与虚拟环境</strong></td><td>学会 <code>pip install 包名</code>；项目用 <code>venv</code> 隔离依赖。</td><td><code>pip install requests</code> 不报错</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>和学 SQL 最大的不同：</b>SQL 是"对着数据库发命令"，Python 是"写程序让计算机做事"。
+      所以学 Python 光看视频绝对学不会，必须每个知识点都自己敲一遍、改一改、看报错。每天敲代码的时间要大于看视频的时间。
+    </div>
+  </section>
+
+  <!-- 02 十四天计划 -->
+  <section id="plan">
+    <h2 class="sec"><span class="n">02</span>14 天学习计划表</h2>
+    <p class="lead">前 12 天吃透基础，第 13 天做方向导览（爬虫/数据/Web），第 14 天总复盘。每天的"产出"是硬指标：敲不出来就不算学完。</p>
+
+    <table style="margin-bottom:24px;">
+      <thead>
+        <tr><th style="width:64px;">天</th><th style="width:210px;">主题</th><th>对应黑马课程</th><th style="width:230px;">当天产出（硬指标）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>D1</strong></td><td>环境 + 基础语法</td><td>print、注释、变量、数据类型、输入、运算符</td><td>能写出输入两个数求和的程序</td></tr>
+        <tr><td><strong>D2</strong></td><td>流程控制</td><td>if/elif/else、while、for、range、break/continue</td><td>能写猜数字、九九乘法表</td></tr>
+        <tr><td><strong>D3</strong></td><td>字符串 + 列表</td><td>字符串方法、list 增删改查、切片</td><td>能写"统计列表里每个词出现次数"</td></tr>
+        <tr><td><strong>D4</strong></td><td>元组 + 字典 + 集合</td><td>tuple、dict 键值操作、set 去重、推导式</td><td>能用字典做学生成绩管理</td></tr>
+        <tr><td><strong>D5</strong></td><td>函数</td><td>def、参数、返回值、作用域</td><td>能把昨天代码重构成函数</td></tr>
+        <tr><td><strong>D6</strong></td><td>函数进阶 + 模块包</td><td>lambda、递归、内置函数、import、pip</td><td>会 pip 装包并调用第三方库</td></tr>
+        <tr><td><strong>D7</strong></td><td>阶段复习 + 小项目</td><td>综合运用前 6 天</td><td>完成"购物车 / 学生管理"控制台项目</td></tr>
+        <tr><td><strong>D8</strong></td><td>文件操作</td><td>open、read/write、with、json</td><td>能读写 txt 和 json 文件</td></tr>
+        <tr><td><strong>D9</strong></td><td>异常处理</td><td>try/except/finally、raise、自定义异常</td><td>给文件程序加上异常保护</td></tr>
+        <tr><td><strong>D10</strong></td><td>面向对象基础</td><td>class、对象、__init__、self、属性方法</td><td>能定义"学生类"并创建对象</td></tr>
+        <tr><td><strong>D11</strong></td><td>面向对象进阶</td><td>继承、重写、super、多态、封装</td><td>能写出带继承关系的类</td></tr>
+        <tr><td><strong>D12</strong></td><td>综合实战</td><td>面向对象 + 文件 + 异常组合</td><td>完成面向对象版"图书管理系统"</td></tr>
+        <tr><td><strong>D13</strong></td><td>方向导览（选学）</td><td>爬虫 / 数据分析 / Web 后端各自是啥</td><td>选定一个方向并装好对应库</td></tr>
+        <tr><td><strong>D14</strong></td><td>总复习 + 复盘</td><td>错题重做 + 知识脑图</td><td>画出 14 天内容脑图，重做错题</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <h4 style="margin-top:0;">D1–D2 · 地基 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 4h ｜ 敲代码 4h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>print / input / 注释 / 变量命名规范</li>
+          <li>数据类型：int、float、str、bool、类型转换</li>
+          <li>算术、比较、逻辑、赋值运算符</li>
+          <li>if 多分支、while / for 循环、range、break / continue</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>写一个"猜数字"游戏（程序随机 1–100，用户猜，提示大了/小了）。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D3–D4 · 容器 <span class="tag must">重点中的重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 4h ｜ 敲代码 5h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>字符串：切片、split、join、strip、replace、find</li>
+          <li>列表：append/insert/remove/pop、切片、排序</li>
+          <li>字典：增删改查、遍历键值、嵌套</li>
+          <li>集合：去重、交集并集；推导式一行生成容器</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>用字典存 5 个学生成绩，实现增删查和求平均分。列表和字典是后面一切数据处理的地基，多花时间。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D5–D6 · 函数与模块 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 4h ｜ 敲代码 4h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>def 定义、位置参数、默认参数、关键字参数</li>
+          <li>return 返回值、多返回值、变量作用域</li>
+          <li>lambda 匿名函数、递归、内置函数（map/filter/len 等）</li>
+          <li>import 模块、pip install、第三方库</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>把 D3/D4 的成绩管理程序拆成多个函数；pip 装 requests 并成功发一个请求。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D7 · 阶段实战 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">敲代码 3h 起</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>不新增知识点，把前 6 天串起来</li>
+          <li>控制台交互：菜单 + 循环 + 增删改查</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>完成"购物车"或"学生管理系统"控制台小项目。这天决定了你是"学过"还是"学会"。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D8–D9 · 文件与异常 <span class="tag imp">重点 + 了解</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 3h ｜ 敲代码 3h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>open 的 r/w/a 模式、read/readline/readlines</li>
+          <li>with 上下文管理器（自动关文件）</li>
+          <li>json 读写（存结构化数据）</li>
+          <li>try/except/finally/else、捕获具体异常、raise</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>把成绩数据存进 json 文件，程序启动时读回来；给文件读取加异常保护。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D10–D12 · 面向对象 <span class="tag must">重点</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频约 5h ｜ 敲代码 5h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>类和对象、__init__ 构造、self 的含义</li>
+          <li>实例属性/方法、类属性/方法、静态方法</li>
+          <li>继承、方法重写、super()、多态、私有属性</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>用继承实现"图书类 → 电子书/纸质书"，再用文件+异常做一个面向对象版图书管理系统。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0;">D13–D14 · 方向 + 复盘 <span class="tag opt">选学</span></h4>
+        <p style="font-size:14px;color:var(--ink-2);margin:6px 0;">视频挑看 2h ｜ 复盘 2h</p>
+        <ul style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>爬虫：requests + 解析网页，练数据抓取</li>
+          <li>数据分析：pandas + numpy + matplotlib</li>
+          <li>Web 后端：FastAPI（正好衔接你的后端计划）</li>
+          <li>画脑图、重做错题</li>
+        </ul>
+        <p style="font-size:14px;margin:8px 0;"><b>动手：</b>结合你的 FastAPI 后端目标，D13 优先看 Web 方向，装好 FastAPI 并跑通 Hello World。</p>
+      </div>
+
+      <div class="card" style="background:linear-gradient(160deg,#f4f8fc,#fff);border-color:#cfe0ee;">
+        <h4 style="margin-top:0;color:var(--blue);">时间不够时的取舍</h4>
+        <p style="font-size:14.5px;margin:6px 0;">如果每天只有 2 小时，按这个顺序砍：</p>
+        <ol style="margin:8px 0;padding-left:20px;font-size:14.5px;">
+          <li>先砍 D13 的方向导览（本来就可选）</li>
+          <li>再砍集合、递归、lambda、静态方法这些偏细节的</li>
+          <li>面向对象进阶（继承/多态）先会写例题即可</li>
+          <li><b>绝不砍：</b>基础语法、容器（列表/字典）、函数、文件操作</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 03 模块用途 -->
+  <section id="usage">
+    <h2 class="sec"><span class="n">03</span>模块用途 × 重点分级</h2>
+    <p class="lead">学之前先知道"这东西以后在哪用"，记忆效率高很多。优先级按找工作 + 实际开发综合排序。</p>
+
+    <div class="callout">
+      <b>分级说明：</b>
+      <span class="tag must">必掌握</span> 写不出就等于不会 Python；
+      <span class="tag imp">重要</span> 工作常见，需要会用；
+      <span class="tag opt">了解</span> 知道概念和用途即可；
+      <span class="tag hot">面试高频</span> 不一定天天写，但面试爱问。
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:140px;">模块</th>
+          <th>工作中用在哪</th>
+          <th style="width:112px;">优先级</th>
+          <th style="width:88px;">面试</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>基础语法</strong><br><span style="font-size:12.5px;color:var(--ink-3);">变量/类型/运算符</span></td>
+          <td>一切程序的起点：读配置、算结果、格式化输出。<b>后面所有内容都建立在它上面，地基没打好后面寸步难行。</b></td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>流程控制</strong><br><span style="font-size:12.5px;color:var(--ink-3);">if/循环</span></td>
+          <td>业务逻辑判断（余额够不够、用户有没有权限）、批量处理（遍历文件、遍历订单）、循环生成数据。</td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>容器</strong><br><span style="font-size:12.5px;color:var(--ink-3);">列表/字典/元组/集合</span></td>
+          <td>列表存有序数据、字典存键值（接口返回 JSON 本质就是字典）、集合去重。<b>数据分析、爬虫、后端接口天天打交道，是重中之重。</b></td>
+          <td><span class="tag must">必掌握</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>函数</strong><br><span style="font-size:12.5px;color:var(--ink-3);">def/lambda</span></td>
+          <td>把重复代码封装复用、让程序结构清晰。<b>不写函数的代码被称为"面条代码"，后期无法维护。</b></td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>文件操作</strong><br><span style="font-size:12.5px;color:var(--ink-3);">读写/JSON</span></td>
+          <td>读配置文件、写日志、导入导出数据、把爬到的数据存成文件、读 Excel/CSV。</td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>异常处理</strong><br><span style="font-size:12.5px;color:var(--ink-3);">try/except</span></td>
+          <td>让程序遇到错误不崩溃（网络断、文件不存在、除零），给用户友好提示。<b>没有异常处理的程序是"半成品"。</b></td>
+          <td><span class="tag imp">重要</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>面向对象</strong><br><span style="font-size:12.5px;color:var(--ink-3);">class/继承/封装</span></td>
+          <td>大型项目组织代码、FastAPI 里定义模型、把现实事物抽象成对象。<b>后端开发、读别人项目源码都离不开它。</b></td>
+          <td><span class="tag must">必掌握</span> <span class="tag hot">高频</span></td>
+          <td>高频</td>
+        </tr>
+        <tr>
+          <td><strong>模块与包</strong><br><span style="font-size:12.5px;color:var(--ink-3);">import/pip</span></td>
+          <td>用别人写好的轮子（requests、pandas、fastapi 全是第三方库），不会 import 等于不会用 Python 生态。</td>
+          <td><span class="tag must">必掌握</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>爬虫</strong><br><span style="font-size:12.5px;color:var(--ink-3);">方向篇</span></td>
+          <td>抓取公开数据、竞品价格监控、舆情采集。<b>注意遵守 robots 协议和法律法规。</b></td>
+          <td><span class="tag opt">按方向</span></td>
+          <td>低频</td>
+        </tr>
+        <tr>
+          <td><strong>数据分析</strong><br><span style="font-size:12.5px;color:var(--ink-3);">pandas/numpy</span></td>
+          <td>清洗数据、统计分析、画图出报告。<b>你正在做传播学数据研究，这个方向对你最有用。</b></td>
+          <td><span class="tag opt">按方向</span></td>
+          <td>中频</td>
+        </tr>
+        <tr>
+          <td><strong>Web 后端</strong><br><span style="font-size:12.5px;color:var(--ink-3);">FastAPI</span></td>
+          <td>写接口、做 API 服务。<b>和你 React + FastAPI + SQL 的学习计划正好闭环。</b></td>
+          <td><span class="tag opt">按方向</span></td>
+          <td>高频</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--blue);">你的路线：后端 + 数据</h4>
+        <p style="font-size:14.5px;margin:6px 0;">优先级：<b>基础语法 &gt; 容器 &gt; 函数 &gt; 面向对象 &gt; 文件/异常 &gt; 模块包</b>。</p>
+        <p style="font-size:14.5px;margin:6px 0;">基础学完后，两条路都跟你有关：<b>FastAPI 做后端</b>（配 React + SQL），<b>pandas 做数据分析</b>（配你的传播学研究）。可以先各花半天做 D13 的导览，再选一条深入。</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--amber);">先易后难，别一上来就啃</h4>
+        <p style="font-size:14.5px;margin:6px 0;">装饰器、生成器、迭代器、多线程、正则、元类——<b>这些是"进阶语法"，零基础阶段一律跳过</b>，等写完一个小项目再回头补。</p>
+        <p style="font-size:14.5px;margin:6px 0;">判断标准：如果某个知识点你现在用不到、面试也没见过，就标记"以后再说"，别让它卡住你的主线。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 速查手册 1 -->
+  <section id="cheat1">
+    <h2 class="sec"><span class="n">04</span>速查手册：基础语法 / 流程控制</h2>
+    <p class="lead">按"忘了一眼就能想起来"的标准写，建议打印出来放手边。Python 靠缩进分块，代码块里的注释别照抄，要自己敲。</p>
+
+    <div class="cheat-head"><h3>基础语法</h3><span>变量、类型、输入输出、格式化</span></div>
+    <pre><code><span class="cm"># 输出与输入</span>
+<span class="fn">print</span>(<span class="str">"Hello, 世界"</span>)
+name = <span class="fn">input</span>(<span class="str">"请输入名字："</span>)   <span class="cm"># input 返回的一定是字符串</span>
+
+<span class="cm"># 变量：不需要声明类型，直接赋值</span>
+age = 18
+height = 1.75
+is_student = <span class="kw">True</span>        <span class="cm"># 注意首字母大写</span>
+name = <span class="str">"张三"</span>
+
+<span class="cm"># 类型转换</span>
+num = <span class="fn">int</span>(<span class="str">"123"</span>)        <span class="cm"># 字符串转整数</span>
+s = <span class="fn">str</span>(123)           <span class="cm"># 整数转字符串</span>
+f = <span class="fn">float</span>(<span class="str">"1.5"</span>)     <span class="cm"># 转小数</span>
+
+<span class="cm"># 格式化输出（f-string 最常用，推荐）</span>
+<span class="fn">print</span>(<span class="kw">f</span><span class="str">"我叫{name}，今年{age}岁"</span>)</code></pre>
+
+    <table>
+      <thead><tr><th style="width:160px;">类型</th><th style="width:220px;">示例</th><th>什么时候用</th></tr></thead>
+      <tbody>
+        <tr><td><code>int</code></td><td><code>18</code></td><td>整数：年龄、数量、编号</td></tr>
+        <tr><td><code>float</code></td><td><code>3.14</code></td><td>小数：价格、成绩、比例</td></tr>
+        <tr><td><code>str</code></td><td><code>"你好"</code></td><td>文本：名字、地址、内容</td></tr>
+        <tr><td><code>bool</code></td><td><code>True / False</code></td><td>真假：是否登录、是否通过</td></tr>
+        <tr><td><code>None</code></td><td><code>None</code></td><td>空值：表示"没有值"</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <b>两个高频错误：</b>① <code>input()</code> 拿到的是字符串，做加法前要先 <code>int()</code> 转换；② Python 布尔值是
+      <code>True/False</code>（首字母大写），写 <code>true</code> 会报错。
+    </div>
+
+    <div class="cheat-head"><h3>运算符</h3><span>算术、比较、逻辑</span></div>
+    <pre><code><span class="cm"># 算术</span>
+a + b   a - b   a * b   a / b   a // b   a % b   a ** b
+<span class="cm"># 除 / 结果一定是 float；整除 // 取整；% 取余；** 求幂</span>
+
+<span class="cm"># 比较：返回 True/False</span>
+a == b   a != b   a &gt; b   a &lt; b   a &gt;= b   a &lt;= b
+
+<span class="cm"># 逻辑</span>
+<span class="kw">and</span>   <span class="kw">or</span>   <span class="kw">not</span>       <span class="cm"># 注意是英文单词，不是 &amp;&amp; || !</span>
+
+<span class="cm"># 赋值</span>
+x += 1    <span class="cm"># 等价 x = x + 1</span></code></pre>
+
+    <div class="cheat-head"><h3>流程控制</h3><span>if / while / for</span></div>
+    <pre><code><span class="cm"># if 多分支：靠缩进分块，冒号不能少</span>
+<span class="kw">if</span> score &gt;= 90:
+    <span class="fn">print</span>(<span class="str">"优秀"</span>)
+<span class="kw">elif</span> score &gt;= 60:
+    <span class="fn">print</span>(<span class="str">"及格"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"不及格"</span>)
+
+<span class="cm"># while 循环：条件成立就重复</span>
+i = 1
+<span class="kw">while</span> i &lt;= 5:
+    <span class="fn">print</span>(i)
+    i += 1               <span class="cm"># 别忘了让 i 变化，否则死循环</span>
+
+<span class="cm"># for 循环：遍历序列，最常用</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(1, 6):   <span class="cm"># 1,2,3,4,5（不含 6）</span>
+    <span class="fn">print</span>(i)
+
+<span class="kw">for</span> name <span class="kw">in</span> [<span class="str">"张三"</span>, <span class="str">"李四"</span>, <span class="str">"王五"</span>]:
+    <span class="fn">print</span>(name)
+
+<span class="cm"># break 跳出整个循环，continue 跳过本次</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(10):
+    <span class="kw">if</span> i == 5:
+        <span class="kw">break</span>
+    <span class="fn">print</span>(i)          <span class="cm"># 打印 0~4</span></code></pre>
+
+    <div class="callout tip">
+      <b>range 的口诀：</b><code>range(起始, 结束, 步长)</code>，取头不取尾。一个参数 <code>range(5)</code> 是 0~4；
+      两个参数 <code>range(2,5)</code> 是 2,3,4；倒序 <code>range(5,0,-1)</code>。
+    </div>
+
+    <h4>小练习：九九乘法表</h4>
+    <pre><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(1, 10):
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(1, i + 1):
+        <span class="fn">print</span>(<span class="kw">f</span><span class="str">"{j}×{i}={i*j}"</span>, end=<span class="str">"\t"</span>)
+    <span class="fn">print</span>()   <span class="cm"># 换行</span></code></pre>
+  </section>
+
+  <!-- 05 速查手册 2 -->
+  <section id="cheat2">
+    <h2 class="sec"><span class="n">05</span>速查手册：容器 / 函数 / 文件异常</h2>
+    <p class="lead">容器是 Python 的命根子，函数是让代码能复用的关键，文件异常是让程序能落地的最后一块拼图。</p>
+
+    <div class="cheat-head"><h3>字符串 str</h3><span>不可变，操作都返回新字符串</span></div>
+    <pre><code>s = <span class="str">" hello world "</span>
+s.<span class="fn">strip</span>()            <span class="cm"># 去首尾空格 → "hello world"</span>
+s.<span class="fn">upper</span>()            <span class="cm"># 转大写</span>
+s.<span class="fn">lower</span>()            <span class="cm"># 转小写</span>
+s.<span class="fn">replace</span>(<span class="str">"world"</span>, <span class="str">"Python"</span>)
+s.<span class="fn">split</span>(<span class="str">" "</span>)           <span class="cm"># 按空格切成列表</span>
+<span class="str">"-"</span>.<span class="fn">join</span>([<span class="str">"a"</span>,<span class="str">"b"</span>])   <span class="cm"># 列表拼成字符串 "a-b"</span>
+s.<span class="fn">find</span>(<span class="str">"world"</span>)       <span class="cm"># 找子串位置，找不到返回 -1</span>
+s.<span class="fn">startswith</span>(<span class="str">"h"</span>)     <span class="cm"># 是否以...开头</span>
+
+<span class="cm"># 切片：s[起点:终点:步长]，取头不取尾</span>
+s[0:5]    s[-3:]    s[::-1]    <span class="cm"># 倒序</span></code></pre>
+
+    <div class="cheat-head"><h3>列表 list</h3><span>有序、可变，最常用容器</span></div>
+    <pre><code>nums = [3, 1, 2]
+nums.<span class="fn">append</span>(4)        <span class="cm"># 末尾加 → [3,1,2,4]</span>
+nums.<span class="fn">insert</span>(0, 9)      <span class="cm"># 指定位置插 → [9,3,1,2,4]</span>
+nums.<span class="fn">remove</span>(1)        <span class="cm"># 删第一个值为 1 的元素</span>
+n = nums.<span class="fn">pop</span>()         <span class="cm"># 弹出并返回最后一个</span>
+nums.<span class="fn">sort</span>()            <span class="cm"># 原地排序（升序）</span>
+nums.<span class="fn">sort</span>(reverse=<span class="kw">True</span>)
+<span class="fn">len</span>(nums)             <span class="cm"># 长度</span>
+3 <span class="kw">in</span> nums             <span class="cm"># 是否包含 → True/False</span>
+
+<span class="cm"># 列表推导式：一行生成列表，Python 特色</span>
+squares = [x*x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(1, 6)]   <span class="cm"># [1,4,9,16,25]</span>
+evens = [x <span class="kw">for</span> x <span class="kw">in</span> nums <span class="kw">if</span> x % 2 == 0]</code></pre>
+
+    <div class="cheat-head"><h3>元组 / 字典 / 集合</h3><span>tuple 不可变，dict 键值，set 去重</span></div>
+    <pre><code><span class="cm"># 元组：不可变，常用于固定组合、函数多返回值</span>
+point = (3, 4)
+x, y = point          <span class="cm"># 解包</span>
+
+<span class="cm"># 字典：键值对，接口 JSON 的本质</span>
+stu = {<span class="str">"name"</span>: <span class="str">"张三"</span>, <span class="str">"age"</span>: 18}
+stu[<span class="str">"score"</span>] = 90     <span class="cm"># 加键</span>
+stu.<span class="fn">get</span>(<span class="str">"name"</span>)        <span class="cm"># 取值，键不存在返回 None（比 stu["x"] 安全）</span>
+stu.<span class="fn">keys</span>()  stu.<span class="fn">values</span>()  stu.<span class="fn">items</span>()
+<span class="kw">for</span> k, v <span class="kw">in</span> stu.<span class="fn">items</span>():
+    <span class="fn">print</span>(k, v)
+
+<span class="cm"># 集合：自动去重，做交集并集</span>
+a = {1, 2, 3}
+b = {2, 3, 4}
+a &amp; b   <span class="cm"># 交集 {2,3}</span>
+a | b   <span class="cm"># 并集 {1,2,3,4}</span>
+<span class="fn">set</span>([1, 1, 2, 3])   <span class="cm"># 去重 → {1,2,3}</span></code></pre>
+
+    <div class="callout warn">
+      <b>字典取值用 <code>get</code> 而不是 <code>[]</code>：</b>键不存在时 <code>stu["x"]</code> 会直接报错崩溃，<code>stu.get("x")</code> 返回
+      None 更安全。这是新手写接口处理数据时最常见的崩溃原因。
+    </div>
+
+    <div class="cheat-head"><h3>函数</h3><span>复用代码、拆分逻辑</span></div>
+    <pre><code><span class="cm"># 基础定义</span>
+<span class="kw">def</span> <span class="fn">add</span>(a, b):
+    <span class="kw">return</span> a + b
+
+<span class="cm"># 默认参数（有默认值的放后面）</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name, greeting=<span class="str">"你好"</span>):
+    <span class="kw">return</span> <span class="kw">f</span><span class="str">"{greeting}，{name}"</span>
+
+<span class="cm"># 关键字参数（可不按顺序传）</span>
+<span class="fn">greet</span>(name=<span class="str">"张三"</span>, greeting=<span class="str">"早上好"</span>)
+
+<span class="cm"># 可变参数 *args（任意个） / **kwargs（任意键值）</span>
+<span class="kw">def</span> <span class="fn">total</span>(*nums):
+    <span class="kw">return</span> <span class="fn">sum</span>(nums)
+
+<span class="cm"># lambda 匿名函数</span>
+square = <span class="kw">lambda</span> x: x * x</code></pre>
+
+    <div class="callout warn">
+      <b>默认参数的坑（面试常问）：</b>默认值如果是可变对象（如 <code>def f(x=[])</code>），会在多次调用间共享同一个列表。
+      要写成 <code>def f(x=None): x = x or []</code>。这是新手必踩的坑。
+    </div>
+
+    <div class="cheat-head"><h3>文件操作与异常</h3><span>让数据能保存下来</span></div>
+    <pre><code><span class="cm"># 写文件（w 覆盖，a 追加）</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"w"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(<span class="str">"第一行\n"</span>)
+
+<span class="cm"># 读文件</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.txt"</span>, <span class="str">"r"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    content = f.<span class="fn">read</span>()          <span class="cm"># 读全部</span>
+    <span class="cm"># lines = f.readlines()  # 读成列表</span>
+
+<span class="cm"># json 读写（存结构化数据）</span>
+<span class="kw">import</span> json
+data = {<span class="str">"name"</span>: <span class="str">"张三"</span>, <span class="str">"scores"</span>: [90, 85, 88]}
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.json"</span>, <span class="str">"w"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(data, f, ensure_ascii=<span class="kw">False</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.json"</span>, <span class="str">"r"</span>, encoding=<span class="str">"utf-8"</span>) <span class="kw">as</span> f:
+    data = json.<span class="fn">load</span>(f)
+
+<span class="cm"># 异常处理：程序不崩溃</span>
+<span class="kw">try</span>:
+    x = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"请输入数字："</span>))
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="str">"输入的不是数字！"</span>)
+<span class="kw">except</span> Exception <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="kw">f</span><span class="str">"出错了：{e}"</span>)
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="str">"无论是否报错都会执行"</span>)</code></pre>
+
+    <div class="callout tip">
+      <b>with 的好处：</b>用 <code>with open(...)</code> 会自动关闭文件，不用手写 <code>f.close()</code>，还能防止中途出错导致文件没关。
+      以后读写文件一律用 with。
+    </div>
+  </section>
+
+  <!-- 06 速查手册 3 -->
+  <section id="cheat3">
+    <h2 class="sec"><span class="n">06</span>速查手册：面向对象 / 模块包</h2>
+    <p class="lead">面向对象是把现实事物抽象成代码的思维方式，模块包是复用别人代码的入口。两者是"从小项目走向大项目"的门槛。</p>
+
+    <div class="cheat-head"><h3>类和对象</h3><span>class 是模板，对象是实例</span></div>
+    <pre><code><span class="cm"># 定义一个"学生"类</span>
+<span class="kw">class</span> <span class="fn">Student</span>:
+    <span class="cm"># 构造方法：创建对象时自动调用，self 代表对象本身</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, age):
+        self.name = name      <span class="cm"># 实例属性</span>
+        self.age = age
+
+    <span class="cm"># 实例方法：第一个参数永远是 self</span>
+    <span class="kw">def</span> <span class="fn">introduce</span>(self):
+        <span class="kw">return</span> <span class="kw">f</span><span class="str">"我叫{self.name}，{self.age}岁"</span>
+
+<span class="cm"># 创建对象（实例化）</span>
+stu = <span class="fn">Student</span>(<span class="str">"张三"</span>, 18)
+<span class="fn">print</span>(stu.name)            <span class="cm"># 访问属性</span>
+<span class="fn">print</span>(stu.<span class="fn">introduce</span>())    <span class="cm"># 调用方法</span></code></pre>
+
+    <div class="callout tip">
+      <b>self 到底是什么：</b>self 就是"当前这个对象自己"。你写 <code>stu.introduce()</code> 时，Python 会自动把
+      <code>stu</code> 传给 <code>self</code>，所以方法里能用 <code>self.name</code> 拿到这个对象的名字。
+      一句话：谁调用，self 就是谁。
+    </div>
+
+    <div class="cheat-head"><h3>继承与多态</h3><span>复用父类，扩展子类</span></div>
+    <pre><code><span class="cm"># 父类</span>
+<span class="kw">class</span> <span class="fn">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name):
+        self.name = name
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="str">"..."</span>
+
+<span class="cm"># 子类继承父类</span>
+<span class="kw">class</span> <span class="fn">Dog</span>(Animal):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):              <span class="cm"># 方法重写</span>
+        <span class="kw">return</span> <span class="kw">f</span><span class="str">"{self.name}：汪汪"</span>
+
+<span class="kw">class</span> <span class="fn">Cat</span>(Animal):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="kw">f</span><span class="str">"{self.name}：喵喵"</span>
+
+<span class="cm"># 多态：同一个方法名，不同对象不同表现</span>
+animals = [<span class="fn">Dog</span>(<span class="str">"旺财"</span>), <span class="fn">Cat</span>(<span class="str">"咪咪"</span>)]
+<span class="kw">for</span> a <span class="kw">in</span> animals:
+    <span class="fn">print</span>(a.<span class="fn">speak</span>())
+
+<span class="cm"># super()：调用父类方法</span>
+<span class="kw">class</span> <span class="fn">Puppy</span>(Dog):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, age):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(name)   <span class="cm"># 先调父类构造</span>
+        self.age = age</code></pre>
+
+    <div class="cheat-head"><h3>封装（私有属性）</h3><span>控制外部访问</span></div>
+    <pre><code><span class="kw">class</span> <span class="fn">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, balance):
+        self.__balance = balance    <span class="cm"># 双下划线开头 = 私有</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(self):
+        <span class="kw">return</span> self.__balance
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(self, amount):
+        <span class="kw">if</span> amount &gt; 0:
+            self.__balance += amount</code></pre>
+
+    <div class="cheat-head"><h3>模块与包</h3><span>import 别人，组织自己</span></div>
+    <pre><code><span class="cm"># 导入标准库 / 第三方库</span>
+<span class="kw">import</span> math
+<span class="kw">import</span> os
+<span class="kw">import</span> random
+<span class="fn">math</span>.<span class="fn">sqrt</span>(16)            <span class="cm"># 4.0</span>
+<span class="fn">random</span>.<span class="fn">randint</span>(1, 100)   <span class="cm"># 随机整数</span>
+
+<span class="cm"># 从模块导入具体函数</span>
+<span class="kw">from</span> math <span class="kw">import</span> sqrt, pi
+
+<span class="cm"># 起别名</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># 安装第三方库（命令行执行，不是代码）</span>
+<span class="cm"># pip install requests pandas fastapi</span>
+
+<span class="cm"># 导入自己写的文件（同目录下 my_utils.py）</span>
+<span class="kw">import</span> my_utils
+my_utils.<span class="fn">some_func</span>()</code></pre>
+
+    <div class="callout">
+      <b>常见第三方库速查：</b>
+      <code>requests</code> 发网络请求、<code>pandas</code> 表格数据处理、<code>numpy</code> 数值计算、
+      <code>matplotlib</code> 画图、<code>fastapi</code> 写接口、<code>beautifulsoup4</code> 解析网页。
+      需要哪个装哪个，别一开始全装。
+    </div>
+  </section>
+
+  <!-- 07 自测 -->
+  <section id="test">
+    <h2 class="sec"><span class="n">07</span>每日自测清单</h2>
+    <p class="lead">每天结束前逐条打勾。做不到的条目，第二天开始前先补，不要往后拖。</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="margin-top:0;">D1–D2 · 基础与流程</h4>
+        <ul class="check">
+          <li>不看资料写出"输入两个数求和"</li>
+          <li>能解释 input 返回类型、True/False 大小写</li>
+          <li>能写出 if/elif/else 多分支和 for/while 循环</li>
+          <li>能默写九九乘法表</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D3–D4 · 容器</h4>
+        <ul class="check">
+          <li>能说出 list / tuple / dict / set 的区别</li>
+          <li>能写出列表的增删改查和切片</li>
+          <li>能写出字典遍历和 get 取值</li>
+          <li>能写一个列表推导式</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D5–D6 · 函数与模块</h4>
+        <ul class="check">
+          <li>能写出带默认参数和返回值的函数</li>
+          <li>能解释 *args 和 **kwargs 的用途</li>
+          <li>能 pip 装包并成功 import</li>
+          <li>能说出默认参数可变对象的坑</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D7 · 阶段实战</h4>
+        <ul class="check">
+          <li>独立完成"购物车/学生管理"控制台项目</li>
+          <li>代码里用了函数拆分，不是一堆平铺代码</li>
+          <li>能边运行边调试，看懂报错信息</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D8–D9 · 文件与异常</h4>
+        <ul class="check">
+          <li>能写出 with open 读写文件</li>
+          <li>能读写 json 文件并解释 ensure_ascii</li>
+          <li>能写出 try/except/finally 保护程序</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D10–D12 · 面向对象</h4>
+        <ul class="check">
+          <li>能定义类并创建对象，解释 self</li>
+          <li>能写出继承、方法重写、super()</li>
+          <li>能用面向对象完成一个带文件存取的小项目</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">D13–D14 · 方向与复盘</h4>
+        <ul class="check">
+          <li>能说出爬虫/数据/Web 三方向各用什么库</li>
+          <li>能画出 14 天内容脑图</li>
+          <li>重做错题全部通过</li>
+        </ul>
+      </div>
+      <div class="card" style="background:linear-gradient(160deg,#f4f8fc,#fff);border-color:#cfe0ee;">
+        <h4 style="margin-top:0;color:var(--blue);">结课标准</h4>
+        <p style="font-size:14.5px;margin:6px 0;">给一个需求：<b>做一个"图书管理系统"</b>，要求能增删改查图书、数据存到文件、输入有异常保护、用面向对象组织代码。</p>
+        <p style="font-size:14.5px;margin:6px 0;">能在 2 小时内独立写出来，14 天目标达成；写不出，回到容器、函数、文件、面向对象重练。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 常见坑 -->
+  <section id="pitfall">
+    <h2 class="sec"><span class="n">08</span>新手最容易踩的 12 个坑</h2>
+    <p class="lead">这些错误在课程作业和真实开发中反复出现，提前知道能省大量 debug 时间。</p>
+
+    <table>
+      <thead><tr><th style="width:38px;">#</th><th style="width:250px;">错误写法 / 做法</th><th>问题与正确做法</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>缩进混乱 / 混用空格和 Tab</td><td>Python 靠缩进分块。统一用 4 个空格，别和 Tab 混用，否则报 <code>IndentationError</code>。</td></tr>
+        <tr><td>2</td><td><code>input("请输入") + 1</code></td><td>input 返回字符串，不能和数字直接算。先 <code>int(input(...))</code> 转换。</td></tr>
+        <tr><td>3</td><td>写成 <code>true / false</code></td><td>Python 布尔是 <code>True / False</code>，首字母大写，否则当变量名处理报错。</td></tr>
+        <tr><td>4</td><td><code>if a = 5</code> 用单等号判断</td><td><code>=</code> 是赋值，<code>==</code> 才是比较。判断相等必须写 <code>==</code>。</td></tr>
+        <tr><td>5</td><td><code>stu["x"]</code> 取不存在的键</td><td>直接报 <code>KeyError</code> 崩溃。改用 <code>stu.get("x")</code> 返回 None。</td></tr>
+        <tr><td>6</td><td>字符串与数字拼接</td><td><code>"年龄" + 18</code> 报错。用 f-string：<code>f"年龄{18}"</code>。</td></tr>
+        <tr><td>7</td><td><code>for x in list: list.remove(x)</code></td><td>遍历时删列表会漏删。用列表推导式重建，或遍历副本。</td></tr>
+        <tr><td>8</td><td><code>def f(x=[])</code> 可变默认参数</td><td>默认列表在多次调用间共享。改成 <code>def f(x=None): x = x or []</code>。</td></tr>
+        <tr><td>9</td><td><code>while True:</code> 忘写退出条件</td><td>死循环。记得在循环体内写 <code>break</code> 或让条件能变 false。</td></tr>
+        <tr><td>10</td><td>浮点数 <code>0.1 + 0.2 != 0.3</code></td><td>浮点精度问题。金额计算用 <code>decimal</code>，比较用 <code>round</code> 或误差范围。</td></tr>
+        <tr><td>11</td><td>读文件不写 <code>encoding="utf-8"</code></td><td>中文乱码或报错。读写文本文件统一加 <code>encoding="utf-8"</code>。</td></tr>
+        <tr><td>12</td><td>中英文符号混用</td><td>中文引号 <code>“”</code>、中文冒号会报语法错误。敲代码全程用英文输入法。</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip" style="margin-top:24px;">
+      <b>最后一句建议：</b>14 天结束后不要急着学框架。先用纯 Python 写一个完整小项目（比如把你的学习计划做成一个能增删改查的命令行程序），
+      再进入 FastAPI + React + SQL 的后端主线。Python 是"写出来的"，不是"看出来的"。
+    </div>
+  </section>
+
+  <footer style="margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>Python 学习计划与速查手册 · 配套黑马程序员 Python 课程</span>
+    <span>学完基础后衔接 FastAPI 后端 + pandas 数据分析</span>
+  </footer>
+</div>
+</body>
+</html>
