@@ -443,6 +443,18 @@
       {
         "title": "去重不能把数据冲突藏起来",
         "text": "set 适合判断是否出现过，通常平均 O(1) 成员查询；它不保证展示顺序。dict 的覆盖赋值会保留最后一条，这必须是明确策略，不能误当作安全去重。观察站主线选择同 ID 同内容跳过，不同内容进入 conflicts.csv，原数据保留。教学中 id 是简写，项目输入是 post_id，落库映射为 dbo.posts.id。"
+      },
+      {
+        "title": "从空卡片到发布稿：同一个键写两次会怎样",
+        "text": "给校报稿件建一张空卡片 card = {}。第一次写 card[\"栏目\"] = \"校园\" 会增加一个键；编辑把栏目改为“活动”时，再给同一个键赋值，卡片仍只有一个栏目。先猜两次写入后的 len(card)，再打印检查。可选的临时备注在发布前用 del 删除；如果有些稿件从未填过备注，先用 in 检查键，避免删除缺键时触发 KeyError。"
+      },
+      {
+        "title": "逐轮读排班表：键、值和顺序分别从哪里来",
+        "text": "排班表按 B 台、A 台、C 台的次序登记，值是各台编辑。for desk in shifts 每轮拿到一个台号；for desk, editor in shifts.items() 每轮将一对键值分别赋给两个名称。第一轮是 B 台和小林，第二轮台号换成 A 台，即使编辑仍是小林也要处理。要按台号发通知就遍历 sorted(shifts)，再按键取编辑。要列出所有排班人次用 values()；要数不同编辑才使用集合。"
+      },
+      {
+        "title": "按事件归档：先找记录，再取字段，最后改清单",
+        "text": "采编台需要按事件编号查找稿件。外层字典用编号定位，内层字典保存事件名和稿号列表。archive[\"E2\"] 取出整条事件记录，archive[\"E2\"][\"稿号\"] 取出这场活动的清单，然后才能 append。建档时为每个事件分别创建 []；如果复用同一个列表，给一个事件登记会连带改动另一个。先建活动档案、再收稿，才能在最后的报表中看见尚未收到稿件的活动。"
       }
     ],
     "code": "index = {}\nfor row in [{\"id\": \"01\", \"likes\": 12}, {\"id\": \"01\", \"likes\": 20}]:\n    key = row[\"id\"]\n    if key in index and index[key] != row:\n        print(\"冲突\", key)\n    else:\n        index[key] = row.copy()\nprint(index[\"01\"][\"likes\"])\nprint({\"likes\": 0}.get(\"likes\"))\ntry:\n    print(index[\"02\"])\nexcept KeyError:\n    print(\"KeyError：没有此 ID\")",
@@ -459,6 +471,27 @@
         "steps": "遍历名称、更新计数，最后排序输出避免依赖展示顺序。",
         "code": "counts = {}\nfor name in [\"音乐节\", \"科技展\", \"音乐节\"]:\n    counts[name] = counts.get(name, 0) + 1\nprint(sorted(counts.items()))",
         "output": "[('科技展', 1), ('音乐节', 2)]"
+      },
+      {
+        "question": "从空字典为稿件建立“栏目”和“点赞”两个字段，初值分别为“校园”和 0。改栏目为“活动”，临时加上“备注”字段再撤掉它。连续执行两次撤备注操作，每次都应安全。最后读出栏目、点赞和可选备注。",
+        "thinking": "先预测改栏目的那一步是否增加字段数。0 是已登记的点赞数；只有缺少备注键时才显示“未填写”。",
+        "steps": "① 建空卡并写两个键，输出字段数。② 改已有栏目，再次数键。③ 添加临时备注，每次撤回前先检查键。④ 用下标读取必填字段，用 get 读取可选字段，核对读取后的字段数。",
+        "code": "card = {}\ncard[\"栏目\"] = \"校园\"\ncard[\"点赞\"] = 0\nprint(\"建卡\", len(card))\ncard[\"栏目\"] = \"活动\"\nprint(\"改栏\", len(card))\n\ncard[\"备注\"] = \"待核对\"\nfor attempt in range(2):\n    if \"备注\" in card:\n        del card[\"备注\"]\nprint(card[\"栏目\"], card[\"点赞\"], card.get(\"备注\", \"未填写\"))\nprint(\"发布字段数\", len(card))",
+        "output": "建卡 2\n改栏 2\n活动 0 未填写\n发布字段数 2"
+      },
+      {
+        "question": "B 台和 A 台由小林值班，C 台由小何值班，登记次序是 B、A、C。按登记次序逐行打印交接单，再按台号输出通知顺序，最后分别报告排班人次与不同编辑人数。先写下 items() 第二轮两个变量的值。",
+        "thinking": "一条排班对应一对键值。同一个人出现两次应计两个人次。排序只用于通知这一步。",
+        "steps": "① 用台号作键建表。② 遍历 items() 打印每轮拿到的台号和编辑。③ sorted(shifts) 得到排好序的键，用 join 连成通知顺序。④ 先数值的个数，再数集合中不同值的个数。把表换成 {} 时，交接单应为零行，两项人数都应为 0。",
+        "code": "shifts = {\"B\": \"小林\", \"A\": \"小林\", \"C\": \"小何\"}\nfor desk, editor in shifts.items():\n    print(desk, editor)\nprint(\"通知顺序\", \", \".join(sorted(shifts)))\nprint(\"排班人次\", len(shifts.values()))\nprint(\"编辑人数\", len(set(shifts.values())))",
+        "output": "B 小林\nA 小林\nC 小何\n通知顺序 A, B, C\n排班人次 3\n编辑人数 2"
+      },
+      {
+        "question": "用两条事件记录 E1“展映”、E2“讲座”建立按编号查询的档案，各有自己的稿号清单。把来稿 (E2, P2)、(E9, P3)、(E2, P4) 归档。未知事件输出“待核对”及稿号。按建档顺序输出事件名、稿件数和稿号，空清单显示“暂无”。",
+        "thinking": "先在纸上预测 E1 的稿件数。若给 E2 加稿后 E1 也变了，检查两个事件是否共用了同一个列表。",
+        "steps": "① 遍历事件记录列表，每次创建含新清单的内层字典。② 对每条来稿先检查外层编号，命中时找到内层清单再追加。③ 遍历全部档案输出，保留零稿件活动。若把来稿改为空列表，两个活动都应显示暂无。",
+        "code": "events = [{\"编号\": \"E1\", \"名称\": \"展映\"}, {\"编号\": \"E2\", \"名称\": \"讲座\"}]\narchive = {}\nfor event in events:\n    archive[event[\"编号\"]] = {\"名称\": event[\"名称\"], \"稿号\": []}\n\nfor event_id, post_id in [(\"E2\", \"P2\"), (\"E9\", \"P3\"), (\"E2\", \"P4\")]:\n    if event_id in archive:\n        archive[event_id][\"稿号\"].append(post_id)\n    else:\n        print(\"待核对\", post_id)\n\nfor record in archive.values():\n    posts = record[\"稿号\"]\n    summary = \", \".join(posts) if posts else \"暂无\"\n    print(record[\"名称\"], len(posts), summary)",
+        "output": "待核对 P3\n展映 0 暂无\n讲座 2 P2, P4"
       }
     ],
     "mastery": [
