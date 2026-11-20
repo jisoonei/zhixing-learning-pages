@@ -529,6 +529,18 @@
       {
         "title": "移动元素时知道谁在变",
         "text": "用 while pending: 然后 pop 可处理待办队列；如果按先来先走，deque.popleft 比列表 pop(0) 更合适。删除一个列表中所有相等值可用筛选生成新列表。收集输入进字典前要先决定重复名称是拒绝、合并还是覆盖，否则界面看起来接受了两条，实际只留下一条。"
+      },
+      {
+        "title": "每三条生成一批：在第几条检查余数",
+        "text": "采编台每收到三条已审稿，就给排版同学发一次通知。把 processed 设为已处理条数，初值为 0。每次先加 1，再检查 processed % 3：第 2 条余 2，第 3 条余 0，第 4 条又余 1。这样余数为零时刚好形成完整批次。若把计数推进放在 continue 后面，遇到跳过的那一轮就可能原地重复。"
+      },
+      {
+        "title": "撤回所有副本后，再把待办逐条移交",
+        "text": "同一稿号可能在待办表中重复出现。remove 每次只删第一个匹配项，先用 while 检查目标仍在表中，再删除一次，直到再也找不到它。然后逐项从待办表取走并交给下一班。list.pop() 默认取末尾；如果业务按登记先后交接，小列表练习可以用 pop(0)。每次取走一条，待办表缩短一项，空表便自然结束。"
+      },
+      {
+        "title": "让键盘登记有两个结束条件",
+        "text": "试做一张两席值班表：用户输入 q 可以提前交班，收齐两名不同编辑也应结束。用 collecting 表示是否继续收集。每轮重新读取输入，空名和重复名可以重试；只有新名字占用一个席位。当 collecting 变为 False，Python 会先执行完本轮余下的语句，到下一次检查 while 条件时才离开。所以退出命令和写入字典应放在互斥分支里，避免把退出命令 q 当成编辑名。"
       }
     ],
     "code": "# 用固定输入流模拟键盘：把 for 改为 while，并使用 input 即可交互。\naccepted = []\nfor raw in [\" 12 \", \"坏数据\", \"-1\", \"q\", \"99\"]:\n    text = raw.strip()\n    if text.casefold() == \"q\":\n        break\n    try:\n        value = int(text)\n    except ValueError:\n        print(\"请输入整数\")\n        continue\n    if value < 0:\n        print(\"不能为负数\")\n        continue\n    accepted.append(value)\nprint(accepted)",
@@ -545,6 +557,28 @@
         "steps": "循环读取、判断 q、尝试转换，最后输出结果。",
         "code": "values = []\nwhile True:\n    raw = input(\"点赞数（q 结束）：\").strip()\n    if raw == \"q\":\n        break\n    try:\n        n = int(raw)\n    except ValueError:\n        print(\"请输入整数\")\n        continue\n    if n >= 0:\n        values.append(n)\nprint(values)",
         "output": "输入 12、q 时，最终输出 [12]。"
+      },
+      {
+        "question": "共有 7 条已审稿，按到达次序编号，每 3 条封一批。用 while 只打印封批时的稿件编号，最后报告还剩几条。先预测把总数改为 0 或 6 会发生什么。",
+        "thinking": "用一个变量记录已经处理的条数。每次回到循环条件时，它都应该比上一轮多 1。",
+        "steps": "① 从已处理 0 条开始。② 只要未达到总数就前进一条，对 3 取余。③ 余数非零就进入下一轮。④ 退出后再取一次余数。0 条没有封批通知；6 条会在 3、6 封批，余 0。",
+        "code": "total = 7\nprocessed = 0\nwhile processed < total:\n    processed += 1\n    if processed % 3 != 0:\n        continue\n    print(\"封批\", processed)\nprint(\"余稿\", processed % 3)",
+        "output": "封批 3\n封批 6\n余稿 1"
+      },
+      {
+        "question": "待办表按先来先走登记 A、撤回、撤回、B、撤回。就地清掉全部“撤回”，把余项逐条从待办表移到交接表。打印撤回次数和两张最终清单。两个相邻的“撤回”也要处理。",
+        "thinking": "分两段跟踪：清理时看目标还剩几项，交接时看待办表还剩几项。单次 remove 会漏掉副本。",
+        "steps": "① 当标记仍存在时删除一个并计数。② 新建交接表，当待办非空时从头部取一项并追加。③ 核对待办变空、交接顺序仍为 A、B。若输入全是撤回标记，交接表应为空。",
+        "code": "pending = [\"A\", \"撤回\", \"撤回\", \"B\", \"撤回\"]\nremoved = 0\nwhile \"撤回\" in pending:\n    pending.remove(\"撤回\")\n    removed += 1\n\nhandover = []\nwhile pending:\n    handover.append(pending.pop(0))\nprint(\"撤回\", removed)\nprint(\"待办\", pending)\nprint(\"交接\", handover)",
+        "output": "撤回 3\n待办 []\n交接 ['A', 'B']"
+      },
+      {
+        "question": "在 Python 3 终端逐行输入编辑名，为前两名不同编辑按到达顺序分配席位。空名和重复名给出提示，q（忽略大小写）提前结束。示例依次输入空行、小林、小林、小何，每行按 Enter。写出一条无需输入 q 就能结束的路径。",
+        "thinking": "用字典记录名字和席位，用一个布尔标志控制循环。先识别退出，再判断空名、重复和新登记。",
+        "steps": "① 打印输入规则，设置 collecting 和空表。② 每轮读取并去首尾空格，按规则选择一个分支。③ 录入新名字后检查是否满员。④ 循环外打印名单。另起一次程序，第一个输入给 Q，应直接得到空表。下方预期输出只列程序打印的内容，终端可能另外显示你键入的文字。",
+        "code": "print(\"每行输入一个名字，q 交班，两席满员后自动结束\")\nseats = {}\ncollecting = True\nwhile collecting:\n    name = input().strip()\n    if name.casefold() == \"q\":\n        collecting = False\n    elif not name:\n        print(\"名字为空\")\n    elif name in seats:\n        print(\"重复\", name)\n    else:\n        seats[name] = len(seats) + 1\n        if len(seats) == 2:\n            collecting = False\nprint(\"席位\", seats)",
+        "output": "每行输入一个名字，q 交班，两席满员后自动结束\n名字为空\n重复 小林\n席位 {'小林': 1, '小何': 2}",
+        "stdin": "\n小林\n小林\n小何\n"
       }
     ],
     "mastery": [
