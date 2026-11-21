@@ -793,6 +793,22 @@
       {
         "title": "建模是选择，不是现实一比一复制",
         "text": "只保留当前需求用到的属性和行为，例如事件名称、记录列表和汇总方法。类变大时，把文件访问或网络请求抽离，让核心对象可在内存中测试。dataclass 可减少数据容器的样板，但类型标注不会自动校验运行时输入；外部脏数据仍需显式验证。"
+      },
+      {
+        "title": "素材时长改成 12 秒，还是再加 12 秒",
+        "text": "在剪辑台，修正时长和补录时长是两种操作。先把 10 秒改成 12 秒，再补录 3 秒，最后应当是 15 秒。self.seconds 在初始化时给每段素材各建一份。直接给属性赋值会跳过方法里的检查；把带约束的改动放进方法，才能在拒绝负数时保留改动前的值。"
+      },
+      {
+        "title": "有字幕的素材，为什么还要单独建字幕轨",
+        "text": "带字幕的素材仍是一段素材，可以沿用改时长的方法，只重写展示标签。字幕轨则负责自己的条目和计数。调用子类的 label 时先找到子类的方法，super().label() 再取来基础标签。构造每个实例时都新建 CaptionTrack，给一条素材加字幕就不会串到另一条。"
+      },
+      {
+        "title": "从两个定义文件到一张播出单",
+        "text": "先单独运行 segments.py 检查基础素材，再运行 captioned.py 检查带字幕的素材，最后才运行排单入口。import captioned as cuts 得到模块，cuts.CaptionedSegment 才是类；from captioned import CaptionedSegment as Cut 得到的 Cut 已经是类。通配导入可能连模块中导入的其他公开名字也带过来，发生同名覆盖时很难追查。类名用大驼峰，模块和实例名用小写加下划线。"
+      },
+      {
+        "title": "随机抽审：怎样判断这次抽取合格",
+        "text": "质检台从候选素材里选一条，再从第 1 秒到末秒抽一个整秒检查点。标准库 random 的 choice 需要非空序列；randint 的上下界都可以取到，所以 1 秒的素材只能抽到第 1 秒。先筛掉零时长素材，再决定是否抽取。候选多时用“属于候选且位置在范围内”核对结果，每次抽中哪一条可以不同。"
       }
     ],
     "code": "class Post:\n    def __init__(self, likes=0):\n        if likes < 0:\n            raise ValueError(\"点赞不能为负\")\n        self.likes = likes\n        self.tags = []  # 每个实例各有一个列表\n\n    def label(self):\n        return f\"{self.likes} 赞\"\n\nclass FeaturedPost(Post):\n    def __init__(self, likes, reason):\n        super().__init__(likes)\n        self.reason = reason\n\n    def label(self):\n        return f\"精选：{super().label()}\"\n\na, b = Post(12), Post(8)\na.tags.append(\"校园\")\nprint(a.tags, b.tags)\nprint(FeaturedPost(20, \"热门\").label())\ntry:\n    Post(-1)\nexcept ValueError as exc:\n    print(exc)",
@@ -809,6 +825,37 @@
         "steps": "通过构造参数保存实例，再委托 label 方法。",
         "code": "class Post:\n    def label(self):\n        return \"12 赞\"\nclass Report:\n    def __init__(self, post):\n        self.post = post\n    def render(self):\n        return self.post.label()\nprint(Report(Post()).render())",
         "output": "12 赞"
+      },
+      {
+        "question": "新建空目录，把下方完整代码保存为 segments.py。两条素材起初都是 0 秒，只给第一条定长、补录、改标题。预测第二条的状态，再试补录负数。时长输入约定为整数秒。",
+        "thinking": "圈出三次赋值的目标：标题可以直接改，定长会替换旧值，补录会把增量加到旧值上。哪一步需要先检查参数？",
+        "steps": "① 创建两个实例。② 分别调用 set_length 和 extend，并直接给 title 赋新值。③ 输出两条标签核对状态是否独立。④ 尝试补录 −1 秒，检查拒绝后仍是 15 秒。运行 python segments.py；后续两题会导入这个文件，请保留入口保护。",
+        "code": "# segments.py\n\"\"\"保存剪辑素材的名称与时长。\"\"\"\n\n\nclass Segment:\n    \"\"\"一段可修订时长的素材，单位为整秒。\"\"\"\n\n    def __init__(self, title):\n        self.title = title\n        self.seconds = 0\n\n    def set_length(self, seconds):\n        if seconds < 0:\n            raise ValueError(\"时长不能为负\")\n        self.seconds = seconds\n\n    def extend(self, extra):\n        if extra < 0:\n            raise ValueError(\"补录不能为负\")\n        self.set_length(self.seconds + extra)\n\n    def label(self):\n        return f\"{self.title}｜{self.seconds} 秒\"\n\n\nif __name__ == \"__main__\":\n    intro = Segment(\"片头\")\n    outro = Segment(\"片尾\")\n    intro.set_length(12)\n    intro.extend(3)\n    intro.title = \"新版片头\"\n    print(intro.label())\n    print(outro.label())\n    try:\n        intro.extend(-1)\n    except ValueError as error:\n        print(error, intro.seconds)",
+        "output": "新版片头｜15 秒\n片尾｜0 秒\n补录不能为负 15",
+        "filename": "segments.py"
+      },
+      {
+        "question": "沿用练习 2 的 segments.py，在同目录创建 captioned.py。让带字幕素材继承时长操作，字幕轨负责接收非空文本。两条素材都从零条字幕开始，只给第一条加“开场”和一条空白字幕。",
+        "thinking": "先分清谁负责什么：改时长找素材，保存字幕找它的 track。想一想把 track 放在类体里会让哪条输出变化。",
+        "steps": "① 导入父类，给字幕轨的每个实例建立自己的列表。② 用 super().__init__ 设置标题和默认时长，再创建字幕轨。③ 重写 label，拼上字幕计数。④ 运行 python captioned.py，核对空白字幕未计入、第二条仍为 0。",
+        "code": "# captioned.py\n\"\"\"带字幕的素材及其字幕轨。\"\"\"\nfrom segments import Segment\n\n\nclass CaptionTrack:\n    \"\"\"保存一条字幕轨上非空的文字。\"\"\"\n\n    def __init__(self):\n        self.lines = []\n\n    def add(self, text):\n        if text.strip():\n            self.lines.append(text.strip())\n\n\nclass CaptionedSegment(Segment):\n    \"\"\"在基础素材标签后标明字幕条数。\"\"\"\n\n    def __init__(self, title):\n        super().__init__(title)\n        self.track = CaptionTrack()\n\n    def label(self):\n        return f\"{super().label()}｜字幕 {len(self.track.lines)} 条\"\n\n\nif __name__ == \"__main__\":\n    first = CaptionedSegment(\"采访\")\n    second = CaptionedSegment(\"片尾\")\n    first.extend(5)\n    first.track.add(\" 开场 \")\n    first.track.add(\"  \")\n    print(first.label())\n    print(second.label())",
+        "output": "采访｜5 秒｜字幕 1 条\n片尾｜0 秒｜字幕 0 条",
+        "filename": "captioned.py"
+      },
+      {
+        "question": "保留前两题的两个文件，再新建 rundown.py。读下面的导入语句，预测 cuts、Cut 和 CaptionTrack 哪些可以直接用来创建实例。运行时两份素材文件里的演示会先打印吗？",
+        "thinking": "沿着导入方向追踪：rundown 用到 captioned，captioned 又用到 segments。只有以主程序身份执行的文件才会进入自己的入口保护。",
+        "steps": "① 将三份文件放在同一目录，用 python rundown.py 运行入口。② 用 is 核对模块属性和别名是否指向同一个类。③ 从同一个模块导入两种类，检查实例里的字幕轨类型。④ 用同一个循环给普通素材与字幕素材制作标签，确认两行格式各自正确。",
+        "code": "# rundown.py\n\"\"\"打印这次播出的素材清单。\"\"\"\nimport captioned as cuts\nfrom captioned import CaptionedSegment as Cut, CaptionTrack\nfrom segments import Segment\n\nplain = Segment(\"预告\")\nsigned = Cut(\"访谈\")\nsigned.track.add(\"主持人出场\")\nprint(\"同一个类\", cuts.CaptionedSegment is Cut)\nprint(\"字幕轨\", isinstance(signed.track, CaptionTrack))\nfor segment in (plain, signed):\n    print(segment.label())",
+        "output": "同一个类 True\n字幕轨 True\n预告｜0 秒\n访谈｜0 秒｜字幕 1 条",
+        "filename": "rundown.py"
+      },
+      {
+        "question": "把下面的独立脚本用于抽审。输入为空、全部是零时长、只有一条 1 秒素材时各输出什么？有多条有效素材时，用一条检查验证抽取是否合法。",
+        "thinking": "先确定有哪些有效候选，再抽名字和检查点。只有一个合法答案时可以核对具体值，有多个合法答案时检查共同条件。",
+        "steps": "① 过滤掉没有正时长的素材。② 空候选返回 None，否则用 choice 和 randint 选素材与检查点。③ 对前三组输入直接比较输出。④ 对多候选只打印规则检查的结果，多次运行仍应为 True。这里时长约定为非负整数秒。",
+        "code": "from random import choice, randint\n\n\ndef pick_checkpoint(durations):\n    ready = [title for title, seconds in durations.items() if seconds > 0]\n    if not ready:\n        return None\n    title = choice(ready)\n    return title, randint(1, durations[title])\n\n\nprint(pick_checkpoint({}))\nprint(pick_checkpoint({\"静音占位\": 0}))\nprint(pick_checkpoint({\"片头\": 1}))\nclips = {\"采访\": 5, \"片花\": 2, \"占位\": 0}\ntitle, second = pick_checkpoint(clips)\nprint(\"有效检查点\", title in clips and 1 <= second <= clips[title])",
+        "output": "None\nNone\n('片头', 1)\n有效检查点 True"
       }
     ],
     "mastery": [
