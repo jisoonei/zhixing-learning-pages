@@ -71,7 +71,47 @@
       "用最小例子重现一次 NameError"
     ],
     "source": "https://docs.python.org/3.14/tutorial/interpreter.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "第一行程序怎样显示文字",
+      "chapters": [
+        39,
+        0
+      ],
+      "lessons": [
+        {
+          "title": "屏幕上哪几个字是你让它显示的？",
+          "paragraphs": [
+            "程序是一组交给电脑执行的指令。先只做一件事：让电脑显示节目名。print 是 Python 自带的显示指令，圆括号里放要显示的东西；半角引号把文字的开头和结尾标出来。中文写在引号里面，括号和引号用英文输入法。",
+            "在手机上可以先读、预测并点选答案。有电脑时，用 Python 3 自带的 IDLE 打开 File → New File，输入下方代码，保存为 first.py，再选 Run → Run Module。出现结果的窗口叫 Shell。不要把代码行左边的行号或 Shell 里的 >>> 输入文件。"
+          ],
+          "code": "print(\"早间新闻\")\nprint(\"开始录音\")",
+          "steps": [
+            "Python 从上往下执行。第一行看到引号，就把其中四个字当作文字；print 显示它们后换行。",
+            "第二行再次调用 print，下一行显示“开始录音”。文件里有两条指令，输出也有两行。"
+          ],
+          "output": "早间新闻\n开始录音",
+          "question": "运行时，节目名两侧的引号会出现在输出里吗？",
+          "options": [
+            [
+              "会",
+              "引号是写代码时给 Python 的标记。看看输出窗口，节目名两侧没有引号。"
+            ],
+            [
+              "不会",
+              "对。print 收到的是引号里面的文字。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "早间新闻",
+            "晚间新闻",
+            "晚间新闻\n开始录音",
+            "只换引号中的文字，指令仍然是 print，第二行也照常执行。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "values",
@@ -144,7 +184,47 @@
       "说明显示精度与数值精度的区别"
     ],
     "source": "https://docs.python.org/3.14/tutorial/introduction.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "给数字取名字，再改一次值",
+      "chapters": [
+        40,
+        1
+      ],
+      "lessons": [
+        {
+          "title": "为什么 count = count + 1 能成立？",
+          "paragraphs": [
+            "编辑已经收到两条稿件，现在又来了一条。可以用变量记住数量：变量是程序里给值取的名字，count 是我们自己选的名字。等号在这段代码里表示赋值，按“先算右边，再把结果交给左边名字”来读。",
+            "没有引号的 2 是可以做加法的数字。print(count) 要 Python 查这个名字当前对应的值；print(\"count\") 则会直接显示五个字母。"
+          ],
+          "code": "count = 2\nprint(count)\ncount = count + 1\nprint(count)",
+          "steps": [
+            "第 1 行把 count 与 2 联系起来。第 2 行查到 2 并显示它。",
+            "第 3 行先用旧值算 2 + 1，得到 3，才把 count 改成 3。第 4 行重新查到的是 3。"
+          ],
+          "output": "2\n3",
+          "question": "从 2 开始，再执行一次第 3 行，最后一次 print 会看到什么？",
+          "options": [
+            [
+              "4",
+              "对。第一次更新后是 3，第二次读取 3，再加 1。"
+            ],
+            [
+              "3",
+              "第二次走到等号右边时，count 已经是 3，不会从第一行重新开始。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "count = count + 1",
+            "count = count + 1\ncount = count + 1",
+            "2\n4",
+            "两次赋值之间没有 print，所以屏幕没有单独显示 3。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "text",
@@ -216,7 +296,46 @@
       "保留 raw 与 normalized 两列"
     ],
     "source": "https://docs.python.org/3.14/library/stdtypes.html#text-sequence-type-str",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "文字、引号和位置",
+      "chapters": [
+        15
+      ],
+      "lessons": [
+        {
+          "title": "同一个稿号为什么会比对失败",
+          "paragraphs": [
+            "程序把一段文字叫作字符串。引号之间的空格也是字符；大写 A 和小写 a 是不同字符。两段字符串用 == 比较时，要每个位置上的字符都相同才会得到 True。",
+            "有些输入允许用户多敲一个空格，或者不区分大小写。strip() 得到去掉首尾空白的新文字，lower() 得到转成小写的新文字。两个操作都不会自己改掉原来的 raw，必须接住返回的值。"
+          ],
+          "code": "raw = \"  A7 \"\nprint(raw == \"a7\")\nclean = raw.strip().lower()\nprint(clean == \"a7\")\nprint(len(raw), len(clean))",
+          "steps": [
+            "原稿号前有两个空格，后有一个空格，加上 A 和 7，长度共 5。和 a7 比较时先得到 False。",
+            "strip() 先得到 A7，接着 lower() 得到 a7。现在比较为真。最后分别数原文字和新文字的字符数，得到 5 和 2。"
+          ],
+          "output": "False\nTrue\n5 2",
+          "question": "只保留 strip()，第二个 print 会显示什么？",
+          "options": [
+            [
+              "True",
+              "去掉空格后仍然是大写 A；大小写还没有统一。"
+            ],
+            [
+              "False",
+              "对。A7 与 a7 的第一个字符不同。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "raw.strip().lower()",
+            "raw.strip()",
+            "False\nFalse\n5 2",
+            "长度相同是必要条件，但不能保证两段文字相同。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "sequence",
@@ -294,7 +413,79 @@
       "说出列表查找和集合查找的成本差别"
     ],
     "source": "https://docs.python.org/3.14/tutorial/datastructures.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "从名单中一次取一个名字",
+      "chapters": [
+        41,
+        16
+      ],
+      "lessons": [
+        {
+          "title": "for 为什么会让一行 print 执行两次？",
+          "paragraphs": [
+            "要给两个栏目逐个报到，可以把名称按顺序放进一对方括号里，用逗号分开。这种能装多个值的东西叫列表。for desk in desks 可以读作“从名单 desks 依次取一个值，临时叫它 desk”。",
+            "行尾的冒号表示接下来是一组指令。下一行开头的四个空格叫缩进，说明 print(desk) 属于循环。最后一行回到左边，等名单用完再执行。"
+          ],
+          "code": "desks = [\"新闻\", \"体育\"]\nfor desk in desks:\n    print(desk)\nprint(\"报到结束\")",
+          "steps": [
+            "第一轮 desk 是“新闻”，缩进的 print 显示新闻。",
+            "第二轮 desk 换成“体育”，同一个 print 又执行一次。",
+            "取不到第三个名字了，离开循环，显示一次“报到结束”。"
+          ],
+          "output": "新闻\n体育\n报到结束",
+          "question": "名单换成空列表 []，哪一行还会显示？",
+          "options": [
+            [
+              "新闻",
+              "空列表里取不到第一个栏目，循环里的 print 连一次也不会执行。"
+            ],
+            [
+              "报到结束",
+              "对。这一行没有缩进，循环执行零轮也会走到它。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "[\"新闻\", \"体育\"]",
+            "[]",
+            "报到结束",
+            "空名单让循环跳过了报栏目名的步骤。"
+          ]
+        },
+        {
+          "title": "位置从 0 数：取一项和取一段",
+          "paragraphs": [
+            "列表把几个值按先后摆放。给每个位置一个编号，就能直接定位。Python 把第一个位置编为 0，第二个编为 1。单个位置编号叫索引，titles[1] 表示找第二项。",
+            "如果要取一段，用冒号分开起点和终点；起点包含在内，到终点之前就停。这叫切片。拿到的是一个新列表，所以即使只有一个元素，显示时也带着方括号。"
+          ],
+          "code": "titles = [\"开场\", \"采访\", \"片尾\"]\nprint(titles[1])\nprint(titles[0:2])",
+          "steps": [
+            "按位置编号：0 是开场，1 是采访，2 是片尾。第一个 print 取编号 1 的一项。",
+            "第二个 print 读到 0:2，从 0 取到 1，正好拿到开场和采访。"
+          ],
+          "output": "采访\n['开场', '采访']",
+          "question": "如果把切片改成 [1:2]，会拿到什么？",
+          "options": [
+            [
+              "只含采访的列表",
+              "对。从位置 1 开始，到位置 2 之前停止。"
+            ],
+            [
+              "采访和片尾",
+              "要包含编号 2，终点至少要写到 3，因为终点本身不取。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "titles[0:2]",
+            "titles[1:2]",
+            "采访\n['采访']",
+            "若直接取 titles[3] 会因没有第 4 项而报 IndexError；遇到空表时先确认有没有可取的元素。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "branch",
@@ -409,7 +600,109 @@
       "解释循环 else 是否执行"
     ],
     "source": "https://docs.python.org/3.14/tutorial/controlflow.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "从一次判断到多条规则",
+      "chapters": [
+        2
+      ],
+      "lessons": [
+        {
+          "title": "先算出真假，再决定执行哪一行",
+          "paragraphs": [
+            "影院至少收到 3 人报名才开场。代码需要先记住报名数，再问“这个数是否大于或等于 3？”这个能回答是或否的问题叫条件。>= 是一个比较符号；结果只有 True（真）或 False（假）。",
+            "if 后面写条件，冒号后的缩进语句只在条件为真时执行。else 表示前一个条件为假时走这里。单独写 if 也可以：如果条件为假，就直接往下走。等号 = 用来赋值，比较两个值是否相同要写 ==。"
+          ],
+          "code": "people = 3\nprint(people >= 3)\nif people >= 3:\n    print(\"开场\")\nelse:\n    print(\"等候\")\nprint(\"登记结束\")",
+          "steps": [
+            "第 1 行保存整数 3。第 2 行比较 3 和 3，显示 True；它只显示比较结果，不会自动开场。",
+            "第 3 行再次比较。3 恰好达到下限，执行缩进的“开场”，跳过 else 下面的“等候”。",
+            "最后一行回到最左侧，两条路线都能走到这里。"
+          ],
+          "output": "True\n开场\n登记结束",
+          "question": "人数改为 2，最后还会显示“登记结束”吗？",
+          "options": [
+            [
+              "会",
+              "对。2 让程序选择“等候”，最后的 print 在两条分支之外。"
+            ],
+            [
+              "不会",
+              "看最后一行的缩进：它和 if 对齐，条件为假也会执行。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "people = 3",
+            "people = 2",
+            "False\n等候\n登记结束",
+            "比较符号没变，只把输入放到门槛下方。"
+          ]
+        },
+        {
+          "title": "只能分到一个等级，也能收到两条提醒",
+          "paragraphs": [
+            "同一条报道只能归入一个等级。elif 表示“前面都没选中，才来试这个条件”。把更严格的门槛放在前面，一条 if、elif、else 链最多执行一块；需要时可以继续写 elif。",
+            "提醒是另一件事。两条独立 if 会分别检查。and 要求两边都真，or 只要一边为真。in 用于询问一个值是否出现在列表里；not in 表示找不到。"
+          ],
+          "code": "views = 12\ntags = [\"现场\"]\nif views >= 10:\n    print(\"重点\")\nelif views >= 5:\n    print(\"普通\")\nif views >= 10:\n    print(\"通知编辑\")\nif \"现场\" in tags:\n    print(\"通知摄影\")",
+          "steps": [
+            "12 同时达到 10 和 5，第一条链已经选中“重点”，不会再显示“普通”。",
+            "下面第一个独立 if 重新判断阅读量。第二个独立 if 查标签列表，两次都为真，于是两条提醒都有。"
+          ],
+          "output": "重点\n通知编辑\n通知摄影",
+          "question": "如果把标签改为空列表，哪一条提醒会消失？",
+          "options": [
+            [
+              "通知编辑",
+              "编辑提醒看的是阅读量；改动 tags 不会改变 views。"
+            ],
+            [
+              "通知摄影",
+              "对。空列表里找不到“现场”，摄影提醒的条件变为假。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "tags = [\"现场\"]",
+            "tags = []",
+            "重点\n通知编辑",
+            "保留阅读量，只改标签，可以看清两条提醒各自由什么决定。"
+          ]
+        },
+        {
+          "title": "把两个栏目名单交叉检查",
+          "paragraphs": [
+            "报名表上的名字可以有大小写差异。文字比较会逐个字符核对，\"Film\" 和 \"film\" 不相等。若登记规则忽略大小写，可先生成统一小写的文字，再比较。!= 表示不相等。",
+            "一个列表装已开设栏目，另一个装报名内容。先判断是否有人报名，再逐项核对。非空列表作条件时为真，空列表为假。if 内再放一个 for 或 if 时，额外缩进一级，表示只有外层进入才会执行。"
+          ],
+          "code": "offered = [\"film\", \"sport\"]\nrequests = [\"Film\", \"Music\"]\nif requests:\n    for name in requests:\n        if name.lower() in offered:\n            print(name, \"可登记\")\n        else:\n            print(name, \"未开设\")\nelse:\n    print(\"无人报名\")",
+          "steps": [
+            "先看 requests，共两项，进入 for。第一轮 name 是 Film，lower() 得到 film；查到这个栏目，打印原来的名字 Film。",
+            "第二轮把 Music 转为 music，比对后找不到。进入内层 else。最外层的 else 只有名单为空才执行。"
+          ],
+          "output": "Film 可登记\nMusic 未开设",
+          "question": "把两项报名都删掉，屏幕会显示两次“未开设”吗？",
+          "options": [
+            [
+              "不会，只显示无人报名",
+              "对。外层先检查有没有报名；空名单不会进入逐项比对。"
+            ],
+            [
+              "会，两项都会比对失败",
+              "删掉两项就没有报名可供比对。这里应先看外层 if。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "requests = [\"Film\", \"Music\"]",
+            "requests = []",
+            "无人报名",
+            "只有“确实提交了一个未开设栏目”才会显示未开设。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "mapping",
@@ -500,7 +793,111 @@
       "设计保留原记录的去重流程"
     ],
     "source": "https://docs.python.org/3.14/library/stdtypes.html#mapping-types-dict",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "从一张登记卡读懂字典",
+      "chapters": [
+        16,
+        3
+      ],
+      "lessons": [
+        {
+          "title": "给一条稿件建卡：按名字找值",
+          "paragraphs": [
+            "一张登记卡要记标题和播放次数。列表可以按第几个位置取内容；这张卡更适合按“标题”“播放”这样的标签查找。Python 把这种一项标签对应一个值的结构叫字典。标签叫键，键对应的内容叫值。花括号装整张卡，冒号把一个键和值配起来。",
+            "给 card[\"播放\"] 赋值时，Python 先看键是否已经存在。存在就改这一项，不存在就新增。del 可以去掉一项。若直接读取一个不存在的键，Python 会报告 KeyError；get 可以在找不到键时返回指定的备用值。"
+          ],
+          "code": "card = {}\ncard[\"标题\"] = \"夜航\"\ncard[\"播放\"] = 0\nprint(card.get(\"播放\", \"未登记\"))\ncard[\"播放\"] = 2\nprint(card[\"播放\"], len(card))\ndel card[\"播放\"]\nprint(card.get(\"播放\", \"未登记\"))",
+          "steps": [
+            "前 3 行从空卡开始，一共建了两个键。“播放”有值 0，表示已经登记且目前无人播放。",
+            "更新后键仍是原来的两个，len 数的是键的个数；屏幕显示播放数 2 和键数 2。",
+            "删除后只剩标题。get 找不到播放键，才显示“未登记”。这次查询不会往卡里补写一个键。"
+          ],
+          "output": "0\n2 2\n未登记",
+          "question": "如果删掉 del 那行，最后的 get 会拿到什么？",
+          "options": [
+            [
+              "未登记",
+              "备用值只在键缺失时使用。删掉 del 之后，“播放”仍在卡上。"
+            ],
+            [
+              "2",
+              "对。更新后 2 一直留在“播放”这个键下面。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "del card[\"播放\"]",
+            "# 保留播放键",
+            "0\n2 2\n2",
+            "缺键和播放量等于零是两种业务状态。"
+          ]
+        },
+        {
+          "title": "怎样把一张排班表逐行读出来",
+          "paragraphs": [
+            "编辑部有一张表：栏目作键，当班编辑作值。遍历是把各项依次取出来。直接遍历字典会得到键；items() 则每轮交给你一对值，可以用逗号左、右的两个名字分别接住它们。",
+            "默认遍历按登记的先后次序。如果通知必须按栏目名排序，要显式使用 sorted。values() 取得所有值，同一个人值两个班时会出现两次。"
+          ],
+          "code": "shifts = {\"B\": \"阿禾\", \"A\": \"阿禾\"}\nfor desk, editor in shifts.items():\n    print(desk, editor)\nprint(sorted(shifts))\nprint(list(shifts.values()))",
+          "steps": [
+            "第一轮把 B 和阿禾分别交给 desk 和 editor。第二轮换成 A 和阿禾。每一轮只处理一对。",
+            "sorted(shifts) 以键为输入，得到新列表 A、B。它不会替字典重新登记。",
+            "最后用 list 把值收集起来。两个阿禾表示两次排班，可以由同一个人承担。"
+          ],
+          "output": "B 阿禾\nA 阿禾\n['A', 'B']\n['阿禾', '阿禾']",
+          "question": "把第二班改给小夏，栏目排序会改变吗？",
+          "options": [
+            [
+              "会，编辑变了",
+              "排序这行只读取键 A、B；编辑名是值。"
+            ],
+            [
+              "不会",
+              "对。变化的是第二行交接记录和最后一行的编辑列表。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "\"A\": \"阿禾\"",
+            "\"A\": \"小夏\"",
+            "B 阿禾\nA 小夏\n['A', 'B']\n['阿禾', '小夏']",
+            "可以把键想成表头，改动格子里的编辑名不等于改表头。"
+          ]
+        },
+        {
+          "title": "碰到多层括号，先找到要动的那一层",
+          "paragraphs": [
+            "一次采访可能收到多条稿件。把每场活动的卡片放在一个字典里，卡片里的“稿件”再存一个列表，这叫嵌套。最外层回答“哪场活动”，中间回答“哪一栏”，最里层才是可以追加的稿件列表。",
+            "另一种常见结构是把多张卡片放进列表，此时先用位置或 for 取卡片，再用键取字段。看每一层装的东西，就知道下一步用位置、名字还是 append。"
+          ],
+          "code": "events = {\"影展\": {\"稿件\": []}, \"书展\": {\"稿件\": []}}\ncard = events[\"影展\"]\nitems = card[\"稿件\"]\nitems.append(\"开幕\")\nprint(events[\"影展\"][\"稿件\"])\nprint(events[\"书展\"][\"稿件\"])",
+          "steps": [
+            "先选中影展的卡，再选中卡中的空列表。items 指向的就是影展卡里已有的列表。",
+            "append 在列表末尾加一项。书展用的是另一个空列表，追加后它仍然是空的。"
+          ],
+          "output": "['开幕']\n[]",
+          "question": "若把第二行选中的活动改成书展，哪张卡会有稿件？",
+          "options": [
+            [
+              "书展",
+              "对。后面的 append 跟着第二行选中的卡走。"
+            ],
+            [
+              "影展",
+              "最后两行只是读取。真正决定写到哪张卡的是开始查找的活动名。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "card = events[\"影展\"]",
+            "card = events[\"书展\"]",
+            "[]\n['开幕']",
+            "两张卡的打印顺序仍是影展在前，改变的是被写入的那张卡。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "input",
@@ -587,7 +984,143 @@
       "给循环写一个有限输入测试"
     ],
     "source": "https://docs.python.org/3.14/library/functions.html#input",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "让程序等你输入，再决定是否继续",
+      "chapters": [
+        44
+      ],
+      "lessons": [
+        {
+          "title": "键盘上的 2 和能做加法的 2 有什么区别",
+          "paragraphs": [
+            "input() 会让程序停在这里等人输入。你按下 Enter，Python 收到这一行文字，行末的回车不算进内容。即使输入只包含数字，得到的也是字符串，也就是文字。",
+            "两段文字用 + 连接；两个整数用 + 相加。int(raw) 把表示整数的文字换成整数后再计算。如果输入空行或 abc，转换会产生 ValueError；若允许输入 q 退出，要先认出 q，再去转整数。"
+          ],
+          "code": "print(\"输入稿件数，然后按 Enter\")\nraw = input()\nprint(raw + \"1\")\nprint(int(raw) + 1)",
+          "steps": [
+            "示例键入 2。raw 装的是文字“2”。第一次 + 的右边也有引号，得到文字“21”。",
+            "第二次先算 int(raw)，得到数值 2，再加数值 1 得到 3。输出区只列程序显示的内容。"
+          ],
+          "output": "输入稿件数，然后按 Enter\n21\n3",
+          "question": "输入 2，哪一个表达式表示再添一条稿？",
+          "options": [
+            [
+              "int(raw) + 1",
+              "对。先把输入转换为整数，才按稿件数量做加法。"
+            ],
+            [
+              "raw + \"1\"",
+              "这会在文字末尾添一个字符 1，结果是 21。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "print(int(raw) + 1)",
+            "print(int(raw) + 2)",
+            "输入稿件数，然后按 Enter\n21\n4",
+            "第二次改成再添两条；第一次的文字拼接仍然是 21。"
+          ],
+          "stdin": "2\n"
+        },
+        {
+          "title": "while 会回到哪一行？",
+          "paragraphs": [
+            "要持续登记稿件，事先不知道用户会输入几次。while 表示每轮开始前检查条件。这里 while True 的条件一直为真，所以准备一个明确出口：读到 q 就执行 break，直接离开循环。",
+            "continue 只跳过当前一轮剩下的语句，回到 while 开头。下一轮必须读到新值，否则会反复检查同一个空名。strip() 去掉首尾空白，因此只有空格的一行也会被当作空名。"
+          ],
+          "code": "accepted = []\nwhile True:\n    name = input().strip()\n    if name == \"q\":\n        break\n    if name == \"\":\n        continue\n    accepted.append(name)\nprint(accepted)",
+          "steps": [
+            "示例先按一次 Enter。name 是空字符串，continue 让程序跳过 append，重新等输入。",
+            "第二次输入“夜航”。两个 if 都不成立，append 把标题加进列表；然后自然回到 while。",
+            "第三次输入 q，break 立即转到循环后的 print。这一轮没有把 q 加入名单。"
+          ],
+          "output": "['夜航']",
+          "question": "如果用 break 替换处理空名的 continue，会保存“夜航”吗？",
+          "options": [
+            [
+              "会，只是略过空行",
+              "break 会结束整个循环。第一个输入就是空行，后两行输入没有机会被读取。"
+            ],
+            [
+              "不会，输出空名单",
+              "对。遇到第一个空名时程序已经离开 while。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "        continue",
+            "        break",
+            "[]",
+            "只改这一条语句，就把“跳过一次”变成了“停止登记”。"
+          ],
+          "stdin": "\n夜航\nq\n"
+        },
+        {
+          "title": "没有人按 q，循环也能自己停下来",
+          "paragraphs": [
+            "想把待办稿全部移到已交接列表，终止条件可以来自数据本身。while pending 可以读成“只要待办名单非空就继续”。每一轮从待办取走一个元素，名单越来越短，最后会变成空表。",
+            "pop(0) 取出第一个元素，并把它从原列表里删除。append 把取到的稿号放到另一张表末尾。也可以用单独的真假变量当开关，这种变量叫标志；每轮开头都要检查它。"
+          ],
+          "code": "pending = [\"A\", \"B\"]\ndone = []\nwhile pending:\n    item = pending.pop(0)\n    done.append(item)\n    print(item, len(pending))\nprint(done)",
+          "steps": [
+            "第 1 轮开始时还有 A、B。取走 A 后待办只剩 B，显示 A 1。",
+            "第 2 轮取走 B，待办变空，显示 B 0。第 3 次检查条件为假，因此不会对空列表执行 pop。"
+          ],
+          "output": "A 1\nB 0\n['A', 'B']",
+          "question": "把 pop(0) 改成 pop()，先交接哪个稿号？",
+          "options": [
+            [
+              "B",
+              "对。没有指定位置时，pop() 取走末尾元素。"
+            ],
+            [
+              "A",
+              "A 位于开头，原来的 0 才表示从这个位置取。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "pending.pop(0)",
+            "pending.pop()",
+            "B 1\nA 0\n['B', 'A']",
+            "两个版本都能停下来，业务差别在交接顺序。"
+          ]
+        },
+        {
+          "title": "每收满三条再通知：百分号在这里做什么",
+          "paragraphs": [
+            "把 7 条稿件每 3 条装一批。7 除以 3 能装满两批，还剩 1 条。Python 用 % 求这个剩下的数，叫余数。余数是 0 就表示刚好装满。",
+            "先把已经处理的条数加 1，再检查余数，否则在一条都没收的时候，0 % 3 也是 0，会被误认为已经装满。只要循环还有下一轮，就要确保条数是在向终点靠近。"
+          ],
+          "code": "total = 4\nseen = 0\nwhile seen < total:\n    seen = seen + 1\n    if seen % 3 == 0:\n        print(\"封批\", seen)\nprint(\"剩余\", seen % 3)",
+          "steps": [
+            "从 0 开始。处理第 1、2 条后，余数分别是 1、2，跳过缩进的封批通知。",
+            "第 3 条余 0，打印“封批 3”。第 4 条余 1，循环再次检查 4 < 4，结果为假。",
+            "循环外打印剩余 1。看到只有两行输出，不等于循环只走了两轮。"
+          ],
+          "output": "封批 3\n剩余 1",
+          "question": "总共只有 2 条，会出现封批通知吗？",
+          "options": [
+            [
+              "会，循环结束就封批",
+              "通知写在检查余数的 if 内，稿件没有满三条时条件不会为真。"
+            ],
+            [
+              "不会，剩余 2 条",
+              "对。两轮都跳过了封批的 print，最后显示 2 % 3 的结果。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "total = 4",
+            "total = 2",
+            "剩余 2",
+            "这里的结束条件和封批条件各管一件事。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "functions",
@@ -689,7 +1222,140 @@
       "区分 return 与 print"
     ],
     "source": "https://docs.python.org/3.14/tutorial/controlflow.html#defining-functions",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "跟一次完整的函数调用",
+      "chapters": [
+        4
+      ],
+      "lessons": [
+        {
+          "title": "代码写在 def 下面，什么时候才会执行？",
+          "paragraphs": [
+            "两场放映都要计算空座。把“总座位减去已售”这条规则起个名字，就能重复使用。这样的具名指令组叫函数。def 后面是函数名；括号里的 capacity 和 sold 是等调用者填入的名字，叫形参。",
+            "执行到 def 时，Python 先记下函数怎么做。遇到 seats_left(8, 3) 才真正调用，8 和 3 是这一次给的实参。return 把算好的一个值交回调用的位置；print 才负责把东西显示出来。"
+          ],
+          "code": "def seats_left(capacity, sold):\n    left = capacity - sold\n    return left\n\nfree = seats_left(8, 3)\nprint(free)",
+          "steps": [
+            "先记住函数定义，屏幕没有输出。走到 free = ... 时，等号右边要先求值，于是执行进入函数。",
+            "这次 capacity 是 8，sold 是 3。函数内部算出 left 为 5，return 5，把执行位置交还到 free = ...。",
+            "可以把该行想成 free = 5。最后一次 print 显示 5。函数内部的 left 用来做这次计算，外面用的是收到结果的 free。"
+          ],
+          "output": "5",
+          "question": "把 return left 换成 print(left)，外面的 print(free) 会显示什么？",
+          "options": [
+            [
+              "5",
+              "里面的 print 会显示 5，但外面的 free 要接收函数的返回值。"
+            ],
+            [
+              "None",
+              "对。没有显式 return 值时，函数返回 None，代表这里没有返回一个计算结果。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "return left",
+            "print(left)",
+            "5\nNone",
+            "第一行 5 来自函数内部。第二行 None 来自函数外面，两次显示的位置不同。"
+          ]
+        },
+        {
+          "title": "按位置填、按名字填，默认值什么时候出现",
+          "paragraphs": [
+            "为一条新闻加栏目标签，可以约定标题必填，栏目没填时用“校园”。函数定义里的 desk=\"校园\" 就是默认值。调用时按顺序给的值会依次填进形参；写成 desk=\"体育\" 则明确说要填哪一格。",
+            "同一格只能填一次，必填格也不能空着。若同时用位置给标题，又写 title= 再给一次，Python 会在进入函数体之前报告 TypeError。可选项如果要区分“没填”和“数字 0”，可以用 None 表示没填，再用 is not None 判断。"
+          ],
+          "code": "def label(title, desk=\"校园\"):\n    return desk + \"：\" + title\n\nprint(label(\"开幕\"))\nprint(label(desk=\"体育\", title=\"决赛\"))",
+          "steps": [
+            "第一次只有一个位置实参，title 得到开幕；desk 没给，用默认值校园。",
+            "第二次两个参数都写了名字。虽然先写 desk，标题仍然是决赛，栏目仍然是体育。两次返回的都是一段文字。"
+          ],
+          "output": "校园：开幕\n体育：决赛",
+          "question": "只修改定义里的默认栏目，哪次调用的结果会变？",
+          "options": [
+            [
+              "只有第一次",
+              "对。第一次借用默认值；第二次显式提供了体育。"
+            ],
+            [
+              "两次都变",
+              "默认值只填那些还没拿到实参的格子。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "desk=\"校园\"",
+            "desk=\"文艺\"",
+            "文艺：开幕\n体育：决赛",
+            "看每次调用传了什么，才能判断默认值有没有被采用。"
+          ]
+        },
+        {
+          "title": "为什么在函数里取走一条稿，外面的名单也少一条",
+          "paragraphs": [
+            "把一个列表传给函数时，Python 会给同一个列表临时多取一个名字。此处外面叫 queue，里面叫 items。通过其中任何一个名字 pop，都会改到同一张表。",
+            "如果调用时传 queue[:]，冒号表示取从头到尾的切片。这个操作先创建一个新的外层列表，然后把它交给函数。对于这份装字符串的名单，用副本预演就不会改动原表。"
+          ],
+          "code": "def take_first(items):\n    return items.pop(0)\n\nqueue = [\"稿A\", \"稿B\"]\nprint(take_first(queue[:]))\nprint(queue)",
+          "steps": [
+            "先得到一份有两个稿号的新列表。函数只从副本里取走稿A，把稿名返回。",
+            "第一个 print 显示稿A。第二个 print 读取原来的 queue，两条都还在。"
+          ],
+          "output": "稿A\n['稿A', '稿B']",
+          "question": "调用处删掉 [:]，最后还剩哪条？",
+          "options": [
+            [
+              "两条都在",
+              "这次传进去的就是 queue 指向的原表。pop 会删除其中一项。"
+            ],
+            [
+              "只剩稿B",
+              "对。函数内外的名字这次指向同一张名单。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "take_first(queue[:])",
+            "take_first(queue)",
+            "稿A\n['稿B']",
+            "切片只复制外层。若元素本身是可修改的字典，两份列表里的对应位置仍可能指向同一个字典。"
+          ]
+        },
+        {
+          "title": "标签数量不固定时，星号会收走哪些值",
+          "paragraphs": [
+            "选题卡总要有一个栏目，但有的稿件没有标签，有的有两个。函数签名里的 *tags 会把多出来的位置实参收集成元组，也就是有顺序、不能原地增加或替换元素的一组值。**fields 把多出来的具名实参收集成字典。",
+            "这两个名字是作者选择的，负责收集的是星号。填值的顺序很具体：先给 desk 一个栏目，其余没写名字的值才归 tags；写了名字而没有对应普通形参的值才归 fields。"
+          ],
+          "code": "def card(desk, *tags, **fields):\n    print(desk)\n    print(tags)\n    print(fields)\n\ncard(\"新闻\", \"采访\", \"现场\", minutes=0)",
+          "steps": [
+            "新闻先填给 desk。后面两个没有写名字的位置值保留原次序，组成 ('采访', '现场')。",
+            "minutes=0 是具名实参，收进 {'minutes': 0}。三个 print 分别把三处收到的东西显示出来。"
+          ],
+          "output": "新闻\n('采访', '现场')\n{'minutes': 0}",
+          "question": "如果调用时只填“新闻”，tags 和 fields 会是什么？",
+          "options": [
+            [
+              "空元组和空字典",
+              "对。没有额外实参时，两个容器依然存在，内容为空。"
+            ],
+            [
+              "两个都是 None",
+              "星号参数即使没有收集到值，也会分别提供元组或字典。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "card(\"新闻\", \"采访\", \"现场\", minutes=0)",
+            "card(\"新闻\")",
+            "新闻\n()\n{}",
+            "() 表示空元组，{} 表示空字典。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "modules",
@@ -759,7 +1425,50 @@
       "按责任拆出三个模块"
     ],
     "source": "https://docs.python.org/3.14/tutorial/modules.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "第一次把函数分在两个文件里",
+      "chapters": [
+        6
+      ],
+      "lessons": [
+        {
+          "title": "同目录里的文件怎样互相使用",
+          "paragraphs": [
+            "当几个脚本都要算空座，可以把那条规则单独保存一次。一个可以被别的文件导入的 Python 文件叫模块。先创建一个空目录，把下面两份代码按标出的文件名分别保存进去。",
+            "运行 show.py 时，import desk_tools 会找到同目录的 desk_tools.py，第一次导入时执行其中的顶层语句。那里只有一个函数定义，所以不会显示结果。圆点表示到这个模块里找名为 seats_left 的函数。"
+          ],
+          "code": "import desk_tools\n\nprint(desk_tools.seats_left(8, 3))",
+          "steps": [
+            "在该目录运行 python show.py（Windows 也可以用 py show.py）。先加载 desk_tools，函数名保存在这个模块里。",
+            "执行下一行时才把 8、3 交给函数，它返回 5。屏幕上这一行来自 show.py 的 print。"
+          ],
+          "output": "5",
+          "question": "只运行 desk_tools.py，会自动显示 5 吗？",
+          "options": [
+            [
+              "不会",
+              "对。该文件只有函数定义，里面没有调用或 print。"
+            ],
+            [
+              "会",
+              "函数定义写在那里，不等于已经传入了 8 和 3。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "print(desk_tools.seats_left(8, 3))",
+            "print(desk_tools.seats_left(8, 8))",
+            "0",
+            "同一个函数可以换输入重复使用；满座时得到整数 0。"
+          ],
+          "files": {
+            "desk_tools.py": "def seats_left(capacity, sold):\n    return capacity - sold"
+          },
+          "filename": "show.py"
+        }
+      ]
+    }
   },
   {
     "id": "objects",
@@ -864,7 +1573,142 @@
       "用一句话区分继承与组合"
     ],
     "source": "https://docs.python.org/3.14/tutorial/classes.html",
-    "project": null
+    "project": null,
+    "beginner": {
+      "label": "从两个实例读懂 self、继承和组合",
+      "chapters": [
+        6
+      ],
+      "lessons": [
+        {
+          "title": "两个录音计数器，self 这次指谁？",
+          "paragraphs": [
+            "两个录音棚各记一份完成次数。如果每个棚都要保存自己的次数、还都要会“再记一次”，可以只写一次这种计数器的定义。这份定义叫类；按它创建出来的每一个具体计数器叫实例。",
+            "class Counter 定义类。Counter() 创建一个新实例，Python 随即调用它的 __init__ 做初始设置。self 是方法的第一个参数，代表这次正在操作的实例。self.count 表示这个实例自己的 count 属性，也就是保存在它身上的数据。"
+          ],
+          "code": "class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def record(self):\n        self.count += 1\n\na = Counter()\nb = Counter()\na.record()\nprint(a.count, b.count)",
+          "steps": [
+            "读完整个 class 时还没建录音棚。a = Counter() 创建第一台并把它的 count 设为 0；b = Counter() 又创建另一台，也从 0 开始。此时 a / b 是 0 / 0。",
+            "a.record() 从圆点左边找到 a，并把 a 自动传给 self；这次 self.count += 1 等价于把 a 当前的 0 加 1 再存回去。状态变成 1 / 0。",
+            "最后分别去两台计数器读取数字。读属性用 a.count；执行方法用 a.record()，括号表示现在调用它。"
+          ],
+          "output": "1 0",
+          "question": "如果在 a.record() 后再调用一次 b.record()，最后会怎样？",
+          "options": [
+            [
+              "2 0",
+              "第二次调用圆点左边是 b，因此这次被加 1 的不是 a。"
+            ],
+            [
+              "1 1",
+              "对。方法的代码相同，接收这次调用的实例换成了 b。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "a.record()",
+            "a.record()\nb.record()",
+            "1 1",
+            "只有另一次调用也写成 a.record()，结果才会是 2 0。"
+          ]
+        },
+        {
+          "title": "方法怎样保证累计时长一直有效",
+          "paragraphs": [
+            "一段录音可以从 0 秒开始，补录后变长，但累计时长不能因为输错负数而变短。这种每次操作前后都要成立的规则叫不变量。属性能保存现在的数字，方法负责检查输入，再决定是否更新。",
+            "除非程序另作限制，外面也可以直接写 tape.seconds = 某个值；这样不会执行方法里的检查。把“补录”写成方法，可以让每次调用都经过相同规则。提前写一个不带值的 return，表示这次方法到这里就结束。"
+          ],
+          "code": "class Tape:\n    def __init__(self):\n        self.seconds = 0\n\n    def add(self, extra):\n        if extra < 0:\n            return\n        self.seconds += extra\n\ntape = Tape()\ntape.add(5)\ntape.add(-2)\nprint(tape.seconds)",
+          "steps": [
+            "新建实例后属性是 0。第一次调用把 5 交给 extra，条件为假，走到相加，属性变成 5。",
+            "第二次 extra 是 -2；条件为真，执行 return 就离开 add。缩进在方法末尾的相加语句这次没有机会执行。",
+            "最后读取这段录音的状态，仍是 5 秒。"
+          ],
+          "output": "5",
+          "question": "如果第二次改传 0，最后会是多少？",
+          "options": [
+            [
+              "0",
+              "这项操作是补录时长，不是重新设定总长；原有 5 秒仍在。"
+            ],
+            [
+              "5",
+              "对。0 通过了非负检查，执行 5 + 0，总长不变。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "tape.add(-2)",
+            "tape.add(0)",
+            "5",
+            "输出相同，路径不同：负数走提前返回，0 走加法。区分这两条路径才能解释程序。"
+          ]
+        },
+        {
+          "title": "父类写过的方法，子类调用时去哪里找",
+          "paragraphs": [
+            "普通节目和直播节目都需要标题，直播节目还需要另一种显示方式。class Live(Show) 把 Show 当父类，把 Live 定义成子类。子类可以使用父类已有的方法，也可以用同名方法给出自己的做法，后者叫重写。",
+            "这里 Live 没写自己的 __init__，创建实例时会找到 Show.__init__，所以直播也有 title。Live.label 里的 super().label() 会沿着继承关系找到父类版本，在当前这个直播实例上读取 title。若子类自己写了 __init__，需要父类的初始化时要显式调用 super().__init__(...)。"
+          ],
+          "code": "class Show:\n    def __init__(self, title):\n        self.title = title\n\n    def label(self):\n        return self.title\n\nclass Live(Show):\n    def label(self):\n        return \"直播：\" + super().label()\n\nprint(Show(\"早报\").label())\nprint(Live(\"早报\").label())",
+          "steps": [
+            "第一个实例是普通节目：调用 Show.label 直接返回早报。",
+            "第二个实例是直播：先找到 Live.label。为了拼好标签，先调用父类版本拿到早报，再在前面加上直播二字。最终只由外层 print 显示一次。"
+          ],
+          "output": "早报\n直播：早报",
+          "question": "如果第二次也用 Show 创建实例，还会带“直播”吗？",
+          "options": [
+            [
+              "不会",
+              "对。两个实例都将使用 Show.label。"
+            ],
+            [
+              "会",
+              "能否使用重写版本，要看你调用的是哪种实例。"
+            ]
+          ],
+          "answer": 0,
+          "change": [
+            "Live(\"早报\")",
+            "Show(\"早报\")",
+            "早报\n早报",
+            "实例收到同一个方法名，可能按所属类型找到不同的实现。"
+          ]
+        },
+        {
+          "title": "剪辑片段为什么要拥有自己的字幕轨",
+          "paragraphs": [
+            "片段能记录标题；字幕轨负责保存多行字幕。这是两种职责。可以把一个字幕轨实例保存在片段的属性里，这种做法叫组合。它回答“这条片段有什么”，而继承回答“这种东西属于哪一类”。",
+            "看见 a.track.lines 时不要一次猜整串：先找片段 a，再找它的 track，最后到那条轨上找装文字的列表 lines。把 Track() 写在 Clip.__init__ 中，每创建一个片段都会再创建一条字幕轨。"
+          ],
+          "code": "class Track:\n    def __init__(self):\n        self.lines = []\n\nclass Clip:\n    def __init__(self):\n        self.track = Track()\n\na = Clip()\nb = Clip()\na.track.lines.append(\"开场\")\nprint(a.track.lines)\nprint(b.track.lines)",
+          "steps": [
+            "a 创建时得到一条新轨和空列表；b 创建时又得到自己的新轨和空列表。",
+            "从 a 出发找到它的列表，append 加入“开场”。这条访问路径没有经过 b。",
+            "分别从 a 与 b 读取，结果是一张有字幕的表和一张空表。"
+          ],
+          "output": "['开场']\n[]",
+          "question": "如果把 b = Clip() 换成 b = a，再从 b 读取字幕会怎样？",
+          "options": [
+            [
+              "仍然为空",
+              "b = a 只把同一个片段交给另一个名字，没有调用 Clip() 创建新片段。"
+            ],
+            [
+              "也读到开场",
+              "对。两个名字现在通向同一个片段，自然也通向同一条轨。"
+            ]
+          ],
+          "answer": 1,
+          "change": [
+            "b = Clip()",
+            "b = a",
+            "['开场']\n['开场']",
+            "比较有无构造调用的括号，能帮助你判断是不是真的新建了实例。"
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "files",

@@ -12,3 +12,17 @@ pre.lined code{counter-reset:code-line}pre.lined .code-line{display:block;min-he
 @media(max-width:700px){.point p{font-size:15px}.unit-toc{gap:5px}.unit-toc button{padding:6px 9px}.knowledge-stats{gap:7px}.knowledge-stats b{padding:7px 10px;font-size:11px}header>a{display:none}.lessonfoot .secondary,.lessonfoot button{font-size:12px;padding:8px 10px}}
 @media print{aside,header,footer,.lessonfoot,.unit-toc,.codehead button{display:none!important}.shell{margin:0}main{padding:0;max-width:none}.article{max-width:none}pre{white-space:pre-wrap;color:black;background:#f3f3f3}.point{break-inside:avoid}}
 .source-files{display:flex;flex-wrap:wrap;gap:7px;margin:22px 0}.source-files a{border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:12px/1.6 monospace;overflow-wrap:anywhere}.source-files .selected{background:var(--soft);border-color:var(--green)}
+.beginner-panel h2 { margin-bottom: 1rem; }
+.beginner-reading { margin: .8rem 0; padding: .7rem 1rem; }
+.beginner-reading > summary, .reading-change > summary { min-height: 2.75rem; padding: .55rem 0; }
+.beginner-reading p, .beginner-reading li { font-size: 1rem; line-height: 1.8; }
+.beginner-reading li + li { margin-top: .45rem; }
+.beginner-reading h4 { margin: 1.2rem 0 .4rem; }
+.beginner-reading .output { font-size: .9rem; }
+.reading-question { min-width: 0; border: 1px solid var(--line); padding: .75rem 1rem; margin: 1.25rem 0; border-radius: .5rem; }
+.reading-question legend { color: var(--ink); font-weight: 600; padding: 0 .3rem; }
+.reading-choices { display: flex; flex-wrap: wrap; gap: .5rem; }
+.reading-choices button { min-height: 2.75rem; white-space: normal; text-align: left; }
+.reading-choices [aria-pressed=true] { outline: 2px solid var(--green); outline-offset: 1px; }
+.reading-feedback:empty { margin: 0; }
+@media (max-width: 700px) { .beginner-reading { padding: .35rem .65rem; } .reading-question { padding: .65rem; } }
