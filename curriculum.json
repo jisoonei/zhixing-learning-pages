@@ -620,6 +620,22 @@
       {
         "title": "局部状态比隐式全局更好测试",
         "text": "名称查找遵循局部、外层函数、模块全局和内置作用域。函数里出现赋值，通常就让该名称成为局部名称，因此先读后赋值可能抛 UnboundLocalError。尽量把阈值作为参数、统计作为返回值；需要 global/nonlocal 时先思考是否可以通过显式状态对象表达。每个函数聚焦一项职责，文档字符串写清输入、输出和异常。"
+      },
+      {
+        "title": "先给实参配座位，再执行函数体",
+        "text": "夜班简报要印栏目和版次。一份调用清单就够推演：先把位置实参从左到右填进形参，再按关键字填空位，最后给没填的可选项用默认值。栏目名和版次都相同，两种写法就会得到同一张标签。必填项漏填或同一栏被填两次都会引发 TypeError，函数体还没有开始执行。"
+      },
+      {
+        "title": "返回一张记录：把“没填”与“填了零”分开",
+        "text": "录音师可以不填时长，也可能登记一段 0 秒的空录音。这两种状态都能被 if seconds 判为假。用 None 表示未提供，用 is not None 决定是否写入时长键。函数每次创建并返回一个新字典；输入、退出和打印交给外层循环，同一个制卡函数也能直接测试。"
+      },
+      {
+        "title": "交接单要留底时，把哪一份列表交给函数",
+        "text": "调用 take_all(pending) 时，调用者的 pending 和形参指向同一张表。函数每 pop 一次，调用者的表也少一项。传 pending[:] 会先创建新的外层列表，再把副本交给函数。这里元素都是稿号字符串；如果元素换成字典，切片仍会共享那些字典。"
+      },
+      {
+        "title": "一张选题卡接收多少个标签和附加字段",
+        "text": "编辑部规定每张卡必须有栏目，标签数量和附加字段名可以变化。把必填的 desk 放在前面，*tags 接走其余位置实参形成元组，**fields 接走多余的关键字形成字典。没给附加项时两者分别是 () 和 {}。返回时把它们分栏，调用者就知道在哪里找每类信息。"
       }
     ],
     "code": "def parse_likes(raw, *, minimum=0):\n    \"\"\"把整数文本转为计数；非法或过小输入抛 ValueError。\"\"\"\n    value = int(raw.strip())\n    if value < minimum:\n        raise ValueError(\"低于下限\")\n    return value\n\ndef collect(value, bucket=None):\n    if bucket is None:  # 每次默认调用创建独立列表\n        bucket = []\n    bucket.append(value)\n    return bucket\n\nprint(parse_likes(\" 12 \", minimum=0))\nprint(collect(1), collect(2))\ntry:\n    parse_likes(\"-3\")\nexcept ValueError as exc:\n    print(str(exc))",
@@ -636,6 +652,35 @@
         "steps": "让方向成为关键字参数，并打印原列表核对。",
         "code": "def ranked(values, *, reverse=False):\n    return sorted(values, reverse=reverse)\nraw = [3, 1]\nprint(ranked(raw))\nprint(raw)",
         "output": "[1, 3]\n[3, 1]"
+      },
+      {
+        "question": "给夜班简报写版签函数，栏目必填，版次默认 1。用两种等效写法印出“影讯·第2版”，再试只填栏目和重复填写栏目。",
+        "thinking": "在纸上画出栏目、版次两格。分别填位置值、关键字值，看看哪里会同时出现两个值。",
+        "steps": "① 在 def 中写出形参和默认值。② 用 return 交回标签，由调用者打印。③ 交换两个关键字的书写顺序，比较结果。④ 最后一行测试故意重复填写栏目，捕获 TypeError 后打印原因。另试只传 edition=2，判断哪一格空着。",
+        "code": "def edition_label(desk, edition=1):\n    \"\"\"返回由栏目名和版次组成的版签。\"\"\"\n    return f\"{desk}·第{edition}版\"\n\n\nprint(edition_label(\"影讯\", 2))\nprint(edition_label(edition=2, desk=\"影讯\"))\nprint(edition_label(\"影讯\"))\ntry:\n    edition_label(\"影讯\", desk=\"书讯\")\nexcept TypeError:\n    print(\"栏目填了两次\")",
+        "output": "影讯·第2版\n影讯·第2版\n影讯·第1版\n栏目填了两次"
+      },
+      {
+        "question": "在终端登记录音卡。每轮输入标题和秒数，遇到标题 q 即退出；秒数可留空，或填非负整数。本题假设秒数输入符合约定。依次输入“片头”、0、“采访”、空行、q。",
+        "thinking": "先决定两张卡有哪些键，再写循环。没有录音时能否直接退出？",
+        "steps": "① 把制卡函数的秒数默认设为 None。② 只在实际给了秒数时写入键。③ 循环先检查退出，再读取秒数；用函数的返回值追加到清单。④ 在循环外统一打印。预期输出只列程序打印的文字。",
+        "code": "def make_clip(title, seconds=None):\n    card = {\"标题\": title}\n    if seconds is not None:\n        card[\"秒数\"] = seconds\n    return card\n\n\nprint(\"逐行输入标题和秒数；秒数可留空，标题 q 结束\")\nclips = []\nwhile True:\n    title = input().strip()\n    if title.casefold() == \"q\":\n        break\n    raw = input().strip()\n    seconds = int(raw) if raw else None\n    clips.append(make_clip(title, seconds))\nprint(clips)",
+        "output": "逐行输入标题和秒数；秒数可留空，标题 q 结束\n[{'标题': '片头', '秒数': 0}, {'标题': '采访'}]",
+        "stdin": "片头\n0\n采访\n\nq\n"
+      },
+      {
+        "question": "待交接的稿号为 A、B。用同一函数从末尾逐项取走稿号，先预演并保留原清单，再正式交接并清空原清单。两次交接顺序应一致。",
+        "thinking": "在调用处决定是否传副本。比较返回的交接单和调用之后的原清单，两者各说明什么？",
+        "steps": "① 定义函数，循环 pop 末项并记入交接单。② 预演时传切片，打印原表。③ 正式交接时传原表，再打印。④ 将初始清单改为空表，预计两次调用都会直接返回空表。",
+        "code": "def take_all(pending):\n    handed = []\n    while pending:\n        handed.append(pending.pop())\n    return handed\n\n\nqueue = [\"A\", \"B\"]\nprint(\"预演\", take_all(queue[:]), queue)\nprint(\"交接\", take_all(queue), queue)",
+        "output": "预演 ['B', 'A'] ['A', 'B']\n交接 ['B', 'A'] []"
+      },
+      {
+        "question": "创建选题卡，栏目必填，标签和附加字段数量不限。为“声音”创建空白卡，再加两个标签以及记者和分钟数。预测第一次调用会收集到什么。",
+        "thinking": "函数定义里的星号在收集。先圈出必填的第一个位置值，再分别找剩余的位置值和带名字的值。",
+        "steps": "① 在同一签名中写出 desk、*tags、**fields。② 用三个固定键返回卡片。③ 对照空白卡和完整卡，再删去记者字段单独试一次。",
+        "code": "def pitch(desk, *tags, **fields):\n    return {\"栏目\": desk, \"标签\": tags, \"资料\": fields}\n\n\nprint(pitch(\"声音\"))\nprint(pitch(\"声音\", \"采访\", \"现场\", 记者=\"阿禾\", 分钟=0))",
+        "output": "{'栏目': '声音', '标签': (), '资料': {}}\n{'栏目': '声音', '标签': ('采访', '现场'), '资料': {'记者': '阿禾', '分钟': 0}}"
       }
     ],
     "mastery": [
@@ -679,6 +724,10 @@
       {
         "title": "先找标准库再安装依赖",
         "text": "pathlib 管路径，csv/json 管结构化文件，collections.Counter 管计数，datetime 管时间，argparse 管命令行，logging 管运行记录。这些在 Python 中附带；pandas、pytest、Pygame 是第三方包。要学会用 help、官方文档的函数签名和一个小例子回答问题，而不是猜参数。写求助帖时附最小输入与输出预期。"
+      },
+      {
+        "title": "在交接脚本里导入自己写的统计函数",
+        "text": "同目录下有 example_entry.py 和 bulletin.py 时，在 bulletin.py 中执行 import example_entry 后，要用模块名加点访问 summarize。from example_entry import summarize 则把函数名直接绑定到当前文件。as 只改变当前文件使用的名字。from example_entry import * 会把模块公开的名字引入当前作用域，可能盖住同名函数；交接脚本明确写出所需名字，下一位编辑就能追溯来源。整理文件时把导入放在顶部，顶层函数之间空两行，用小写加下划线命名，函数第一行用文档字符串交代用途。"
       }
     ],
     "code": "from collections import Counter\nimport json as json_tools\n\ndef summarize(names):\n    return dict(Counter(names))\n\ndef main():\n    result = summarize([\"音乐节\", \"科技展\", \"音乐节\"])\n    print(json_tools.dumps(result, ensure_ascii=False, sort_keys=True))\n\nif __name__ == \"__main__\":\n    main()",
@@ -695,6 +744,13 @@
         "steps": "保留函数定义，将 main 调用放在入口保护内。",
         "code": "def summarize(values):\n    return sum(values)\nif __name__ == \"__main__\":\n    print(summarize([2, 3]))",
         "output": "直接运行输出 5；作为模块导入时不打印。"
+      },
+      {
+        "question": "把本专题练习 1 的完整参考代码保存为 example_entry.py。同目录新建 bulletin.py，用下面四种导入写法统计两档节目的 3 和 5 条来稿。猜一猜会不会先打印练习 1 里的 5。",
+        "thinking": "辨认别名指向模块还是函数。模块还要加点找函数，直接导入的函数可以立即调用。",
+        "steps": "① 两个文件名分别写对，代码与下方示例分开保存。② 将下面代码写入 bulletin.py，在该目录运行 python bulletin.py。③ 对照四行结果，入口保护会跳过示例模块中的主程序。④ 把 counts 改为空列表，再验证四次调用是否一致。",
+        "code": "import example_entry\nimport example_entry as stats\nfrom example_entry import summarize\nfrom example_entry import summarize as total\n\ncounts = [3, 5]\nprint(example_entry.summarize(counts))\nprint(stats.summarize(counts))\nprint(summarize(counts))\nprint(total(counts))",
+        "output": "8\n8\n8\n8"
       }
     ],
     "mastery": [
