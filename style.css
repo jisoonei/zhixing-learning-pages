@@ -26,3 +26,20 @@ pre.lined code{counter-reset:code-line}pre.lined .code-line{display:block;min-he
 .reading-choices [aria-pressed=true] { outline: 2px solid var(--green); outline-offset: 1px; }
 .reading-feedback:empty { margin: 0; }
 @media (max-width: 700px) { .beginner-reading { padding: .35rem .65rem; } .reading-question { padding: .65rem; } }
+
+.start-home,.starter,.index-card{font-size:1rem}
+.start-home{margin-bottom:2rem;padding:clamp(1.25rem,4vw,3.25rem);border:1px solid var(--line);border-radius:1rem;background:var(--soft)}
+.start-home h1{margin:.25rem 0 .8rem}.start-home .intro,.starter .intro{font-size:1.05rem;color:var(--ink)}
+.course-kicker{color:var(--green);font-size:.9rem;font-weight:700;letter-spacing:.06em;margin:0}
+.starter{max-width:48rem;margin:auto}.starter .course-kicker{margin-top:1.35rem}
+.starter section{margin:1.6rem 0}.starter h2,.index-card h2{font-size:1.35rem;margin:0 0 .55rem}
+.starter-editor{padding:clamp(.9rem,3vw,1.6rem);border:1px solid var(--line);border-radius:.75rem}
+.starter-editor label{display:block;font-weight:650;margin:.8rem 0 .4rem}
+.starter-editor textarea{display:block;width:100%;max-width:100%;resize:vertical;padding:1rem;background:#122c2b;color:#f1faf6;border:2px solid #64867c;border-radius:.55rem;font:1rem/1.65 ui-monospace,monospace}
+.starter-editor textarea:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+#starter-output{min-height:3.6rem;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);background:var(--soft);padding:.85rem 1rem;border-radius:.5rem}
+.starter details summary{cursor:pointer;color:var(--green);font-weight:650}
+.starter .primary,.starter .secondary,.start-home .actions a,.starter button{font-size:1rem;min-height:44px}
+.starter .beginner-check button{margin:.15rem}.starter code{overflow-wrap:anywhere}.starter .code-line{overflow-wrap:normal}
+.textbook-grid{margin:1.5rem 0}.index-card p{font-size:1rem}.index-links{display:flex;flex-wrap:wrap;gap:.35rem 1rem}.index-links a{text-decoration:underline;text-underline-offset:3px;font-size:.94rem}
+@media(max-width:600px){.start-home .actions{align-items:stretch;flex-direction:column}.start-home .actions a{text-align:center}.starter h1{font-size:1.8rem}.textbook-grid{grid-template-columns:minmax(0,1fr)}}
