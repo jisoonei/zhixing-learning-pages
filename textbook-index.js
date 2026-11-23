@@ -3,22 +3,22 @@ const textbookIndex = [
   {
     label: '第 1 章', title: '起步', status: '已有对应内容',
     summary: '从显示第一行文字开始，再学习保存 .py 文件、选择解释器和读懂报错。',
-    links: [{label: '在线运行第一行', href: '#start-print'}, {label: '第一次使用 print', href: '#chapter-39'}, {label: '在电脑上运行', href: '#unit-runtime'}]
+    links: [{label: '动手运行第一行 print', href: '#chapter-39'}, {label: '在电脑上运行', href: '#unit-runtime'}]
   },
   {
     label: '第 2 章', title: '变量和简单的数据类型', status: '已有对应内容',
     summary: '把名字和一个值关联起来，再试文字、整数、小数和运算。',
-    links: [{label: '在线修改变量', href: '#start-variables'}, {label: '变量与简单算术', href: '#chapter-40'}, {label: '数值与注释', href: '#unit-values'}, {label: '字符串', href: '#unit-text'}]
+    links: [{label: '动手修改变量与节目名', href: '#chapter-40'}, {label: '数值与注释', href: '#unit-values'}, {label: '字符串', href: '#unit-text'}]
   },
   {
     label: '第 3 章', title: '列表简介', status: '已有对应内容',
     summary: '按位置找到一项，观察添加、修改、删除以及重新排序后各项的位置。',
-    links: [{label: '列表、位置与修改', href: '#unit-sequence'}]
+    links: [{label: '读懂一份节目名单', href: '#chapter-41'}, {label: '列表、位置与修改', href: '#unit-sequence'}]
   },
   {
     label: '第 4 章', title: '操作列表', status: '已有对应内容',
     summary: '逐项读出一个列表，取出其中一段，再用 range 生成连续的数。',
-    links: [{label: '在线运行第一行', href: '#start-print'}, {label: '第一次使用 for', href: '#chapter-41'}, {label: '切片与元组', href: '#unit-sequence'}, {label: '范围与缩进', href: '#unit-branch'}]
+    links: [{label: '第一次使用 for', href: '#chapter-41'}, {label: '切片与元组', href: '#unit-sequence'}, {label: '范围与缩进', href: '#unit-branch'}]
   },
   {
     label: '第 5 章', title: 'if 语句', status: '已有对应内容',

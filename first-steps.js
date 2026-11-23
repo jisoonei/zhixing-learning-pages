@@ -1,7 +1,8 @@
 // Browser-local activities for the first two lessons.
 const starterLessons = {
-  'start-print': {
-    title: '让屏幕显示一句话',
+  39: {
+    draftKey: 'zx-draft-start-print',
+    title: '用 print 显示一句话',
     intro: '程序是一组交给计算机的指令。这一课只写一条，让屏幕显示你选择的一句话。手机上可以直接修改下面的代码。',
     steps: [
       ['print', '这是 Python 中用来显示内容的名字。把要显示的东西放在紧跟它的一对英文圆括号里。'],
@@ -14,10 +15,11 @@ const starterLessons = {
     hint: '可以只用鼠标或手指选中“你好”两个字。两端的引号都要留下。',
     variant: '把引号里的字全部删掉，保留两个引号，再运行。你预测会发生什么？',
     answer: 'print("") 会输出一个空行。空字符串里有零个字符，所以这一行看起来是空白的。',
-    next: 'start-variables', nextLabel: '下一课 · 给文字起一个名字'
+    next: 'chapter-40', nextLabel: '下一课 · 用变量保存节目名'
   },
-  'start-variables': {
-    title: '给文字起一个名字',
+  40: {
+    draftKey: 'zx-draft-start-variables',
+    title: '用变量保存节目名',
     intro: '假设你在帮校园电台做节目单。节目名会更新，你希望显示当前的名字。变量让程序可以通过一个名字找到一个值。',
     steps: [
       ['show = "晚间电台"', '先看等号右边，得到一段文字。再看左边，给这个值取名 show。这一步叫赋值，本身不会向屏幕输出文字。'],
@@ -31,7 +33,7 @@ const starterLessons = {
     variant: '想在同一次运行中先显示旧节目，再显示新节目，需要把两次 print 放在哪里？',
     answer: '先给 show 赋旧节目名并显示一次，再赋新节目名并显示一次。第二次赋值不会改写已经输出的第一行。',
     answerCode: 'show = "晚间电台"\nprint(show)\nshow = "早间新闻"\nprint(show)',
-    answerOutput: '晚间电台\n早间新闻', next: 'chapter-40', nextLabel: '接着读 · 变量与表达式'
+    answerOutput: '晚间电台\n早间新闻', next: 'chapter-41', nextLabel: '下一课 · 用 for 逐个读出名单'
   }
 };
 
@@ -41,26 +43,36 @@ function readStudyValue(key) {
 function writeStudyValue(key, value) {
   try { localStorage.setItem(key, value); } catch { /* Reading still works without storage. */ }
 }
-function studyRouteTitle(id) {
-  if (Object.hasOwn(starterLessons, id)) return starterLessons[id].title;
-  if (/^chapter-(0|[1-9]\d*)$/.test(id)) return chapters[Number(id.slice(8))]?.title;
+// Keep the original chapter numbers, bookmarks and editor storage from v24.
+const starterAliases = {'start-print': 'chapter-39', 'start-variables': 'chapter-40'};
+function canonicalLesson(id) {
+  return Object.hasOwn(starterAliases, id) ? starterAliases[id] : id;
+}
+function chapterTitle(i) {
+  if (Object.hasOwn(starterLessons, i)) return '零基础 ' + (i - 38) + ' · ' + starterLessons[i].title;
+  if (i === 41) return '零基础 3 · 用 for 逐个读出名单';
+  if (i === 42) return 'SQL 零基础 1 · 用 SELECT 查出第一行结果';
+  return chapters[i]?.title;
+}
+function studyRouteTitle(route) {
+  const id = canonicalLesson(route);
+  if (/^chapter-(0|[1-9]\d*)$/.test(id)) return chapterTitle(Number(id.slice(8)));
   if (id.startsWith('unit-')) return curriculum.find(unit => 'unit-' + unit.id === id)?.title;
 }
 function startingPanel() {
-  const last = readStudyValue('zx-last-lesson') || '';
+  const last = canonicalLesson(readStudyValue('zx-last-lesson') || '');
   const title = studyRouteTitle(last);
-  return `<section class="start-home"><p class="course-kicker">Python 入门</p><h1>从第一行 <em>Python</em> 开始</h1>
-    <p class="intro">在屏幕上显示一句自己的话，再给这句话起一个名字。前两课可以直接在这里写代码。</p>
-    <div class="actions"><a href="#start-print" class="primary">从零开始</a>
-      ${title ? `<a class="secondary" href="#${esc(last)}">继续上次 · ${esc(title)}</a>` : ''}
+  return `<section class="start-home"><p class="course-kicker">全书导览</p><h1>从第一行 <em>Python</em> 开始</h1>
+    <p class="intro">写一句自己的话，让 Python 把它显示在屏幕上。接着给节目取个名字，再试着读出一整份节目单。</p>
+    <div class="actions">${title ? `<a class="primary" href="#${esc(last)}">继续学习 · ${esc(title)}</a>` : ''}
+      ${last !== 'chapter-39' || !title ? `<a href="#chapter-39" class="${title ? 'secondary' : 'primary'}">开始 Python 第一课</a>` : ''}
+      <a href="#chapter-42" class="secondary">开始 SQL Server 第一课</a>
       <a href="#coverage" class="secondary">按教材查找</a></div></section>`;
 }
-function starterPage(id) {
-  const lesson = starterLessons[id];
-  const draft = readStudyValue('zx-draft-' + id) ?? lesson.source;
-  return `<article class="starter"><a href="#home">全书导览</a>
-    <p class="course-kicker">Python 入门 · 第 ${id === 'start-print' ? 1 : 2} 课</p>
-    <h1>${esc(lesson.title)}</h1><p class="intro">${esc(lesson.intro)}</p>
+function starterActivity(i) {
+  const lesson = starterLessons[i];
+  const draft = readStudyValue(lesson.draftKey) ?? lesson.source;
+  return `<div class="starter"><p class="intro">${esc(lesson.intro)}</p>
     <section><h2>读懂这条指令</h2>${lesson.steps.map(([code, body]) =>
       `<p><code>${esc(code)}</code>　${esc(body)}</p>`).join('')}</section>
     <section><h2>预测原始代码的结果</h2>${readingCode(lesson.source, '原始代码')}
@@ -77,13 +89,12 @@ function starterPage(id) {
       <details><summary>卡住时看提示</summary><p>${esc(lesson.hint)}</p></details></section>
     <section><h2>自己再试一次</h2><p>${esc(lesson.variant)}</p><details><summary>展开解法与解释</summary><p>${esc(lesson.answer)}</p>
       ${lesson.answerCode ? readingCode(lesson.answerCode, '参考代码') + readingCode(lesson.answerOutput, '预期输出') : ''}</details></section>
-    <div class="actions"><a class="primary" href="#${lesson.next}">${lesson.nextLabel}</a>
-      <a href="#${id === 'start-print' ? 'chapter-39' : 'start-print'}" class="secondary">${id === 'start-print' ? '在电脑上保存并运行 Python' : '回到第一课'}</a></div></article>`;
+    <div class="actions"><a class="primary" href="#${lesson.next}">${lesson.nextLabel}</a></div></div>`;
 }
 function bindStarter(id) {
   const lesson = starterLessons[id];
   const editor = $('#starter-code'), output = $('#starter-output');
-  editor.oninput = () => writeStudyValue('zx-draft-' + id, editor.value);
+  editor.oninput = () => writeStudyValue(lesson.draftKey, editor.value);
   document.querySelectorAll('[data-starter-choice]').forEach(button => {
     button.onclick = () => { $('#starter-feedback').textContent = lesson.feedback[Number(button.dataset.starterChoice)]; };
   });

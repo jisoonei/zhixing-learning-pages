@@ -43,16 +43,40 @@ function projectCard(key) {
   const p=projectPackages[key];
   return `<section class="card"><span class="label">独立原创练习</span><h3>${p.title}</h3><p>${p.description}</p><div class="actions"><a class="primary" href="${p.file}" download>下载完整工程</a><a class="secondary" href="#source-${key}~README.md">在线逐文件阅读</a></div><p class="muted">${p.validation}</p></section>`;
 }
+
+function topicMatches(query) {
+  const terms = query.trim().toLowerCase().split(/\s+/u).filter(Boolean);
+  if (!terms.length) return '';
+  const entries = [
+    ...curriculum.map(unit => ({id: 'unit-' + unit.id, title: unit.title, detail: unit.group, keywords: [...unit.tags, unit.goal, ...unit.sections.map(s => s.title)]})),
+    ...collections.flatMap(group => group.indexes.map(i => ({
+      id: 'chapter-' + i, title: chapterTitle(i), detail: group.title,
+      keywords: [chapters[i].title, chapters[i].goal, ...chapters[i].topics]
+    })))
+  ];
+  const matches = entries.filter(item => {
+    const searchable = [item.title, item.detail, ...item.keywords].join(' ').toLowerCase();
+    return terms.every(term => searchable.includes(term));
+  });
+  return `<p role="status">找到 ${matches.length} 个结果</p>` +
+    (matches.length ? `<div class="chapterlist">${matches.map(m =>
+      `<a href="#${esc(m.id)}"><span>${esc(m.title)}<small>${esc(m.detail)}</small></span></a>`).join('')}</div>` :
+      '<p>试试更短的词，如“列表”“函数”或“JOIN”。</p>');
+}
+
+
 function knowledgeHome() {
   const groups=[...new Set(curriculum.map(u=>u.group))];
-  return `<div class="eyebrow">READ · TRACE · PRACTISE · BUILD</div><h1>全景学习地图</h1><p class="intro">顺着基础走，也能按问题查。把一个概念拆成运行机制、代码行为、失败边界和项目用途，再用练习检验是否真正理解。</p><div class="knowledge-stats"><b>${chapters.length} 章原有课程</b><b>${curriculum.length} 篇专题拆解</b><b>3 个新增独立工程</b></div><div class="notice"><b>如何使用这套教材</b><p>刚开始编程，先读三章零基础，再进入下面的基础分类。复习时按标签查知识点；完成基础后，可分别进入游戏、数据图表和 Web 应用。SQL Server 继续使用原有双册主线。</p><p>下表对照上传教材的全部章级主题与附录，讲解和练习采用独立编写的案例。主题已有对应入口，不等于逐页、逐道习题复刻；云平台操作采用可迁移的部署流程。每项验证范围在项目入口明示。</p><div class="actions"><a href="#start-print" class="primary">从零基础开始</a><a href="#coverage" class="secondary">教材主题对照</a><a href="#python-projects" class="secondary">三个实践项目</a></div></div><div class="category-links">${groups.map((g,i)=>`<button type="button" data-jump="category-${i}">${esc(g)}</button>`).join('')}</div>${groups.map((g,i)=>`<section class="knowledge-category" id="category-${i}"><div class="sectionhead"><h2>${esc(g)}</h2><span>${curriculum.filter(u=>u.group===g).length} 篇专题</span></div><div class="grid">${curriculum.filter(u=>u.group===g).map(u=>`<a class="card knowledge-card" href="#unit-${u.id}"><span class="label">${esc(u.book)} ${unitCompleted.includes(u.id)?'· ✓ 已掌握':''}</span><h3>${esc(u.title)}</h3><p>${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><span>${u.sections.length} 个知识拆解 · 示例 · 练习解析 →</span></a>`).join('')}</div></section>`).join('')}<div class="notice"><b>贯穿应用：</b>原始博文 → Python 清洗 → SQL Server 幂等导入 → 统计报表。<a href="#integrated">进入交叉应用</a>。扩展练习使用独立目录，不需要先初始化数据库才能学习 Python。</div>`;
+  return `<h1>按知识点查找</h1><p class="intro">输入你想复习的概念，或按分类浏览下方专题。</p>
+  <div class="topic-search"><label for="topic-query">知识点或关键词</label><input id="topic-query" type="search" placeholder="例如：列表、函数、JOIN"></div>
+  <div id="topic-results"></div><div id="topic-categories"><div class="category-links">${groups.map((g,i)=>`<button type="button" data-jump="category-${i}">${esc(g)}</button>`).join('')}</div>${groups.map((g,i)=>`<section class="knowledge-category" id="category-${i}"><div class="sectionhead"><h2>${esc(g)}</h2><span>${curriculum.filter(u=>u.group===g).length} 篇专题</span></div><div class="grid">${curriculum.filter(u=>u.group===g).map(u=>`<a class="card knowledge-card" href="#unit-${u.id}"><span class="label">${esc(u.book)} ${unitCompleted.includes(u.id)?'· ✓ 已掌握':''}</span><h3>${esc(u.title)}</h3><p>${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><span>${u.sections.length} 个知识拆解 · 示例 · 练习解析 →</span></a>`).join('')}</div></section>`).join('')}<div class="notice"><b>贯穿应用：</b>原始博文 → Python 清洗 → SQL Server 幂等导入 → 统计报表。<a href="#integrated">进入交叉应用</a>。扩展练习使用独立目录，不需要先初始化数据库才能学习 Python。</div></div>`;
 }
 function coveragePage() {
   const cards = textbookIndex.map(item => `<section class="card index-card">
     <span class="label">${esc(item.label)} · ${esc(item.status)}</span><h2>${esc(item.title)}</h2>
     <p>${esc(item.summary)}</p><div class="index-links">${item.links.map(link =>
       `<a href="${esc(link.href)}">${esc(link.label)}</a>`).join('')}</div></section>`).join('');
-  return `<h1>按教材查找</h1><p class="intro">按《Python 编程：从入门到实践》第 3 版查找 20 章和 5 个附录。每张卡片说明本站已经讲到哪里，点题目就能读。“部分主题”表示这里只收录了该章或附录的一部分。</p><div class="grid textbook-grid">${cards}</div><details class="block"><summary>展开原有专题与课程对照表</summary><div class="table-scroll"><table><thead><tr><th>教材章节</th><th>主题</th><th>专题讲解</th><th>原有课程</th></tr></thead><tbody>${coverage.map(([n,title,units,old])=>`<tr><td>${esc(n)}</td><td>${esc(title)}</td><td>${units.map(unitLink).join('<br>')}</td><td>${old.map(i=>`<a href="#chapter-${i}">${esc(chapters[i].title)}</a>`).join('<br>')||'新增独立项目路线'}</td></tr>`).join('')}</tbody></table></div></details><div class="block"><h2>网站增加的学习维度</h2><ul><li>对象引用、浅深拷贝、数据契约、迭代器与生成器、装饰器。</li><li>脏数据拒绝、冲突审计、幂等导入、事务和 SQL Server 项目。</li><li>按知识类别查阅、双册交叉链接、可折叠答案、浏览器本地掌握记录。</li><li>样本与实时数据分开标识，测试替身与真实服务的验证结果分别报告。</li></ul></div>`;
+  return `<h1>按教材查找</h1><p class="intro">按《Python 编程：从入门到实践》第 3 版查找 20 章和 5 个附录。每张卡片说明本站已经讲到哪里，点题目就能读。“部分主题”表示这里只收录了该章或附录的一部分。</p><div class="grid textbook-grid">${cards}</div><details class="block"><summary>展开原有专题与课程对照表</summary><div class="table-scroll"><table><thead><tr><th>教材章节</th><th>主题</th><th>专题讲解</th><th>原有课程</th></tr></thead><tbody>${coverage.map(([n,title,units,old])=>`<tr><td>${esc(n)}</td><td>${esc(title)}</td><td>${units.map(unitLink).join('<br>')}</td><td>${old.map(i=>`<a href="#chapter-${i}">${esc(chapterTitle(i))}</a>`).join('<br>')||'新增独立项目路线'}</td></tr>`).join('')}</tbody></table></div></details><div class="block"><h2>网站增加的学习维度</h2><ul><li>对象引用、浅深拷贝、数据契约、迭代器与生成器、装饰器。</li><li>脏数据拒绝、冲突审计、幂等导入、事务和 SQL Server 项目。</li><li>按知识类别查阅、双册交叉链接、可折叠答案、浏览器本地掌握记录。</li><li>样本与实时数据分开标识，测试替身与真实服务的验证结果分别报告。</li></ul></div>`;
 }
 function readingCode(code, label) {
   return `<div class="codehead"><span>${esc(label)}</span></div>
@@ -124,12 +148,32 @@ function unitPage(id) {
   const u=curriculum.find(u=>u.id===id);
   if(!u)return '<h1>没有找到这个专题</h1><a href="#knowledge">返回学习地图</a>';
   const position=curriculum.indexOf(u);
-  return `<article class="article"><div class="eyebrow">${esc(u.group)} / 专题 ${String(position+1).padStart(2,'0')}</div><h1>${esc(u.title)}</h1>${beginnerPanel(u)}<p class="intro">${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><p class="muted">主题对照：${esc(u.book)} · ${u.sections.length} 个拆解 · 代码演练 · 练习解析</p>${u.before.length?`<div class="notice"><b>基础衔接：</b>${u.before.map(i=>`<a href="#chapter-${i}">${esc(chapters[i].title)}</a>`).join(' / ')}</div>`:''}<nav class="unit-toc" aria-label="本专题目录">${u.sections.map((s,i)=>`<button type="button" data-jump="point-${i}">${i+1}. ${esc(s.title)}</button>`).join('')}</nav>${u.sections.map((s,i)=>`<section class="block point" id="point-${i}"><span class="label">知识拆解 ${String(i+1).padStart(2,'0')}</span><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p></section>`).join('')}<section class="block"><h2>代码演练与预期行为</h2><p class="muted">${u.runner==='shell'?'以下是终端命令；请先满足正文中的环境前提。':u.runner==='project'?'以下是完整工程中的片段；需在下载包的 Django 上下文中使用。':'以下使用 Python 3。第三方库请先按对应工程 requirements.txt 安装。'}</p><div class="codehead"><span>${u.runner==='shell'?'TERMINAL':u.runner==='project'?'PROJECT CONTEXT':'PYTHON'}</span><button type="button" data-copy-unit="main">复制</button></div><pre class="lined"><code>${codeMarkup(u.code)}</code></pre><div class="output">${esc(u.output)}</div></section><section class="block"><h2>常见错误与正确做法</h2>${u.pitfalls.map(p=>`<p class="pitfall-line">${esc(p)}</p>`).join('')}</section><section class="block"><h2>练习与解题过程</h2>${u.exercises.map((e,i)=>`<div class="exercise-card"><h3>练习 ${i+1}</h3><p>${esc(e.question)}</p><details><summary>先看思路提示</summary><p>${esc(e.thinking)}</p></details><details><summary>查看步骤、参考代码与结果</summary><p><b>思路：</b>${esc(e.thinking)}</p><p><b>步骤：</b>${esc(e.steps)}</p><div class="codehead"><span>参考解法</span><button type="button" data-copy-unit="${i}">复制</button></div><pre class="lined"><code>${codeMarkup(e.code)}</code></pre><div class="output">${esc(e.output)}</div></details></div>`).join('')}</section>${u.project?`<section class="block"><h2>把这个知识放进完整项目</h2>${projectCard(u.project)}</section>`:''}<section class="block"><h2>掌握检查</h2><p>合上示例，能够完成下面三项，再标记掌握。</p><ul>${u.mastery.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><a href="${esc(u.source)}" target="_blank" rel="noreferrer">官方资料：核对定义与 API ↗</a></section><div class="lessonfoot">${position?`<a class="secondary" href="#unit-${curriculum[position-1].id}">← 上一专题</a>`:'<a class="secondary" href="#knowledge">学习地图</a>'}<button class="primary" id="unit-complete" data-unit="${u.id}">${unitCompleted.includes(u.id)?'✓ 已掌握 · 点击取消':'标记专题已掌握'}</button>${position<curriculum.length-1?`<a class="secondary" href="#unit-${curriculum[position+1].id}">下一专题 →</a>`:'<a class="secondary" href="#python-projects">项目验收 →</a>'}</div></article>`;
+  return `<article class="article"><div class="eyebrow">${esc(u.group)} / 专题 ${String(position+1).padStart(2,'0')}</div><h1>${esc(u.title)}</h1>${beginnerPanel(u)}<p class="intro">${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><p class="muted">主题对照：${esc(u.book)} · ${u.sections.length} 个拆解 · 代码演练 · 练习解析</p>${u.before.length?`<div class="notice"><b>基础衔接：</b>${u.before.map(i=>`<a href="#chapter-${i}">${esc(chapterTitle(i))}</a>`).join(' / ')}</div>`:''}<nav class="unit-toc" aria-label="本专题目录">${u.sections.map((s,i)=>`<button type="button" data-jump="point-${i}">${i+1}. ${esc(s.title)}</button>`).join('')}</nav>${u.sections.map((s,i)=>`<section class="block point" id="point-${i}"><span class="label">知识拆解 ${String(i+1).padStart(2,'0')}</span><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p></section>`).join('')}<section class="block"><h2>代码演练与预期行为</h2><p class="muted">${u.runner==='shell'?'以下是终端命令；请先满足正文中的环境前提。':u.runner==='project'?'以下是完整工程中的片段；需在下载包的 Django 上下文中使用。':'以下使用 Python 3。第三方库请先按对应工程 requirements.txt 安装。'}</p><div class="codehead"><span>${u.runner==='shell'?'TERMINAL':u.runner==='project'?'PROJECT CONTEXT':'PYTHON'}</span><button type="button" data-copy-unit="main">复制</button></div><pre class="lined"><code>${codeMarkup(u.code)}</code></pre><div class="output">${esc(u.output)}</div></section><section class="block"><h2>常见错误与正确做法</h2>${u.pitfalls.map(p=>`<p class="pitfall-line">${esc(p)}</p>`).join('')}</section><section class="block"><h2>练习与解题过程</h2>${u.exercises.map((e,i)=>`<div class="exercise-card"><h3>练习 ${i+1}</h3><p>${esc(e.question)}</p><details><summary>先看思路提示</summary><p>${esc(e.thinking)}</p></details><details><summary>查看步骤、参考代码与结果</summary><p><b>思路：</b>${esc(e.thinking)}</p><p><b>步骤：</b>${esc(e.steps)}</p><div class="codehead"><span>参考解法</span><button type="button" data-copy-unit="${i}">复制</button></div><pre class="lined"><code>${codeMarkup(e.code)}</code></pre><div class="output">${esc(e.output)}</div></details></div>`).join('')}</section>${u.project?`<section class="block"><h2>把这个知识放进完整项目</h2>${projectCard(u.project)}</section>`:''}<section class="block"><h2>掌握检查</h2><p>合上示例，能够完成下面三项，再标记掌握。</p><ul>${u.mastery.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><a href="${esc(u.source)}" target="_blank" rel="noreferrer">官方资料：核对定义与 API ↗</a></section><div class="lessonfoot">${position?`<a class="secondary" href="#unit-${curriculum[position-1].id}">← 上一专题</a>`:'<a class="secondary" href="#knowledge">学习地图</a>'}<button class="primary" id="unit-complete" data-unit="${u.id}">${unitCompleted.includes(u.id)?'✓ 已掌握 · 点击取消':'标记专题已掌握'}</button>${position<curriculum.length-1?`<a class="secondary" href="#unit-${curriculum[position+1].id}">下一专题 →</a>`:'<a class="secondary" href="#python-projects">项目验收 →</a>'}</div></article>`;
 }
+
 function pythonProjectsPage() {
- return `<div class="eyebrow">BUILD THREE WAYS</div><h1>三条实践路线</h1><p class="intro">学过函数、类、文件和测试后，把它们组合成可以运行的作品。每个工程都提供源码、依赖、运行说明与验证用例。</p><div class="grid">${Object.keys(projectPackages).map(projectCard).join('')}</div><div class="notice"><b>从哪条路线开始：</b>想练持续状态与对象协作，选游戏；想连接数据专业，选图册；想给其他人用，先通过 Web 本地权限测试，再做独立部署。你可以全部完成，也可以按自己的节奏推进。</div><div class="actions"><a href="#unit-game-loop" class="secondary">游戏正文</a><a href="#unit-plotting" class="secondary">可视化正文</a><a href="#unit-web-foundations" class="secondary">Web 正文</a><a href="#project" class="secondary">原 SQL Server 项目</a></div><p>这些包是独立练习，原 sqlserver-demo.zip 与现有章节数据保持原样。Django 框架入门包使用本地 SQLite；现有数据工程仍以 SQL Server 为主。</p>`;
+  const routes = [
+    ['game', '做一个小游戏', '先会写循环、函数和类。', ['python game.py'], '按 Enter 开始，移动并发射。命中一个目标后，分数应增加。'],
+    ['analysis', '用 CSV 画一张图', '先会读取 CSV，能把文本转成日期和数字。', ['python report.py --output output-01'], '打开新输出目录里的日期图。改动一条有效记录，在另一个新目录重跑，核对对应日期的数据点。'],
+    ['web', '做一个能登录并保存记录的网站', '先会写函数和类，了解一条记录有哪些字段。', ['python manage.py migrate', 'python manage.py runserver'], '在本地页面注册、登录并保存一条笔记。刷新后仍能读到，再用第二个账号检查记录隔离。']
+  ];
+  return `<h1>${projectsTitle}</h1><p class="intro">选一个你想做出来的作品。在它的工程目录里，先按 README 创建独立环境、安装依赖，再运行下列命令。</p>
+    <div class="grid project-routes">${routes.map(([key, goal, before, commands, result]) => {
+      const item = projectPackages[key];
+      return `<section class="card"><p class="course-kicker">${esc(item.title)}</p><h2>${goal}</h2><p>${before}</p>
+        ${readingCode(commands.join('\n'), '第一次运行')}<p><b>完成标志</b>　${result}</p>
+        <div class="actions"><a class="primary" href="#source-${key}~README.md">打开运行说明</a>
+        <a class="secondary" href="${item.file}" download>下载工程</a></div></section>`;
+    }).join('')}</div>`;
 }
+
+
 function bindKnowledge() {
+ const query = document.getElementById('topic-query');
+ if (query) query.oninput = () => {
+   document.getElementById('topic-results').innerHTML = topicMatches(query.value);
+   document.getElementById('topic-categories').hidden = Boolean(query.value.trim());
+ };
  bindReadingQuestions();
  document.querySelectorAll('[data-jump]').forEach(button=>button.onclick=()=>document.getElementById(button.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}));
  const done=document.getElementById('unit-complete');
