@@ -46,14 +46,14 @@ const textbookIndex = [
     links: [{label: '计数器与 self', href: '#unit-objects'}, {label: '模块与标准库', href: '#unit-modules'}]
   },
   {
-    label: '第 10 章', title: '文件和异常', status: '部分主题',
-    summary: '已有路径、文本读写、JSON 保存和异常处理专题；文件操作的连续入门练习待补。',
-    links: [{label: '文件与 JSON', href: '#unit-files'}, {label: '异常处理', href: '#unit-errors'}]
+    label: '第 10 章', title: '文件和异常', status: '已补连续实验',
+    summary: '写入报名名单，逐行读取，处理空文件和缺失文件，再用 JSON 把报名结果留给下次运行。',
+    links: [{label: '开始名单实验', href: '#chapter-5'}, {label: '10.1 读取', href: '#chapter-5/read'}, {label: '10.2 写入', href: '#chapter-5/write'}, {label: '10.3 异常', href: '#chapter-5/exceptions'}, {label: '10.4 JSON', href: '#chapter-5/json'}, {label: '文件专题', href: '#unit-files'}]
   },
   {
-    label: '第 11 章', title: '测试代码', status: '部分主题',
-    summary: '已有断言、边界输入和复用测试数据的讲解；从安装 pytest 到首次测试的逐步练习待补。',
-    links: [{label: '测试与边界案例', href: '#chapter-20'}, {label: '测试专题', href: '#unit-errors'}]
+    label: '第 11 章', title: '测试代码', status: '已补连续实验',
+    summary: '沿用报名名单，运行第一个 pytest 测试，读懂一次失败，再用边界输入和夹具测试函数与类。',
+    links: [{label: '开始名单测试', href: '#chapter-20'}, {label: '11.1 安装', href: '#chapter-20/install'}, {label: '11.2 函数测试', href: '#chapter-20/function'}, {label: '11.3 类与夹具', href: '#chapter-20/class'}, {label: '测试专题', href: '#unit-errors'}]
   },
   {
     label: '第 12 章', title: '武装飞船', status: '部分主题',

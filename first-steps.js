@@ -50,12 +50,15 @@ function canonicalLesson(id) {
 }
 function chapterTitle(i) {
   if (Object.hasOwn(starterLessons, i)) return '零基础 ' + (i - 38) + ' · ' + starterLessons[i].title;
+  if (Object.hasOwn(rosterCourse, i)) return '教材第 ' + rosterCourse[i].number + ' 章 · ' + rosterCourse[i].title;
   if (i === 41) return '零基础 3 · 用 for 逐个读出名单';
   if (i === 42) return 'SQL 零基础 1 · 用 SELECT 查出第一行结果';
   return chapters[i]?.title;
 }
 function studyRouteTitle(route) {
   const id = canonicalLesson(route);
+  const section = rosterSection(id);
+  if (section) return chapterTitle(section.chapter) + ' · ' + section.stage.title;
   if (/^chapter-(0|[1-9]\d*)$/.test(id)) return chapterTitle(Number(id.slice(8)));
   if (id.startsWith('unit-')) return curriculum.find(unit => 'unit-' + unit.id === id)?.title;
 }
