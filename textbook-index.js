@@ -56,9 +56,9 @@ const textbookIndex = [
     links: [{label: '开始名单测试', href: '#chapter-20'}, {label: '11.1 安装', href: '#chapter-20/install'}, {label: '11.2 函数测试', href: '#chapter-20/function'}, {label: '11.3 类与夹具', href: '#chapter-20/class'}, {label: '测试专题', href: '#unit-errors'}]
   },
   {
-    label: '第 12 章', title: '武装飞船', status: '已补窗口与移动实验',
-    summary: '从空窗口画出角色，使用方向键持续移动，验证松键和边界。弹体管理可到现有工程继续阅读。',
-    links: [{label: '从窗口到第一个可控角色', href: '#unit-game-loop'}, {label: '最小移动程序', href: '#source-game~move_player.py'}]
+    label: '第 12 章', title: '武装飞船', status: '已补窗口、移动与弹体实验',
+    summary: '从空窗口画出角色，使用方向键持续移动，验证松键和边界。在课堂内继续练习弹体的生成、移动、出界清理和数量上限。',
+    links: [{label: '从窗口到第一个可控角色', href: '#unit-game-loop'}, {label: '最小移动程序', href: '#source-game~move_player.py'}, {label: '弹体验证程序', href: '#source-game~bullet_lab.py'}]
   },
   {
     label: '第 13 章', title: '外星人', status: '部分主题',

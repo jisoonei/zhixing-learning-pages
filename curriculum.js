@@ -4,7 +4,7 @@ let sourcebook = {};
 let unitCompleted;
 try { unitCompleted = JSON.parse(localStorage.getItem('zx-unit-completed') || '[]'); if (!Array.isArray(unitCompleted)) unitCompleted=[]; } catch { unitCompleted=[]; }
 const projectPackages = {
-  game: {title:'信号守卫', file:'python-game.zip?v=27', path:'game', description:'Pygame：移动、发射、碰撞、计分、重开。', validation:'6 项原游戏测试与 9 项入门移动用例通过；未在你的 Windows 上人工试玩。'},
+  game: {title:'信号守卫', file:'python-game.zip?v=28', path:'game', description:'Pygame：移动、发射、碰撞、计分、重开。', validation:'6 项原游戏测试与 9 项入门移动用例通过；未在你的 Windows 上人工试玩。'},
   analysis: {title:'校园事件数据图册', file:'python-analysis.zip', path:'analysis', description:'随机模拟、日期曲线、位置散点与 API 快照。', validation:'7 项测试及离线图表生成通过；真实 GitHub API 请求未实测。'},
   web: {title:'事件研习簿', file:'python-web.zip', path:'web', description:'Django：主题、笔记、注册、登录与所有权。', validation:'10 项本地 Django 测试通过；未部署独立公网后端或验证生产 HTTPS 代理。'}
 };
@@ -177,6 +177,7 @@ function bindKnowledge() {
  };
  bindReadingQuestions();
  bindPlayerFrame();
+ bindBulletDemo();
  document.querySelectorAll('[data-jump]').forEach(button=>button.onclick=()=>document.getElementById(button.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}));
  const done=document.getElementById('unit-complete');
  if(done)done.onclick=()=>{
@@ -199,6 +200,7 @@ function bindKnowledge() {
 }
 const sourceGuides={
  game:{
+   'bullet_lab.py':'沿 fire 和 step 追踪同一颗弹体。对照底边 0 和 −1 两个输入以及名额释放后的发射结果。',
    'first_window.py':'跟踪一帧发生的事：收取事件、填背景、刷新画面，再限制循环速度。',
    'move_player.py':'先看 move_x 的五个输入，再读键盘如何给出方向，以及浮点结果何时写回矩形。',
    'test_movement.py':'逐行比较相同起点下的方向、时间和预期位置，最后观察四次小数位移怎样累积成一个像素。',

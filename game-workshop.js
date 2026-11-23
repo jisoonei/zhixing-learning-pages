@@ -5,7 +5,7 @@ function gameWorkshop() {
   return `<section class="roster-course" aria-label="教材第 12 章上机课">
     <p class="course-kicker">教材第 12 章 · 信号守卫</p>
     <p class="intro">先让一个窗口留在桌面上，再画出角色，最后让它跟随方向键。准备一台能打开窗口的电脑；在手机上也可以先做下面的单帧实验。</p>
-    <div class="actions"><a class="primary" href="python-game.zip?v=27" download>下载本章工程</a><a class="secondary" href="#chapter-20">回看第 11 章测试</a></div>
+    <div class="actions"><a class="primary" href="python-game.zip?v=28" download>下载本章工程</a><button type="button" data-jump="bullet-workshop">跳到弹体管理</button><a class="secondary" href="#chapter-20">回看第 11 章测试</a></div>
     <section class="roster-stage"><h2>1　让窗口持续显示</h2>
     <p>解压工程，在能看到 <code>first_window.py</code> 和 <code>requirements.txt</code> 的目录打开终端。下面选自己系统的一组命令。激活环境后，后面的 <code>python</code> 都在这个窗口里运行。</p>
     <details open><summary>Windows · 命令提示符（cmd）</summary>${readingCode('py -3.12 -m venv .venv\n.venv\\Scripts\\activate.bat\npython -m pip install -r requirements.txt\npython first_window.py', '逐行执行')}</details>
@@ -36,8 +36,8 @@ function gameWorkshop() {
     <p>第一条命令的预期结果是 <code>9 passed</code>。测试传入固定秒数，能复查松键、两端边界和小数位移。第二条命令打开完整游戏，先按 Enter 开始，再按方向键。</p>
     <p>打开 <a href="#source-game~game.py">game.py 源码</a>，顺着 <code>Game.run</code>、<code>Game.step</code>、<code>Game.draw</code> 读一遍：方向在哪里算出、x 在哪里更新、谁把新位置显示出来？</p>
     <details><summary>对照完整工程</summary><p>run 读取方向键并传给 step；step 用 Settings.player_speed 更新 player.x，限制范围后写入 player.rect.x；draw 把图像贴到这个矩形并刷新。首次停在开始画面时，step 会提前返回。</p></details>
-    <div class="actions"><a class="secondary" href="#source-game~test_movement.py">查看 9 个测试用例</a><a class="secondary" href="#unit-game-collision">接着看目标与碰撞</a></div>
-    <p class="muted"><a href="https://www.pygame.org/docs/ref/key.html" target="_blank" rel="noreferrer">Pygame 键盘文档</a> · <a href="https://www.pygame.org/docs/ref/time.html" target="_blank" rel="noreferrer">时钟与毫秒</a></p></section></section>`;
+    <div class="actions"><a class="secondary" href="#source-game~test_movement.py">查看 9 个测试用例</a><button type="button" data-jump="bullet-workshop">继续练弹体管理</button></div>
+    <p class="muted"><a href="https://www.pygame.org/docs/ref/key.html" target="_blank" rel="noreferrer">Pygame 键盘文档</a> · <a href="https://www.pygame.org/docs/ref/time.html" target="_blank" rel="noreferrer">时钟与毫秒</a></p></section>${bulletWorkshop()}</section>`;
 }
 
 function bindPlayerFrame() {
@@ -54,6 +54,67 @@ function bindPlayerFrame() {
       const actual = Math.max(0, Math.min(760, raw));
       result.textContent = x + ' + (' + direction + ' × 320 × 0.05) = ' + raw + '。' +
         (actual === raw ? '本帧横坐标为 ' + actual + '。' : '到达边缘，横坐标限制为 ' + actual + '。');
+    };
+  }
+}
+
+function bulletWorkshop() {
+  return `<section class="roster-stage" id="bullet-workshop"><p class="course-kicker">教材第 12 章 · 弹体管理</p>
+    <h2>5　松开空格后，弹体为什么还在移动？</h2>
+    <p>运行 <code>python game.py</code>，按 Enter 开始，轻按一下空格再松开。浅色短条会从角色中央向上移动。接下来追踪这颗短条的整个生命周期。</p>
+    <h3>生成一次，之后每帧更新</h3>
+    <p>在 <a href="#source-game~game.py">game.py</a> 的 <code>Game.run</code> 里，空格的 <code>KEYDOWN</code> 事件调用 <code>fire()</code>。角色左边在 380，宽 40，中心是 400。弹体宽 6，所以它的左边是 400 − 3 = 397，顶边起于角色的 540。</p>
+    <p><code>self.bullets</code> 是保存当前弹体的精灵组。<code>add()</code> 把新对象放进去。以后即使没有新的键盘事件，<code>step()</code> 仍会更新组里的每一颗，<code>draw()</code> 再把它们画出来。</p>
+    <h3>算一帧，再判断是否离开画面</h3>
+    <p>屏幕 y 轴向下增大，向上移动要减。按工程里的每秒 440 像素，0.05 秒移动 22 像素，因此第一帧从 y = 540 到 518。程序把小数存在 <code>bullet.y</code>，绘制时把取整结果写进 <code>bullet.rect.y</code>。</p>
+    <p>弹体高 14 像素。如果顶边是 −1，底下仍有一部分可见。原工程的清理条件是 <code>bullet.rect.bottom &lt; 0</code>：底边恰好等于 0 时已经看不见，但仍占一个名额；再上移 1 像素才调用 <code>kill()</code> 移出组。遍历 <code>list(self.bullets)</code> 得到这一帧的清单，清理一颗后仍能处理下一颗。</p>
+    <fieldset class="notice" id="bullet-demo"><legend>试一试：四颗满员后，第五次按键会怎样？</legend>
+      <p>只推演弹体和屏幕上边界。先连续点五次发射，再推进一帧。也可以快进，观察何时空出名额。</p>
+      <div class="actions"><button type="button" data-bullet="fire">发射一次</button><button type="button" data-bullet="step">推进一帧</button><button type="button" data-bullet="exit">快进到有弹体出界</button><button type="button" data-bullet="reset">重新开始</button></div>
+      <p aria-live="polite" data-bullet-result>组内 0 / 4。每帧 0.05 秒。</p></fieldset>
+    <h3>用真实 Python 核对名额如何腾出</h3>
+    ${readingCode('python bullet_lab.py', '在解压后的 python-game 目录运行')}
+    <p>实验调用原游戏的 <code>fire()</code> 与 <code>step()</code>。它先连发五次，再只把第一颗挪到边界，方便区分“恰好贴边”与“已经越过”。运行前先猜最后三行。</p>
+    <details><summary>核对终端输出与原因</summary>
+    ${readingCode('连续发射 5 次，弹体数 4\n起点 (397, 540)\n一帧后 (397, 518)\n底边等于 0 4\n底边小于 0 3\n再次发射 4', '预期输出')}
+    <p>上限 4 计算的是当前组内对象数。第五次请求没有生成对象，也不会排队；移除一颗后，需要再按一次空格才能补上。</p></details>
+    <p><b>改一处再验证：</b>在工程副本中把 <code>Game.fire</code> 的上限从 4 改成 2。运行弹体实验，第一行应打印 2，随后旧断言会指出与原要求的差异。把上限改回 4 再运行，程序应打印到“再次发射 4”。</p>
+    <div class="actions"><a class="secondary" href="#source-game~bullet_lab.py">阅读弹体实验源码</a><a class="secondary" href="https://www.pygame.org/docs/ref/sprite.html" target="_blank" rel="noreferrer">Pygame 精灵组文档</a></div></section>`;
+}
+
+function bindBulletDemo() {
+  const panel = document.getElementById('bullet-demo');
+  if (!panel) return;
+  let positions = [];
+  function advance() {
+    positions = positions.map(y => y - 22).filter(y => y + 14 >= 0);
+  }
+  for (const button of panel.querySelectorAll('[data-bullet]')) {
+    button.onclick = () => {
+      const before = positions.length;
+      let message = '';
+      switch (button.dataset.bullet) {
+        case 'fire':
+          if (before < 4) { positions.push(540); message = '已生成一颗。'; }
+          else message = '已满，本次未生成。';
+          break;
+        case 'step':
+          advance();
+          message = '已推进一帧。';
+          break;
+        case 'exit':
+          if (before === 0) { message = '请先发射。'; break; }
+          let frames = 0;
+          while (positions.length === before) { advance(); frames++; }
+          message = '已推进 ' + frames + ' 帧，移出 ' + (before - positions.length) + ' 颗。';
+          break;
+        case 'reset':
+          positions = [];
+          message = '已重置。';
+          break;
+      }
+      panel.querySelector('[data-bullet-result]').textContent = message + '组内 ' + positions.length +
+        ' / 4。' + (positions.length ? '顶边 y：' + positions.join('、') + '。' : '');
     };
   }
 }
