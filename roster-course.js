@@ -206,10 +206,11 @@ function rosterSection(route) {
 
 function textbookTrail() {
   return `<section class="notice"><h2>沿 Python 教材学习</h2>
-    <p>教材第 9 章学类，第 10 章把报名名单保存到文件，第 11 章用测试检查程序。左侧的课号是站内学习顺序。跟书学习时，按这里的教材章号前进。</p>
+    <p>教材第 9 章学类，第 10 章把报名名单保存到文件，第 11 章用测试检查程序，第 12 章把按键变成游戏角色的移动。左侧的课号是站内学习顺序。跟书学习时，按这里的教材章号前进。</p>
     <div class="actions"><a class="secondary" href="#unit-objects">教材第 9 章 · 类</a>
     <a class="primary" href="#chapter-5">教材第 10 章 · 文件和异常</a>
-    <a class="secondary" href="#chapter-20">教材第 11 章 · 测试代码</a></div></section>`;
+    <a class="secondary" href="#chapter-20">教材第 11 章 · 测试代码</a>
+    <a class="secondary" href="#unit-game-loop">教材第 12 章 · 窗口与移动</a></div></section>`;
 }
 
 function rosterTask(chapter) {

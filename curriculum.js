@@ -4,7 +4,7 @@ let sourcebook = {};
 let unitCompleted;
 try { unitCompleted = JSON.parse(localStorage.getItem('zx-unit-completed') || '[]'); if (!Array.isArray(unitCompleted)) unitCompleted=[]; } catch { unitCompleted=[]; }
 const projectPackages = {
-  game: {title:'信号守卫', file:'python-game.zip', path:'game', description:'Pygame：移动、发射、碰撞、计分、重开。', validation:'6 项无窗口逻辑测试通过，完成绘制冒烟检查；未在你的 Windows 上人工试玩。'},
+  game: {title:'信号守卫', file:'python-game.zip?v=27', path:'game', description:'Pygame：移动、发射、碰撞、计分、重开。', validation:'6 项原游戏测试与 9 项入门移动用例通过；未在你的 Windows 上人工试玩。'},
   analysis: {title:'校园事件数据图册', file:'python-analysis.zip', path:'analysis', description:'随机模拟、日期曲线、位置散点与 API 快照。', validation:'7 项测试及离线图表生成通过；真实 GitHub API 请求未实测。'},
   web: {title:'事件研习簿', file:'python-web.zip', path:'web', description:'Django：主题、笔记、注册、登录与所有权。', validation:'10 项本地 Django 测试通过；未部署独立公网后端或验证生产 HTTPS 代理。'}
 };
@@ -148,7 +148,7 @@ function unitPage(id) {
   const u=curriculum.find(u=>u.id===id);
   if(!u)return '<h1>没有找到这个专题</h1><a href="#knowledge">返回学习地图</a>';
   const position=curriculum.indexOf(u);
-  return `<article class="article"><div class="eyebrow">${esc(u.group)} / 专题 ${String(position+1).padStart(2,'0')}</div><h1>${esc(u.title)}</h1>${beginnerPanel(u)}${id === 'files' || id === 'errors' ? textbookTrail() : ''}<p class="intro">${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><p class="muted">主题对照：${esc(u.book)} · ${u.sections.length} 个拆解 · 代码演练 · 练习解析</p>${u.before.length?`<div class="notice"><b>基础衔接：</b>${u.before.map(i=>`<a href="#chapter-${i}">${esc(chapterTitle(i))}</a>`).join(' / ')}</div>`:''}<nav class="unit-toc" aria-label="本专题目录">${u.sections.map((s,i)=>`<button type="button" data-jump="point-${i}">${i+1}. ${esc(s.title)}</button>`).join('')}</nav>${u.sections.map((s,i)=>`<section class="block point" id="point-${i}"><span class="label">知识拆解 ${String(i+1).padStart(2,'0')}</span><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p></section>`).join('')}<section class="block"><h2>代码演练与预期行为</h2><p class="muted">${u.runner==='shell'?'以下是终端命令；请先满足正文中的环境前提。':u.runner==='project'?'以下是完整工程中的片段；需在下载包的 Django 上下文中使用。':'以下使用 Python 3。第三方库请先按对应工程 requirements.txt 安装。'}</p><div class="codehead"><span>${u.runner==='shell'?'TERMINAL':u.runner==='project'?'PROJECT CONTEXT':'PYTHON'}</span><button type="button" data-copy-unit="main">复制</button></div><pre class="lined"><code>${codeMarkup(u.code)}</code></pre><div class="output">${esc(u.output)}</div></section><section class="block"><h2>常见错误与正确做法</h2>${u.pitfalls.map(p=>`<p class="pitfall-line">${esc(p)}</p>`).join('')}</section><section class="block"><h2>练习与解题过程</h2>${u.exercises.map((e,i)=>`<div class="exercise-card"><h3>练习 ${i+1}</h3><p>${esc(e.question)}</p><details><summary>先看思路提示</summary><p>${esc(e.thinking)}</p></details><details><summary>查看步骤、参考代码与结果</summary><p><b>思路：</b>${esc(e.thinking)}</p><p><b>步骤：</b>${esc(e.steps)}</p><div class="codehead"><span>参考解法</span><button type="button" data-copy-unit="${i}">复制</button></div><pre class="lined"><code>${codeMarkup(e.code)}</code></pre><div class="output">${esc(e.output)}</div></details></div>`).join('')}</section>${u.project?`<section class="block"><h2>把这个知识放进完整项目</h2>${projectCard(u.project)}</section>`:''}<section class="block"><h2>掌握检查</h2><p>合上示例，能够完成下面三项，再标记掌握。</p><ul>${u.mastery.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><a href="${esc(u.source)}" target="_blank" rel="noreferrer">官方资料：核对定义与 API ↗</a></section>${id === 'objects' ? '<div class="actions"><a class="primary" href="#chapter-5">按教材继续 · 第 10 章 文件和异常</a></div>' : ''}<div class="lessonfoot">${position?`<a class="secondary" href="#unit-${curriculum[position-1].id}">← 上一专题</a>`:'<a class="secondary" href="#knowledge">学习地图</a>'}<button class="primary" id="unit-complete" data-unit="${u.id}">${unitCompleted.includes(u.id)?'✓ 已掌握 · 点击取消':'标记专题已掌握'}</button>${position<curriculum.length-1?`<a class="secondary" href="#unit-${curriculum[position+1].id}">下一专题 →</a>`:'<a class="secondary" href="#python-projects">项目验收 →</a>'}</div></article>`;
+  return `<article class="article"><div class="eyebrow">${esc(u.group)} / 专题 ${String(position+1).padStart(2,'0')}</div><h1>${esc(u.title)}</h1>${id === 'game-loop' ? gameWorkshop() : ''}${beginnerPanel(u)}${id === 'files' || id === 'errors' ? textbookTrail() : ''}<p class="intro">${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><p class="muted">主题对照：${esc(u.book)} · ${u.sections.length} 个拆解 · 代码演练 · 练习解析</p>${u.before.length?`<div class="notice"><b>基础衔接：</b>${u.before.map(i=>`<a href="#chapter-${i}">${esc(chapterTitle(i))}</a>`).join(' / ')}</div>`:''}<nav class="unit-toc" aria-label="本专题目录">${u.sections.map((s,i)=>`<button type="button" data-jump="point-${i}">${i+1}. ${esc(s.title)}</button>`).join('')}</nav>${u.sections.map((s,i)=>`<section class="block point" id="point-${i}"><span class="label">知识拆解 ${String(i+1).padStart(2,'0')}</span><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p></section>`).join('')}<section class="block"><h2>代码演练与预期行为</h2><p class="muted">${u.runner==='shell'?'以下是终端命令；请先满足正文中的环境前提。':u.runner==='project'?'以下是完整工程中的片段；需在下载包的 Django 上下文中使用。':'以下使用 Python 3。第三方库请先按对应工程 requirements.txt 安装。'}</p><div class="codehead"><span>${u.runner==='shell'?'TERMINAL':u.runner==='project'?'PROJECT CONTEXT':'PYTHON'}</span><button type="button" data-copy-unit="main">复制</button></div><pre class="lined"><code>${codeMarkup(u.code)}</code></pre><div class="output">${esc(u.output)}</div></section><section class="block"><h2>常见错误与正确做法</h2>${u.pitfalls.map(p=>`<p class="pitfall-line">${esc(p)}</p>`).join('')}</section><section class="block"><h2>练习与解题过程</h2>${u.exercises.map((e,i)=>`<div class="exercise-card"><h3>练习 ${i+1}</h3><p>${esc(e.question)}</p><details><summary>先看思路提示</summary><p>${esc(e.thinking)}</p></details><details><summary>查看步骤、参考代码与结果</summary><p><b>思路：</b>${esc(e.thinking)}</p><p><b>步骤：</b>${esc(e.steps)}</p><div class="codehead"><span>参考解法</span><button type="button" data-copy-unit="${i}">复制</button></div><pre class="lined"><code>${codeMarkup(e.code)}</code></pre><div class="output">${esc(e.output)}</div></details></div>`).join('')}</section>${u.project?`<section class="block"><h2>把这个知识放进完整项目</h2>${projectCard(u.project)}</section>`:''}<section class="block"><h2>掌握检查</h2><p>合上示例，能够完成下面三项，再标记掌握。</p><ul>${u.mastery.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><a href="${esc(u.source)}" target="_blank" rel="noreferrer">官方资料：核对定义与 API ↗</a></section>${id === 'objects' ? '<div class="actions"><a class="primary" href="#chapter-5">按教材继续 · 第 10 章 文件和异常</a></div>' : ''}<div class="lessonfoot">${position?`<a class="secondary" href="#unit-${curriculum[position-1].id}">← 上一专题</a>`:'<a class="secondary" href="#knowledge">学习地图</a>'}<button class="primary" id="unit-complete" data-unit="${u.id}">${unitCompleted.includes(u.id)?'✓ 已掌握 · 点击取消':'标记专题已掌握'}</button>${position<curriculum.length-1?`<a class="secondary" href="#unit-${curriculum[position+1].id}">下一专题 →</a>`:'<a class="secondary" href="#python-projects">项目验收 →</a>'}</div></article>`;
 }
 
 function pythonProjectsPage() {
@@ -163,7 +163,8 @@ function pythonProjectsPage() {
       return `<section class="card"><p class="course-kicker">${esc(item.title)}</p><h2>${goal}</h2><p>${before}</p>
         ${readingCode(commands.join('\n'), '第一次运行')}<p><b>完成标志</b>　${result}</p>
         <div class="actions"><a class="primary" href="#source-${key}~README.md">打开运行说明</a>
-        <a class="secondary" href="${item.file}" download>下载工程</a></div></section>`;
+        <a class="secondary" href="${item.file}" download>下载工程</a>
+        ${key === 'game' ? '<a class="secondary" href="#unit-game-loop">第 12 章 · 从窗口到移动</a>' : ''}</div></section>`;
     }).join('')}</div>`;
 }
 
@@ -175,6 +176,7 @@ function bindKnowledge() {
    document.getElementById('topic-categories').hidden = Boolean(query.value.trim());
  };
  bindReadingQuestions();
+ bindPlayerFrame();
  document.querySelectorAll('[data-jump]').forEach(button=>button.onclick=()=>document.getElementById(button.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}));
  const done=document.getElementById('unit-complete');
  if(done)done.onclick=()=>{
@@ -197,6 +199,9 @@ function bindKnowledge() {
 }
 const sourceGuides={
  game:{
+   'first_window.py':'跟踪一帧发生的事：收取事件、填背景、刷新画面，再限制循环速度。',
+   'move_player.py':'先看 move_x 的五个输入，再读键盘如何给出方向，以及浮点结果何时写回矩形。',
+   'test_movement.py':'逐行比较相同起点下的方向、时间和预期位置，最后观察四次小数位移怎样累积成一个像素。',
    'game.py':'按 Settings → Box → Game.reset → fire/step → draw/run 顺序读。Settings 保存配置；Box 统一图像与位置；step 只推进游戏状态；run 负责事件、时间和绘制。先改一项速度观察，再测试边界和重开。',
    'test_game.py':'fixture 为每个用例新建游戏和临时成绩文件。重点看碰撞后的目标数、分数与新波次，以及失败后重开是否保留最高分。dummy 显示后端让自动测试不依赖真实窗口。',
    'requirements.txt':'这是独立游戏环境的直接依赖。先创建虚拟环境，再用该环境的解释器安装；不要修改 SQL Server 项目的依赖文件。',

@@ -154,4 +154,4 @@ $('#nav').addEventListener('click', event => {
     syncMenu();
   }
 });
-$('#search').oninput=nav;window.onhashchange=route;document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#sidebar').classList.remove('open');syncMenu()}});Promise.all(['chapters.json?v=14-preserved','curriculum.json?v=23','sourcebook.json?v=15'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error();return r.json()}))).then(([c,u,s])=>{chapters=c;curriculum=u;sourcebook=s;route()}).catch(()=>$('#main').textContent='章节加载失败，请刷新页面重试。');
+$('#search').oninput=nav;window.onhashchange=route;document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#sidebar').classList.remove('open');syncMenu()}});Promise.all(['chapters.json?v=14-preserved','curriculum.json?v=23','sourcebook.json?v=27'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error();return r.json()}))).then(([c,u,s])=>{chapters=c;curriculum=u;sourcebook=s;route()}).catch(()=>$('#main').textContent='章节加载失败，请刷新页面重试。');

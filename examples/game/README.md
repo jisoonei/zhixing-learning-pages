@@ -4,6 +4,8 @@ Python 3.12；建议 Windows 在本目录执行 `py -m venv .venv`，随后用 `
 macOS/Linux 对应 `python3 -m venv .venv` 与 `.venv/bin/python -m pip install -r requirements.txt`。
 下文 python 均指这个环境中的解释器。
 
+初次打开 Pygame 时，先运行 `python first_window.py`。看到深绿色窗口后点关闭。在保留原文件的前提下复制一份，尝试在填背景后、刷新前画一个 40 × 24 的角色。再运行 `python move_player.py`，按住左右键、松开、同时按两键，观察角色在边缘和窗口中央的变化。这个练习不需要按 Enter；按 Esc 或点关闭结束。`python -m pytest -q test_movement.py` 可单独检查位移和边界。
+
 运行 `python game.py`。Enter 或点击按钮开始，左右键移动，空格发射，Q/Esc 退出。`python game.py --fullscreen` 可全屏。
 执行 `python -m pytest -q` 运行测试。程序不需要外部图片或网络，使用几何素材。
 
