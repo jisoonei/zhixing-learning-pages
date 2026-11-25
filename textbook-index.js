@@ -61,8 +61,8 @@ const textbookIndex = [
     links: [{label: '从窗口到第一个可控角色', href: '#unit-game-loop'}, {label: '最小移动程序', href: '#source-game~move_player.py'}, {label: '弹体验证程序', href: '#source-game~bullet_lab.py'}]
   },
   {
-    label: '第 13 章', title: '外星人', status: '部分主题',
-    summary: '从一排目标的位置推导出整组目标，学习何时生成、碰撞和移除对象。',
+    label: '第 13 章', title: '外星人', status: '已补阵列与碰撞实验',
+    summary: '沿原游戏验证 3 × 8 阵列、整队折返、贴边与重叠、命中移除及新波次。',
     links: [{label: '编组、碰撞与波次', href: '#unit-game-collision'}]
   },
   {

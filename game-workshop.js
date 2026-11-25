@@ -5,7 +5,7 @@ function gameWorkshop() {
   return `<section class="roster-course" aria-label="教材第 12 章上机课">
     <p class="course-kicker">教材第 12 章 · 信号守卫</p>
     <p class="intro">先让一个窗口留在桌面上，再画出角色，最后让它跟随方向键。准备一台能打开窗口的电脑；在手机上也可以先做下面的单帧实验。</p>
-    <div class="actions"><a class="primary" href="python-game.zip?v=28" download>下载本章工程</a><button type="button" data-jump="bullet-workshop">跳到弹体管理</button><a class="secondary" href="#chapter-20">回看第 11 章测试</a></div>
+    <div class="actions"><a class="primary" href="python-game.zip?v=29" download>下载本章工程</a><button type="button" data-jump="bullet-workshop">跳到弹体管理</button><a class="secondary" href="#chapter-20">回看第 11 章测试</a></div>
     <section class="roster-stage"><h2>1　让窗口持续显示</h2>
     <p>解压工程，在能看到 <code>first_window.py</code> 和 <code>requirements.txt</code> 的目录打开终端。下面选自己系统的一组命令。激活环境后，后面的 <code>python</code> 都在这个窗口里运行。</p>
     <details open><summary>Windows · 命令提示符（cmd）</summary>${readingCode('py -3.12 -m venv .venv\n.venv\\Scripts\\activate.bat\npython -m pip install -r requirements.txt\npython first_window.py', '逐行执行')}</details>
@@ -60,7 +60,7 @@ function bindPlayerFrame() {
 
 function bulletWorkshop() {
   return `<section class="roster-stage" id="bullet-workshop"><p class="course-kicker">教材第 12 章 · 弹体管理</p>
-    <h2>5　松开空格后，弹体为什么还在移动？</h2>
+    <div class="actions"><a class="secondary" href="#unit-game-collision">继续第 13 章 · 目标编组与碰撞</a></div><h2>5　松开空格后，弹体为什么还在移动？</h2>
     <p>运行 <code>python game.py</code>，按 Enter 开始，轻按一下空格再松开。浅色短条会从角色中央向上移动。接下来追踪这颗短条的整个生命周期。</p>
     <h3>生成一次，之后每帧更新</h3>
     <p>在 <a href="#source-game~game.py">game.py</a> 的 <code>Game.run</code> 里，空格的 <code>KEYDOWN</code> 事件调用 <code>fire()</code>。角色左边在 380，宽 40，中心是 400。弹体宽 6，所以它的左边是 400 − 3 = 397，顶边起于角色的 540。</p>
