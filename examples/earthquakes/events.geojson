@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","features":[
+  {"type":"Feature","id":"us6000jllz","geometry":{"type":"Point","coordinates":[37.014,37.226]},"properties":{"name":"Pazarcik"}},
+  {"type":"Feature","id":"us6000jlqa","geometry":{"type":"Point","coordinates":[37.196,38.011]},"properties":{"name":"Elbistan"}}
+]}

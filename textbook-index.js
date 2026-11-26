@@ -71,12 +71,12 @@ const textbookIndex = [
     links: [{label: '按钮、计分与重开', href: '#unit-game-state'}]
   },
   {
-    label: '第 15 章', title: '生成数据', status: '部分主题',
+    label: '第 15 章', title: '生成数据', status: '已补上机实验',
     summary: '观察随机游走怎样累加每一步，以及两颗骰子相加为什么更常出现中间的和。',
     links: [{label: '绘图与随机模拟', href: '#unit-plotting'}]
   },
   {
-    label: '第 16 章', title: '下载数据', status: '部分主题',
+    label: '第 16 章', title: '下载数据', status: '已补上机实验',
     summary: '从 CSV 表头找到日期和测量值，再读 GeoJSON 里的地理位置。',
     links: [{label: '读取 CSV 与 GeoJSON', href: '#unit-datasets'}]
   },
