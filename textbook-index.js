@@ -66,7 +66,7 @@ const textbookIndex = [
     links: [{label: '编组、碰撞与波次', href: '#unit-game-collision'}]
   },
   {
-    label: '第 14 章', title: '记分', status: '部分主题',
+    label: '第 14 章', title: '记分', status: '已补计分与重开实验',
     summary: '在游戏中把开始、运行、结束区分开，学习计分和重开时怎样恢复状态。',
     links: [{label: '按钮、计分与重开', href: '#unit-game-state'}]
   },
