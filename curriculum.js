@@ -194,6 +194,7 @@ function bindKnowledge() {
  bindBulletDemo();
  bindTargetDemo();
  bindScoreLab();
+ bindApiWorkshop();
  document.querySelectorAll('[data-jump]').forEach(button=>button.onclick=()=>document.getElementById(button.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}));
  const done=document.getElementById('unit-complete');
  if(done)done.onclick=()=>{

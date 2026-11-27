@@ -81,7 +81,7 @@ const textbookIndex = [
     links: [{label: '读取 CSV 与 GeoJSON', href: '#unit-datasets'}]
   },
   {
-    label: '第 17 章', title: '使用 API', status: '部分主题',
+    label: '第 17 章', title: '使用 API', status: '已补请求、离线与绘图实验',
     summary: '读取一次请求的结果，了解记录分多页返回、请求超时或受限时会发生什么。',
     links: [{label: 'API 与结果验证', href: '#unit-api'}]
   },
