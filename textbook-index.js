@@ -86,12 +86,12 @@ const textbookIndex = [
     links: [{label: 'API 与结果验证', href: '#unit-api'}]
   },
   {
-    label: '第 18 章', title: 'Django 入门', status: '部分主题',
+    label: '第 18 章', title: 'Django 入门', status: '已补研习簿上机课',
     summary: '顺着一次网页请求，找到 Django 怎样读取模型中的数据并生成页面。',
     links: [{label: '模型、请求与页面', href: '#unit-web-foundations'}]
   },
   {
-    label: '第 19 章', title: '用户账户', status: '部分主题',
+    label: '第 19 章', title: '用户账户', status: '已补研习簿上机课',
     summary: '学习提交表单和登录，并检查登录后能否编辑某一条记录。',
     links: [{label: '表单、账户与所有权', href: '#unit-web-users'}]
   },
