@@ -70,7 +70,7 @@ function startingPanel() {
     <div class="actions">${title ? `<a class="primary" href="#${esc(last)}">继续学习 · ${esc(title)}</a>` : ''}
       ${last !== 'chapter-39' || !title ? `<a href="#chapter-39" class="${title ? 'secondary' : 'primary'}">开始 Python 第一课</a>` : ''}
       <a href="#chapter-42" class="secondary">开始 SQL Server 第一课</a>
-      <a href="#coverage" class="secondary">按教材查找</a></div></section>`;
+      </div></section>`;
 }
 function starterActivity(i) {
   const lesson = starterLessons[i];

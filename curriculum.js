@@ -65,18 +65,32 @@ function topicMatches(query) {
 }
 
 
+function topicShelf() {
+  const groups = [...new Set(curriculum.map(unit => unit.group))];
+  return `<h1>专题学习</h1><p class="intro">选一个任务开始。每组从上往下学，也可以直接进入需要的那一课。</p>
+    <div class="topic-shelf">${groups.map(group => {
+      const units = curriculum.filter(unit => unit.group === group);
+      const rows = units.map(unit => {
+        const practical = {files: '#chapter-5', errors: '#chapter-20'};
+        const href = practical[unit.id] || '#unit-' + unit.id;
+        const extra = practical[unit.id] ? `<a href="#unit-${unit.id}">概念讲解</a>` : '';
+        return `<li><a href="${href}">${esc(unit.title)}</a>${extra}</li>`;
+      }).join('');
+      return `<section class="card"><h2>${esc(group)}</h2><ol>${rows}</ol></section>`;
+    }).join('')}</div>`;
+}
+
 function knowledgeHome() {
-  const groups=[...new Set(curriculum.map(u=>u.group))];
-  return `<h1>按知识点查找</h1><p class="intro">输入你想复习的概念，或按分类浏览下方专题。</p>
-  <div class="topic-search"><label for="topic-query">知识点或关键词</label><input id="topic-query" type="search" placeholder="例如：列表、函数、JOIN"></div>
-  <div id="topic-results"></div><div id="topic-categories"><div class="category-links">${groups.map((g,i)=>`<button type="button" data-jump="category-${i}">${esc(g)}</button>`).join('')}</div>${groups.map((g,i)=>`<section class="knowledge-category" id="category-${i}"><div class="sectionhead"><h2>${esc(g)}</h2><span>${curriculum.filter(u=>u.group===g).length} 篇专题</span></div><div class="grid">${curriculum.filter(u=>u.group===g).map(u=>`<a class="card knowledge-card" href="#unit-${u.id}"><span class="label">${esc(u.book)} ${unitCompleted.includes(u.id)?'· ✓ 已掌握':''}</span><h3>${esc(u.title)}</h3><p>${esc(u.goal)}</p><div class="chips">${u.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><span>${u.sections.length} 个知识拆解 · 示例 · 练习解析 →</span></a>`).join('')}</div></section>`).join('')}<div class="notice"><b>贯穿应用：</b>原始博文 → Python 清洗 → SQL Server 幂等导入 → 统计报表。<a href="#integrated">进入交叉应用</a>。扩展练习使用独立目录，不需要先初始化数据库才能学习 Python。</div></div>`;
+  return `<h1>按知识点查找</h1><p class="intro">遇到不熟悉的概念？输入关键词，直接定位到对应讲解。</p>
+    <div class="topic-search"><label for="topic-query">搜索课程与专题</label><input id="topic-query" type="search" placeholder="例如：列表、函数、JOIN"></div>
+    <div id="topic-results" aria-live="polite"></div>`;
 }
 function coveragePage() {
   const cards = textbookIndex.map(item => `<section class="card index-card">
     <span class="label">${esc(item.label)} · ${esc(item.status)}</span><h2>${esc(item.title)}</h2>
     <p>${esc(item.summary)}</p><div class="index-links">${item.links.map(link =>
       `<a href="${esc(link.href)}">${esc(link.label)}</a>`).join('')}</div></section>`).join('');
-  return `<h1>按教材查找</h1><p class="intro">按《Python 编程：从入门到实践》第 3 版查找 20 章和 5 个附录。每张卡片说明本站已经讲到哪里，点题目就能读。“部分主题”表示这里只收录了该章或附录的一部分。</p>${textbookTrail()}<div class="grid textbook-grid">${cards}</div><details class="block"><summary>展开原有专题与课程对照表</summary><div class="table-scroll"><table><thead><tr><th>教材章节</th><th>主题</th><th>专题讲解</th><th>原有课程</th></tr></thead><tbody>${coverage.map(([n,title,units,old])=>`<tr><td>${esc(n)}</td><td>${esc(title)}</td><td>${units.map(unitLink).join('<br>')}</td><td>${old.map(i=>`<a href="#chapter-${i}">${esc(chapterTitle(i))}</a>`).join('<br>')||'新增独立项目路线'}</td></tr>`).join('')}</tbody></table></div></details><div class="block"><h2>网站增加的学习维度</h2><ul><li>对象引用、浅深拷贝、数据契约、迭代器与生成器、装饰器。</li><li>脏数据拒绝、冲突审计、幂等导入、事务和 SQL Server 项目。</li><li>按知识类别查阅、双册交叉链接、可折叠答案、浏览器本地掌握记录。</li><li>样本与实时数据分开标识，测试替身与真实服务的验证结果分别报告。</li></ul></div>`;
+  return `<h1>按教材查找</h1><p class="intro">按《Python 编程：从入门到实践》第 3 版查找 20 章和 5 个附录。每张卡片说明本站已经讲到哪里，点题目就能读。“部分主题”表示这里只收录了该章或附录的一部分。</p><div class="grid textbook-grid">${cards}</div>`;
 }
 function readingCode(code, label) {
   return `<div class="codehead"><span>${esc(label)}</span></div>
@@ -173,7 +187,7 @@ function bindKnowledge() {
  const query = document.getElementById('topic-query');
  if (query) query.oninput = () => {
    document.getElementById('topic-results').innerHTML = topicMatches(query.value);
-   document.getElementById('topic-categories').hidden = Boolean(query.value.trim());
+
  };
  bindReadingQuestions();
  bindPlayerFrame();

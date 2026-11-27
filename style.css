@@ -68,3 +68,6 @@ pre.lined code{counter-reset:code-line}pre.lined .code-line{display:block;min-he
 .roster-stage {scroll-margin-top:5.5rem;margin:2.5rem 0}
 .roster-stage h2 {margin:.3rem 0 .65rem}
 .roster-stage .output {white-space:pre-wrap;overflow-wrap:anywhere}
+
+.focus-shelf{margin:1.5rem 0;padding:clamp(1rem,3vw,2rem);border:1px solid var(--line);border-inline-start:5px solid #448879;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.focus-shelf h2,.topic-shelf h2{margin:0}.focus-shelf p{margin:.4rem 0}.focus-links{flex-basis:100%;display:flex;flex-wrap:wrap;gap:.65rem 1.4rem}.topic-shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:1rem}.topic-shelf ol{padding-inline-start:1.6rem}.topic-shelf li{padding:.6rem 0;border-bottom:1px solid var(--line)}.topic-shelf li a+a{display:block;font-size:.9rem}
