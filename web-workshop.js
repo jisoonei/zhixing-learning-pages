@@ -1,4 +1,5 @@
 function webWorkshop(id) {
+  if (id === 'web-deploy') return deployWorkshop();
   if (id === 'web-foundations') {
     return `<section class="roster-course"><p>教材第 18 章 · Django 入门</p>
     <h2>从空目录搭一份事件研习簿</h2>
@@ -22,4 +23,26 @@ function webWorkshop(id) {
   <details><summary>两个账户能创建同名主题吗？</summary><p>可以。标题用于展示，每条主题有自己的主键和 owner。列表按 owner 筛选，笔记通过所属主题确定归属。可在两个窗口各建一个“周记”，写不同正文验证。</p></details>
   <p>另开终端，激活同一虚拟环境，在工作目录运行 <code>python manage.py test notes</code>。自动检查使用独立测试数据库，覆盖注册、表单、读写归属和退出。把两次登录、编辑前后的文字、两个首页的主题写成验收记录。</p>
   <a href="#source-web~notes/models.py">对照数据模型</a> · <a href="#unit-web-foundations">回看第 18 章</a> · <a href="#unit-web-deploy">下一章：样式与部署</a></section>`;
+}
+
+function deployWorkshop() {
+  return `<section class="roster-course"><p>教材第 20 章 · 样式与部署</p>
+  <h2>让研习簿重启后还记得上一条笔记</h2>
+  <p>沿用第 19 章的账户和笔记。最终要同时看到三个结果：登录页有样式，登录后能保存笔记，重启应用后重新登录还能读到原文。<a href="python-web.zip">下载研习簿工程</a>。</p>
+  <h3>给正在使用的按钮加上键盘焦点</h3>
+  <p>打开 static/notebook.css，追加下面这条规则。启动开发服务，打开登录页，按 Tab 直到焦点落在按钮上。用鼠标和键盘各操作一次，观察描边何时出现。</p>
+  ${readingCode('button:focus-visible {\n  outline: 3px solid #ad561a;\n  outline-offset: 3px;\n}', 'static/notebook.css')}
+  <p>templates/base.html 通过 static 标签引用这份样式，登录页和笔记页继承它。浏览器网络面板里应能看到 notebook.css 返回 200。开发时改源文件，发布时 collectstatic 将它收集到 staticfiles，再由 WhiteNoise 提供给浏览器。</p>
+  <h3>准备 Python 服务和持久数据库</h3>
+  <p>下面采用单台 Linux 主机、systemd 和 Caddy。域名须指向该主机，公网允许 80、443，Waitress 只监听本机。用专用系统账户 notebook，把解压后含 manage.py 的文件放入 /srv/notebook，在其中创建 .venv 并安装 requirements.txt。创建 /var/lib/notebook，所有者设为 notebook，仅该账户可读写。首次部署需要转移旧笔记时，先停旧服务，用 SQLite 备份功能复制数据库到新路径。</p>
+  <p>在主机上创建仅管理员可读的 /etc/notebook.env。将下列示例值替换为自己的域名和用 <code>python -c "import secrets; print(secrets.token_urlsafe(64))"</code> 在主机生成的私密值。每次启动使用同一个密钥、同一块持久磁盘。</p>
+  ${readingCode('DJANGO_DEBUG=0\nDJANGO_SECRET_KEY=替换为生成的私密值\nDJANGO_ALLOWED_HOSTS=你的真实域名\nDJANGO_DB_PATH=/var/lib/notebook/notebook.sqlite3','/etc/notebook.env')}
+  <p>在新主机上先为数据库准备可写目录，然后让迁移和运行服务读取同一份配置。在下面的命令中，notebook 是事先建立的应用账户；项目与依赖已放在 /srv/notebook。</p>
+  ${readingCode("sudo install -d -m 700 -o notebook -g notebook /var/lib/notebook\nsudo systemd-run --wait --pipe --collect --uid=notebook --working-directory=/srv/notebook --property=EnvironmentFile=/etc/notebook.env /srv/notebook/.venv/bin/python manage.py migrate\nsudo systemd-run --wait --pipe --collect --working-directory=/srv/notebook --property=EnvironmentFile=/etc/notebook.env /srv/notebook/.venv/bin/python manage.py collectstatic --noinput\nsudo systemd-run --wait --pipe --collect --uid=notebook --working-directory=/srv/notebook --property=EnvironmentFile=/etc/notebook.env /srv/notebook/.venv/bin/python manage.py check --deploy",'Linux · 迁移、收集样式、检查')}
+  <p>当前工程的部署检查会提示 HSTS 子域和预加载选项。它们影响域名及子域的 HTTPS 策略，应由域名管理者根据实际站点决定。</p>
+  <p>将<a download href="examples/deploy/notebook.service">服务配置</a>安装到 /etc/systemd/system/notebook.service，执行 <code>sudo systemctl daemon-reload</code> 和 <code>sudo systemctl enable --now notebook</code>。该配置面向仅由本机 HTTPS 代理转发请求的后端。下载<a download href="examples/deploy/Caddyfile">代理配置</a>，把域名占位符整段替换为真实域名，将该站点块加入 Caddy 配置，校验后重载。Caddy 接受 HTTPS，再转给本机 8000 端口。</p>
+  <h3>验收一次真实操作</h3><ol><li>用 HTTPS 打开域名，按 Tab 检查按钮描边；未登录访问首页应进入登录页。</li><li>用普通账户登录，新建主题“发布验收”，写下“重启前保存”，退出。</li><li>运行 <code>sudo systemctl restart notebook</code>，用同一账户重新登录，读回原文。再用另一个账户确认自己的首页只列出自己的主题。</li></ol>
+  <details><summary>页面能打开，但重启后笔记消失，先查什么？</summary><p>核对服务进程实际使用的 DJANGO_DB_PATH 和磁盘挂载。迁移成功只能证明当前数据库有表。若打开的是另一份新库，也会显示空列表。先定位旧库并备份，再恢复正确的路径。</p></details>
+  <details><summary>样式仍然是旧版，怎样定位？</summary><p>先查看浏览器实际请求的 CSS 内容，再对照 staticfiles/notebook.css 与 static/notebook.css。收集目录里没有新规则时重新执行 collectstatic 并重启服务；响应中已有规则时检查浏览器缓存和选择器。</p></details>
+  <a href="#unit-web-users">回看第 19 章账户练习</a> · <a href="https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/">Django 部署清单</a></section>`;
 }

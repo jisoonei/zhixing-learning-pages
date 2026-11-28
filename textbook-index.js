@@ -96,7 +96,7 @@ const textbookIndex = [
     links: [{label: '表单、账户与所有权', href: '#unit-web-users'}]
   },
   {
-    label: '第 20 章', title: '设置应用程序的样式并部署', status: '部分主题',
+    label: '第 20 章', title: '设置应用程序的样式并部署', status: '已补部署上机课',
     summary: '学习静态样式怎样到达浏览器，以及服务上线时要准备哪些配置和检查。',
     links: [{label: '样式、部署与排障', href: '#unit-web-deploy'}]
   },

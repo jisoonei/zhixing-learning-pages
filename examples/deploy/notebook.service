@@ -1,0 +1,16 @@
+[Unit]
+Description=Django study notebook
+After=network.target
+
+[Service]
+User=notebook
+Group=notebook
+WorkingDirectory=/srv/notebook
+EnvironmentFile=/etc/notebook.env
+ExecStart=/srv/notebook/.venv/bin/waitress-serve --listen=127.0.0.1:8000 --url-scheme=https notebook.wsgi:application
+Restart=on-failure
+StateDirectory=notebook
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
