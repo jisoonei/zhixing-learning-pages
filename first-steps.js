@@ -57,6 +57,7 @@ function chapterTitle(i) {
 }
 function studyRouteTitle(route) {
   const id = canonicalLesson(route);
+  if (Object.hasOwn(appendixLessons, id)) return appendixLessons[id].label + ' · ' + appendixLessons[id].task;
   const section = rosterSection(id);
   if (section) return chapterTitle(section.chapter) + ' · ' + section.stage.title;
   if (/^chapter-(0|[1-9]\d*)$/.test(id)) return chapterTitle(Number(id.slice(8)));

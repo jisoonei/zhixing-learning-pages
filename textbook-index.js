@@ -100,29 +100,8 @@ const textbookIndex = [
     summary: '学习静态样式怎样到达浏览器，以及服务上线时要准备哪些配置和检查。',
     links: [{label: '样式、部署与排障', href: '#unit-web-deploy'}]
   },
-  {
-    label: '附录 A', title: '安装及故障排除', status: '部分主题',
-    summary: '按系统检查 Python 命令、实际运行版本和文件路径。',
-    links: [{label: '安装与检查解释器', href: '#unit-runtime'}]
-  },
-  {
-    label: '附录 B', title: '文本编辑器和 IDE', status: '部分主题',
-    summary: '已有 VS Code 选择解释器和运行脚本的步骤；其他编辑器的逐项操作待补。',
-    links: [{label: '用 VS Code 运行文件', href: '#unit-runtime'}]
-  },
-  {
-    label: '附录 C', title: '寻求帮助', status: '部分主题',
-    summary: '把启动命令、最小输入、预期结果和报错整理成别人能够复现的问题。',
-    links: [{label: '写一份可复现的求助说明', href: '#unit-git'}]
-  },
-  {
-    label: '附录 D', title: '使用 Git 进行版本控制', status: '部分主题',
-    summary: '观察文件从修改到提交的状态，查看历史和差异，理解怎样保留可恢复的版本。',
-    links: [{label: 'Git 提交与恢复', href: '#unit-git'}]
-  },
-  {
-    label: '附录 E', title: '部署故障排除', status: '部分主题',
-    summary: '已有 Web 服务的配置、静态资源和上线检查；各系统的排错步骤待补。',
-    links: [{label: '排查部署问题', href: '#unit-web-deploy'}]
-  }
+  ...Object.entries(appendixLessons).map(([id, lesson]) => ({
+    label: lesson.label, title: lesson.title, status: '配套练习', summary: lesson.summary,
+    links: [{label: lesson.task, href: '#' + id}]
+  }))
 ];
