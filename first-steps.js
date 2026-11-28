@@ -114,3 +114,45 @@ function bindStarter(id) {
     output.textContent = '已恢复原例，等待运行';
   };
 }
+
+const rosterExamples = {
+  order: 'shows = ["早间新闻", "晚间电台"]\nfor show in shows:\n    print(show)',
+  filter: 'shows = ["早间新闻", "午间音乐", "早间新闻"]\nfor show in shows:\n    if show == "早间新闻":\n        print(show)'
+};
+
+function rosterEditor(mode, label) {
+  const draft = readStudyValue('zx-draft-roster-' + mode) ?? rosterExamples[mode];
+  return `<div class="starter-editor" data-roster-editor="${mode}">
+    <label for="roster-code-${mode}">${label}</label>
+    <textarea id="roster-code-${mode}" rows="${mode === 'order' ? 4 : 5}" maxlength="6000" spellcheck="false" autocorrect="off" autocapitalize="off" aria-describedby="roster-scope">${esc(draft)}</textarea>
+    <div class="actions"><button type="button" class="primary" data-run>运行代码</button>
+    <button type="button" class="secondary" data-reset>恢复本题原例</button></div>
+    <pre data-output aria-label="程序输出" aria-live="polite">等待运行</pre>
+    <p class="muted" data-stats aria-live="polite"></p></div>`;
+}
+
+function bindRosterEditors() {
+  document.querySelectorAll('[data-roster-editor]').forEach(panel => {
+    const mode = panel.dataset.rosterEditor;
+    const editor = panel.querySelector('textarea');
+    const output = panel.querySelector('[data-output]');
+    const stats = panel.querySelector('[data-stats]');
+    editor.oninput = () => writeStudyValue('zx-draft-roster-' + mode, editor.value);
+    panel.querySelector('[data-run]').onclick = () => {
+      const result = ZhixingStarter.runRoster(editor.value);
+      if (!result.ok) {
+        output.textContent = `第 ${result.error.line} 行：${result.error.message}`;
+        stats.textContent = '';
+        return;
+      }
+      output.textContent = result.printed ? (result.output || '（空行）') : '（没有输出）';
+      stats.textContent = `循环 ${result.visited} 次，执行 print ${result.printed} 次。`;
+    };
+    panel.querySelector('[data-reset]').onclick = () => {
+      editor.value = rosterExamples[mode];
+      editor.oninput();
+      output.textContent = '已恢复原例，等待运行';
+      stats.textContent = '';
+    };
+  });
+}

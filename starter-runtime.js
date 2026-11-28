@@ -1,4 +1,4 @@
-// Small, offline interpreter for the two introductory lessons.
+// Small, offline interpreter for the introductory lessons.
 (() => {
   'use strict';
 
@@ -15,9 +15,9 @@
     }
   }
 
-  function tokenize(source, line) {
+  function tokenize(source, line, roster = false) {
     const tokens = [];
-    const pattern = /[ \t]+|#[^\n]*|[\p{XID_Start}_]\p{XID_Continue}*|[0-9]+|./gsuy;
+    const pattern = /[ \t]+|#[^\n]*|[\p{XID_Start}_]\p{XID_Continue}*|[0-9]+|==|./gsuy;
     let match;
     while ((match = pattern.exec(source)) !== null) {
       const part = match[0];
@@ -46,7 +46,7 @@
         tokens.push({kind: 'literal', value: BigInt(part)});
       } else if (/^[\p{XID_Start}_]/u.test(part)) {
         tokens.push({kind: 'name', value: part.normalize('NFKC')});
-      } else if ('=()+,-'.includes(part)) {
+      } else if ('=()+,-'.includes(part) || (roster && ['[', ']', ':', '=='].includes(part))) {
         tokens.push({kind: part});
       } else {
         const hint = /[“”‘’（），＝＋]/.test(part) ? '请把引号、括号和运算符切换到英文半角。' :
@@ -159,5 +159,72 @@
     }
   }
 
-  globalThis.ZhixingStarter = Object.freeze({run});
+  // This workshop models one list, one loop, and an optional equality test.
+  function runRoster(source) {
+    let visited = 0;
+    const output = [];
+    try {
+      if (source.length > 6000) throw new LessonError(1, '请将节目单程序缩短到 6000 个字符以内。');
+      const lines = [];
+      for (const [i, raw] of source.replace(/\r\n?/g, '\n').split('\n').entries()) {
+        const tokens = tokenize(raw, i + 1, true);
+        if (!tokens.length) continue;
+        if (/^ *\t/.test(raw)) throw new LessonError(i + 1, '请统一用空格缩进。');
+        lines.push({tokens, number: i + 1, indent: raw.match(/^ */)[0].length});
+      }
+      let index = 0;
+      function row(message) {
+        const line = lines[index++];
+        if (!line) throw new LessonError((lines.at(-1)?.number ?? 0) + 1, message);
+        return line;
+      }
+      function matches(tokens, shape) {
+        return tokens.length === shape.length && shape.every((part, i) => {
+          const t = tokens[i];
+          if (part === 'STRING') return t.kind === 'literal' && typeof t.value === 'string';
+          return t.kind === 'name' ? t.value === part : t.kind === part;
+        });
+      }
+      const listHint = '用 shows = ["节目名", "另一个节目"] 建立名单。空名单写作 []。';
+      const list = row(listHint);
+      const tokens = list.tokens;
+      if (list.indent || !matches(tokens.slice(0, 3), ['shows', '=', '[']) || tokens.at(-1).kind !== ']')
+        throw new LessonError(list.number, listHint);
+      const names = [];
+      for (let i = 3; i < tokens.length - 1; i++) {
+        if (!matches([tokens[i]], ['STRING'])) throw new LessonError(list.number, listHint);
+        names.push(tokens[i].value);
+        if (++i < tokens.length - 1 && tokens[i].kind !== ',')
+          throw new LessonError(list.number, '在相邻的两个节目名之间加英文逗号。');
+      }
+      const loopHint = '请从行首写 for show in shows:，最后加英文冒号。';
+      const loop = row(loopHint);
+      if (loop.indent || !matches(loop.tokens, ['for','show','in','shows',':']))
+        throw new LessonError(loop.number, loopHint);
+      const printHint = '在上一行的下面缩进，写 print(show) 显示本轮的节目。';
+      let body = row(printHint);
+      let target = null;
+      let parentIndent = 0;
+      if (body.tokens[0].value === 'if') {
+        if (!body.indent || !matches(body.tokens, ['if','show','==','STRING',':']))
+          throw new LessonError(body.number, '在 for 里面缩进写 if show == "节目名":，用两个相连的等号比较。');
+        target = body.tokens[3].value;
+        parentIndent = body.indent;
+        body = row(printHint);
+      }
+      if (body.indent <= parentIndent || !matches(body.tokens, ['print','(','show',')']))
+        throw new LessonError(body.number, printHint);
+      if (index < lines.length) throw new LessonError(lines[index].number, '本课每次运行一段节目单循环，请保留一个输出语句。');
+      for (const name of names) {
+        visited++;
+        if (target === null || name === target) output.push(name);
+      }
+      return {ok: true, output: output.join('\n'), visited, printed: output.length};
+    } catch (error) {
+      if (!(error instanceof LessonError)) throw error;
+      return {ok: false, error: {line: error.line, message: error.message}};
+    }
+  }
+
+  globalThis.ZhixingStarter = Object.freeze({run, runRoster});
 })();
